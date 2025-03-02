@@ -11,25 +11,41 @@ typedef struct SDL_Renderer SDL_Renderer;
 #define ASCII_TABLE_SIZE 128
 #define STRBUF_SIZE 2
 
-struct ascii_char {
-  unsigned int c;
-  char str[STRBUF_SIZE];
+typedef enum { DEF = 0, TITLE = 1 } Table_Selectors;
+
+struct Ascii_Char {
   SDL_Texture *t;
   int width, height;
 };
+typedef struct Ascii_Char Ascii_Char;
+
+struct Fonts {
+  TTF_Font *title;
+  TTF_Font *def;
+};
+typedef struct Fonts Fonts;
+
+struct Char_Tables {
+  unsigned int c;
+  char str[STRBUF_SIZE];
+  Ascii_Char title;
+  Ascii_Char def;
+};
+typedef struct Char_Tables Char_Tables;
 
 class Font {
 public:
   Font(void);
-  const void *open_font(const char *fn);
-  TTF_Font *get_font(void);
+  TTF_Font *open_font(const char *fn, const int size);
+  Fonts *get_font(void);
+  Char_Tables *get_tbls(void);
   int table_create_textures(SDL_Renderer *rend);
+  Char_Tables *char_lookup(unsigned char c, const int selector);
 
 private:
-  int size;
   void set_table(void);
-  TTF_Font *f;
-  ascii_char tbl[ASCII_TABLE_SIZE];
+  Fonts fonts;
+  Char_Tables chtbls[ASCII_TABLE_SIZE];
 };
 
 Font *get_font_inst(void);

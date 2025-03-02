@@ -1,6 +1,5 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
-
 #include "vecdef.hpp"
 
 struct SDL_Window;
@@ -12,6 +11,7 @@ public:
   ~Window(void);
   SDL_Window *get_window(void);
   const void *create_window(void);
+  Vec2i get_dimensions(void);
 
 private:
   SDL_Window *w;

@@ -7,6 +7,8 @@
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
 
+typedef enum { MENU = 0, EDITOR = 1 } STATES;
+
 int main(int argc, char *argv[]) {
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
     fprintf(stderr, "Failed to initialize SDL2! -> %s\n", SDL_GetError());
@@ -29,7 +31,15 @@ int main(int argc, char *argv[]) {
   }
 
   Font *font = get_font_inst();
-  if (!font->open_font("dogicapixel.ttf")) {
+  if (!(font->get_font()->def = font->open_font("dogicapixel.ttf", 8))) {
+    return 1;
+  }
+
+  if (!(font->get_font()->title = font->open_font("dogicapixel.ttf", 48))) {
+    return 1;
+  }
+
+  if (!font->table_create_textures(rend->get_renderer())) {
     return 1;
   }
 
@@ -38,10 +48,13 @@ int main(int argc, char *argv[]) {
   }
 
   SDL_ShowWindow(win->get_window());
+  SDL_StopTextInput();
 
   const int tpf = (1000.0 / 30);
   uint64_t frame_start;
   int frame_time;
+
+  const int MODE = MENU;
 
   int quit = 0;
   while (!quit) {
@@ -54,17 +67,26 @@ int main(int argc, char *argv[]) {
       switch (e.type) {
       default:
         break;
-
+      case SDL_TEXTINPUT: {
+      } break;
       case SDL_KEYDOWN: {
       } break;
-
       case SDL_KEYUP: {
       } break;
-
       case SDL_QUIT: {
         quit = 1;
       } break;
       }
+    }
+
+    switch (MODE) {
+    default:
+      break;
+    case MENU: {
+      rend->render_logo("SVTE", 4);
+    } break;
+    case EDITOR: {
+    } break;
     }
 
     frame_time = SDL_GetTicks64() - frame_start;
@@ -77,7 +99,8 @@ int main(int argc, char *argv[]) {
 
   SDL_DestroyRenderer(rend->get_renderer());
   SDL_DestroyWindow(win->get_window());
-  TTF_CloseFont(font->get_font());
+  TTF_CloseFont(font->get_font()->title);
+  TTF_CloseFont(font->get_font()->def);
   TTF_Quit();
   SDL_Quit();
 

@@ -25,4 +25,6 @@ const void *Window::create_window(void) {
   return w;
 }
 
+Vec2i Window::get_dimensions(void) { return dimensions; }
+
 Window *get_window_inst(void) { return &window_instance; }

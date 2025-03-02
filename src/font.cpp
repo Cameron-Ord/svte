@@ -1,6 +1,9 @@
 #include "../inc/font.hpp"
+
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
+#include <cassert>
+#include <cstring>
 
 Font font_instance;
 Font *get_font_inst(void) { return &font_instance; }
@@ -13,15 +16,12 @@ static SDL_Texture *font_texture(SDL_Renderer *rend, SDL_Surface *s) {
   return SDL_CreateTextureFromSurface(rend, s);
 }
 
-Font::Font(void) {
-  size = 16;
-  set_table();
-}
+Font::Font(void) { set_table(); }
 
-TTF_Font *Font::get_font(void) { return f; }
+Fonts *Font::get_font(void) { return &fonts; }
 
-const void *Font::open_font(const char *fn) {
-  f = TTF_OpenFont(fn, size);
+TTF_Font *Font::open_font(const char *fn, const int size) {
+  TTF_Font *f = TTF_OpenFont(fn, size);
   if (!f) {
     fprintf(stderr, "Failed to open font! -> %s\n", TTF_GetError());
   }
@@ -30,19 +30,17 @@ const void *Font::open_font(const char *fn) {
 
 int Font::table_create_textures(SDL_Renderer *rend) {
   SDL_Color col = {255, 255, 255, 255};
+  TTF_Font *fnts[] = {fonts.def, fonts.title};
   for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
-    SDL_Surface *s = font_surface(f, tbl[i].str, col);
-    SDL_Texture *t = font_texture(rend, s);
-    tbl[i].width = s->w, tbl[i].height = s->h, tbl[i].t = t;
-    SDL_FreeSurface(s);
+    Char_Tables *ct = &chtbls[i];
+    Ascii_Char *ascii_buf[] = {&ct->def, &ct->title};
+
+    for (int i = 0; i < 2; i++) {
+      SDL_Surface *s = font_surface(fnts[i], ct->str, col);
+      ascii_buf[i]->t = font_texture(rend, s);
+      ascii_buf[i]->width = s->w, ascii_buf[i]->height = s->h;
+      SDL_FreeSurface(s);
+    }
   }
   return 1;
-}
-
-void Font::set_table(void) {
-  for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
-    tbl[i].c = i;
-    const char str[] = {(char)i, '\0'};
-    memcpy(tbl[i].str, str, 2);
-  }
 }
