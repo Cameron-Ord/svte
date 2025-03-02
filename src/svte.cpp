@@ -33,6 +33,10 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  if (!font->table_create_textures(rend->get_renderer())) {
+    return 1;
+  }
+
   SDL_ShowWindow(win->get_window());
 
   const int tpf = (1000.0 / 30);
