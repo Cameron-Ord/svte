@@ -11,13 +11,12 @@ public:
   ~Window(void);
   SDL_Window *get_window(void);
   const void *create_window(void);
-  Vec2i get_dimensions(void);
+  Vec2i *get_dimensions(void);
+  void win_update_dimensions(void);
 
 private:
   SDL_Window *w;
   Vec2i dimensions;
 };
-
-Window *get_window_inst(void);
 
 #endif
