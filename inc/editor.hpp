@@ -8,6 +8,7 @@
 #include <string>
 
 struct Buf {
+  std::string fn;
   char *buf;
   size_t size;
 };
@@ -15,30 +16,39 @@ typedef struct Buf Buf;
 
 class Buffers {
 public:
-  Buffers(void);
-  FILE *read_file(void);
-  int write_file(void);
+  Buffers(std::string wpath, std::string str_arg);
+
+  int buf_alloc(std::string file_name);
+  void delete_buffer(std::string file_name);
+  void append_buffer(std::string file_name);
+  int match_buffer(std::string key);
+  int write_buffer(std::string file_name);
+
+  std::string current_file(const size_t idx) { return buffers[idx].fn; }
+  void set_buf_index(const size_t i) { buf_index = i; }
+  int get_buf_index(void) { return buf_index; }
+
+  void update_working_path(std::string overwrite) { working_path = overwrite; }
+  std::string get_working_path(void) { return working_path; }
+  std::string strjoin(std::string base, std::string append) {
+    return base + "/" + append;
+  }
 
 private:
-  FILE *f;
+  std::string working_path;
+  size_t buf_index;
   std::vector<Buf> buffers;
-  size_t buffer_count;
 };
 
 class Editor {
 public:
-  Editor(void);
-
-  std::vector<std::string> get_base_paths(void) { return paths; }
-  std::vector<std::string> get_file_names(void) { return file_names; }
-  std::vector<std::string> get_abs_paths(void) { return abs_paths; }
+  Editor(std::string path, std::string str_arg);
+  Buffers *_bufs(void) { return &bufs; }
 
 private:
   Buffers bufs;
-  std::vector<std::string> paths;
-  std::vector<std::string> file_names;
-  std::vector<std::string> abs_paths;
   Grid grid;
   Vec2i pos;
 };
+
 #endif
