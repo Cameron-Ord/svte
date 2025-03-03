@@ -1,18 +1,15 @@
+#include "../inc/editor.hpp"
+#include "../inc/font.hpp"
+#include "../inc/renderer.hpp"
+#include "../inc/window.hpp"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
-#include <iostream>
-
-#include "../inc/font.hpp"
-#include "../inc/renderer.hpp"
-#include "../inc/window.hpp"
 
 int main(int argc, char *argv[]) {
-  std::cout << "Current working dir: " << std::filesystem::current_path()
-            << std::endl;
-
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
     fprintf(stderr, "Failed to initialize SDL2! -> %s\n", SDL_GetError());
     return 1;
@@ -22,6 +19,18 @@ int main(int argc, char *argv[]) {
     fprintf(stderr, "Failed to initialize SDL2_ttf! -> %s\n", TTF_GetError());
     return 1;
   }
+
+  std::string fn = "";
+  if (argc > 1 && argc < 3) {
+    int i = 0;
+    const char *farg = argv[1];
+    while (farg[i] != '\0') {
+      fn += farg[i];
+      i++;
+    }
+  }
+
+  Editor editor(std::filesystem::current_path().string(), fn);
 
   Window window;
   if (!window.create_window()) {
