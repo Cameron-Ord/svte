@@ -14,11 +14,17 @@ struct Buf {
 };
 typedef struct Buf Buf;
 
+struct File_Info {
+  long fs;
+  FILE *f;
+};
+typedef struct File_Info File_Info;
+
 class Buffers {
 public:
   Buffers(std::string wpath, std::string str_arg);
 
-  int buf_alloc(std::string file_name);
+  size_t buf_realloc(const size_t i, File_Info fs);
   void delete_buffer(std::string file_name);
   void append_buffer(std::string file_name);
   int match_buffer(std::string key);

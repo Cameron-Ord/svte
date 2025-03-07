@@ -3,6 +3,7 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
 #include <cstring>
+#include <iostream>
 
 Chars::Chars(void) { set_table(); }
 
@@ -23,7 +24,16 @@ int Chars::table_create_textures(SDL_Renderer *rend, const Fonts *f) {
 
     for (int i = 0; i < 2; i++) {
       SDL_Surface *s = font_surface(fnts[i], ct->str, col);
-      ascii_buf[i]->t = font_texture(rend, s);
+      if (!s) {
+        std::cerr << "Failed to create surface!" << " " << SDL_GetError()
+                  << std::endl;
+        return -1;
+      }
+      if (!(ascii_buf[i]->t = font_texture(rend, s))) {
+        std::cerr << "Failed to create texture!" << " " << SDL_GetError()
+                  << std::endl;
+        return -1;
+      }
       ascii_buf[i]->width = s->w, ascii_buf[i]->height = s->h;
       SDL_FreeSurface(s);
     }

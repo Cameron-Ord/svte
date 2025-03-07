@@ -6,9 +6,8 @@
 #include <cstring>
 
 Chars *Font::_chars(void) { return &chars; }
-Chars Font::create_char_inst(void) { return Chars(); }
 
-Font::Font(void) : chars(create_char_inst()) {
+Font::Font(void) : chars(Chars()) {
   fprintf(stdout, "Font instance created\n");
 }
 
