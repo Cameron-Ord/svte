@@ -1,6 +1,8 @@
 #ifndef FONT_HPP
 #define FONT_HPP
 
+#include "vecdef.hpp"
+
 struct _TTF_Font;
 typedef struct _TTF_Font TTF_Font;
 struct SDL_Texture;
@@ -39,6 +41,7 @@ public:
   int table_create_textures(SDL_Renderer *rend, const Fonts *f);
 
 private:
+  Vec2i max_char_dim;
   void set_table(void);
   Char_Tables chtbls[ASCII_TABLE_SIZE];
 };

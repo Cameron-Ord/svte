@@ -83,6 +83,9 @@ int main(int argc, char *argv[]) {
       }
     }
 
+    renderer._frender()->frender_set_buf(
+        editor._bufs()->cur_buffer(editor.get_cur_buf()), font._chars());
+
     frame_time = SDL_GetTicks64() - frame_start;
     if (tpf > frame_time) {
       SDL_Delay(tpf - frame_time);

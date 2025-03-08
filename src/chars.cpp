@@ -17,26 +17,31 @@ static SDL_Texture *font_texture(SDL_Renderer *rend, SDL_Surface *s) {
 
 int Chars::table_create_textures(SDL_Renderer *rend, const Fonts *f) {
   SDL_Color col = {255, 255, 255, 255};
-  TTF_Font *fnts[] = {f->def, f->title};
   for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
     Char_Tables *ct = &chtbls[i];
-    Ascii_Char *ascii_buf[] = {&ct->def, &ct->title};
 
-    for (int i = 0; i < 2; i++) {
-      SDL_Surface *s = font_surface(fnts[i], ct->str, col);
-      if (!s) {
-        std::cerr << "Failed to create surface!" << " " << SDL_GetError()
-                  << std::endl;
-        return -1;
-      }
-      if (!(ascii_buf[i]->t = font_texture(rend, s))) {
-        std::cerr << "Failed to create texture!" << " " << SDL_GetError()
-                  << std::endl;
-        return -1;
-      }
-      ascii_buf[i]->width = s->w, ascii_buf[i]->height = s->h;
-      SDL_FreeSurface(s);
+    SDL_Surface *s = font_surface(f->def, ct->str, col);
+    if (!s) {
+      std::cerr << "Failed to create surface!" << " " << SDL_GetError()
+                << std::endl;
+      return -1;
     }
+    if (!(ct->def.t = font_texture(rend, s))) {
+      std::cerr << "Failed to create texture!" << " " << SDL_GetError()
+                << std::endl;
+      return -1;
+    }
+
+    if (s->w > max_char_dim.x) {
+      max_char_dim.x = s->w;
+    }
+
+    if (s->h > max_char_dim.y) {
+      max_char_dim.y = s->h;
+    }
+
+    ct->def.width = s->w, ct->def.height = s->h;
+    SDL_FreeSurface(s);
   }
   return 1;
 }

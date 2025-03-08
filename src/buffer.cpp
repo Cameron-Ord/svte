@@ -1,10 +1,20 @@
 #include "../inc/editor.hpp"
 #include <cassert>
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <string>
 #include <vector>
 
 #define DEFAULT_SIZE 2
+
+void Buffers::print_file(const int i) {
+  if (!buffers[i].buf) {
+    return;
+  }
+
+  printf("%s\n", buffers[i].buf);
+}
 
 static File_Info fsize(FILE *fd) {
   if (!fd) {
@@ -20,45 +30,82 @@ static FILE *file_open(std::string path) { return fopen(path.c_str(), "rb"); }
 // the file names vector will be empty, so this will need to be handled later if
 // no initial file name was provided
 Buffers::Buffers(std::string wpath, std::string str_arg) : working_path(wpath) {
-  if (str_arg.size() <= 0) {
-    str_arg = "new_file";
+  const int gate = (str_arg.empty()) ? 1 : 0;
+
+  switch (gate) {
+  case 1: {
+    str_arg = random_fn();
+    append_buffer(str_arg, 1);
+    buf_malloc(match_buffer(str_arg), DEFAULT_SIZE);
+  } break;
+
+  case 0: {
+    append_buffer(str_arg, 0);
+    read_file(str_arg);
+    print_file(match_buffer(str_arg));
+  } break;
   }
-  append_buffer(str_arg);
-  const int i = match_buffer(str_arg);
-  assert(i >= 0);
-  buffers[i].buf = (char *)malloc(DEFAULT_SIZE);
-  if (!buffers[i].buf) {
-    std::cerr << "Failed to allocate buffer!" << std::endl;
-  }
-  buffers[i].buf[DEFAULT_SIZE - 1] = '\0';
-  buf_realloc(i, fsize(file_open(strjoin(working_path, str_arg))));
 }
 
-size_t Buffers::buf_realloc(const size_t i, File_Info fi) {
+std::string Buffers::random_fn(void) {
+  srand(time(NULL));
+
+  const size_t str_length = 24;
+  const size_t ASCII_RAND_MAX = 128 - 32;
+
+  std::string str = "";
+  for (size_t i = 0; i < str_length; i++) {
+    const unsigned char r = rand() % ASCII_RAND_MAX;
+    str += (r + 32);
+  }
+  return str;
+}
+
+size_t Buffers::read_file(std::string fn) {
+  const std::string file_path = strjoin(working_path, fn);
+  File_Info fi = fsize(file_open(file_path));
   size_t read = 0;
+
   if (fi.f && fi.fs > 0) {
+    const int i = match_buffer(fn);
+
     rewind(fi.f);
+    const size_t size = (size_t)fi.fs;
 
-    buffers[i].buf = (char *)realloc(buffers[i].buf, fi.fs + 1);
-    if (!buffers[i].buf) {
-      std::cerr << "Failed to allocate buffer!" << std::endl;
-      fclose(fi.f);
-      return 0;
+    if (buf_malloc(i, size + 1)) {
+      read = fread(buffers[i].buf, 1, size, fi.f);
     }
-
-    read = fread(buffers[i].buf, 1, fi.fs, fi.f);
-    if (read != fi.fs) {
-      std::cerr << "Reading from file failed!" << std::endl;
-      fclose(fi.f);
-      return 0;
-    }
-    buffers[i].buf[read] = '\0';
-
-    std::cout << "Read: " << read << " bytes" << std::endl;
-    fclose(fi.f);
   }
 
   return read;
+}
+
+size_t Buffers::buf_malloc(const size_t i, const size_t size) {
+  assert(i >= 0 && size >= DEFAULT_SIZE);
+  buffers[i].buf = (char *)malloc(size);
+  if (!buffers[i].buf) {
+    std::cerr << "Failed to allocate buffer!" << std::endl;
+    return 0;
+  }
+  buffers[i].buf[size - 1] = '\0';
+  buffers[i].size = size;
+  return size;
+}
+
+size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
+  assert(i >= 0);
+
+  char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
+  if (!tmp) {
+    std::cerr << "Failed to reallocate buffer!" << std::endl;
+    return 0;
+  }
+
+  buffers[i].buf = tmp;
+  buffers[i].buf[new_size] = '\0';
+  buffers[i].size = new_size;
+
+  return new_size;
 }
 
 void Buffers::delete_buffer(std::string file_name) {
@@ -70,8 +117,8 @@ void Buffers::delete_buffer(std::string file_name) {
   buffers.erase(buffers.begin() + i);
 }
 
-void Buffers::append_buffer(std::string file_name) {
-  Buf b = {file_name, NULL, 0};
+void Buffers::append_buffer(std::string file_name, const int fn_needs_change) {
+  Buf b = {file_name, fn_needs_change, NULL, 0};
   buffers.push_back(b);
 }
 

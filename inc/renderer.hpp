@@ -17,6 +17,9 @@ typedef struct Vec2i Vec2i;
 struct SDL_Window;
 typedef struct SDL_Window SDL_Window;
 
+struct Buf;
+typedef struct Buf Buf;
+
 class Chars;
 
 struct Render_Rect {
@@ -29,6 +32,7 @@ public:
   FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
+  void frender_set_buf(const Buf *b, Chars *c);
 
 private:
   SDL_Renderer *rend;
