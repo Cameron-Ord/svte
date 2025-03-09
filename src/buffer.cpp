@@ -8,6 +8,15 @@
 
 #define DEFAULT_SIZE 2
 
+// Get buffer by idx
+const Buf *Buffers::get_buf(const size_t i) {
+  if (i >= buffers.size()) {
+    return NULL;
+  }
+
+  return &buffers[i];
+}
+
 void Buffers::print_file(const int i) {
   if (!buffers[i].buf) {
     return;
@@ -18,10 +27,12 @@ void Buffers::print_file(const int i) {
 
 static File_Info fsize(FILE *fd) {
   if (!fd) {
-    return (File_Info){0, NULL};
+    File_Info f = {0, NULL};
+    return f;
   }
   fseek(fd, 0, SEEK_END);
-  return (File_Info){ftell(fd), fd};
+  File_Info f = {ftell(fd), fd};
+  return f;
 }
 
 static FILE *file_open(std::string path) { return fopen(path.c_str(), "rb"); }
@@ -93,8 +104,7 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
-  assert(i >= 0);
-
+  assert(i >= 0 && new_size >= DEFAULT_SIZE);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;

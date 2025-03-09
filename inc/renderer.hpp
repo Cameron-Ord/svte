@@ -1,10 +1,9 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 #include "grid.hpp"
-#include "strbuffer.hpp"
-
 #include <SDL2/SDL_render.h>
-#include <cstdint>
+#include <string>
+#include <vector>
 
 class Window;
 
@@ -32,12 +31,13 @@ public:
   FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
-  void frender_set_buf(const Buf *b, Chars *c);
+  std::vector<std::string> split_by_nl(const Buf *buf);
+  void render_buffer(std::vector<std::string> strbuf, Chars *c,
+                     const Vec2i *chardims);
 
 private:
   SDL_Renderer *rend;
   const Vec2i *dim;
-  Grid editor_grid;
 };
 
 class Renderer {

@@ -1,5 +1,6 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
+#include <vector>
 
 #include "grid.hpp"
 #include "vecdef.hpp"
@@ -34,7 +35,8 @@ public:
   int match_buffer(std::string key);
   int write_buffer(std::string fn);
   size_t read_file(std::string fn);
-  const Buf *cur_buffer(const size_t i) { return &buffers[i]; }
+  size_t buffer_count(void) { return buffers.size(); }
+  const Buf *get_buf(const size_t i);
   void update_working_path(std::string overwrite) { working_path = overwrite; }
   std::string get_working_path(void) { return working_path; }
   std::string strjoin(std::string base, std::string append) {
@@ -50,20 +52,12 @@ class Editor {
 public:
   Editor(std::string path, std::string str_arg);
   Buffers *_bufs(void) { return &bufs; }
-  size_t get_cur_buf(void) { return curr_buffer_i; }
-
-  void grid_inc_rows(void);
-  void grid_decrm_rows(void);
-
-  void grid_inc_cols(void);
-  void grid_decrm_cols(void);
-
-  void zero_grid(Vec2i grid_vector);
+  size_t _buf_i(void) { return curr_buffer_i; }
 
 private:
   size_t curr_buffer_i;
   Buffers bufs;
-  Grid grid;
+  std::vector<Grid> grids;
   Vec2i pos;
 };
 

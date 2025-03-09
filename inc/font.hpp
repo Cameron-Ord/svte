@@ -39,6 +39,7 @@ public:
   Char_Tables *get_tbls(void);
   Char_Tables *char_lookup(unsigned char c);
   int table_create_textures(SDL_Renderer *rend, const Fonts *f);
+  const Vec2i *get_char_dims(void) { return &max_char_dim; }
 
 private:
   Vec2i max_char_dim;

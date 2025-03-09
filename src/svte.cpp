@@ -20,17 +20,17 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::string fn = "";
+  std::string str_arg = "";
   if (argc > 1 && argc < 3) {
     int i = 0;
     const char *farg = argv[1];
     while (farg[i] != '\0') {
-      fn += farg[i];
+      str_arg += farg[i];
       i++;
     }
   }
 
-  Editor editor(std::filesystem::current_path().string(), fn);
+  Editor editor(std::filesystem::current_path().string(), str_arg);
 
   Window window;
   if (!window.create_window()) {
@@ -44,10 +44,14 @@ int main(int argc, char *argv[]) {
   renderer._frender()->frender_set_renderer(renderer.get_renderer());
 
   Font font;
-  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 16))) {
+  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 8))) {
     return 1;
   }
 
+  // This creates the font Textures, and fits some other parameters. Since the
+  // way i'm rendering text is in a grid. We will zero the grid with the set max
+  // dimensions of the text characters (IE the row and col heights are set to be
+  // the largest character)
   if (!font._chars()->table_create_textures(renderer.get_renderer(),
                                             font.get_font())) {
     return 1;
@@ -83,8 +87,10 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    renderer._frender()->frender_set_buf(
-        editor._bufs()->cur_buffer(editor.get_cur_buf()), font._chars());
+    std::vector<std::string> linebuf =
+        renderer._frender()->split_by_nl(editor._bufs()->get_buf(0));
+    renderer._frender()->render_buffer(linebuf, font._chars(),
+                                       font._chars()->get_char_dims());
 
     frame_time = SDL_GetTicks64() - frame_start;
     if (tpf > frame_time) {
