@@ -44,14 +44,10 @@ int main(int argc, char *argv[]) {
   renderer._frender()->frender_set_renderer(renderer.get_renderer());
 
   Font font;
-  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 8))) {
+  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 12))) {
     return 1;
   }
 
-  // This creates the font Textures, and fits some other parameters. Since the
-  // way i'm rendering text is in a grid. We will zero the grid with the set max
-  // dimensions of the text characters (IE the row and col heights are set to be
-  // the largest character)
   if (!font._chars()->table_create_textures(renderer.get_renderer(),
                                             font.get_font())) {
     return 1;
@@ -87,10 +83,9 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    std::vector<std::string> linebuf =
-        renderer._frender()->split_by_nl(editor._bufs()->get_buf(0));
-    renderer._frender()->render_buffer(linebuf, font._chars(),
-                                       font._chars()->get_char_dims());
+    renderer.render_cursor(editor._cursor(), font._chars());
+    renderer._frender()->render_buffer(editor._bufs()->get_buf(0),
+                                       font._chars());
 
     frame_time = SDL_GetTicks64() - frame_start;
     if (tpf > frame_time) {

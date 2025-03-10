@@ -8,6 +8,17 @@
 
 #define DEFAULT_SIZE 2
 
+int Buffers::buf_split_by_nl(const size_t i) {
+  if (i >= buffers.size()) {
+    return 0;
+  }
+
+  buffers[i].split = (char **)malloc(1);
+  buffers[i].split[0] = (char *)malloc(1);
+  for (size_t s = 0; s < buffers[i].size; s++) {
+  }
+}
+
 // Get buffer by idx
 const Buf *Buffers::get_buf(const size_t i) {
   if (i >= buffers.size()) {

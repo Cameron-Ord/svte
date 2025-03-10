@@ -35,5 +35,14 @@ const void *Renderer::create_renderer(SDL_Window *w) {
     fprintf(stderr, "Failed to create renderer! -> %s\n", SDL_GetError());
     return NULL;
   }
+
+  SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
   return rend;
+}
+
+void Renderer::render_cursor(const Vec2i *curs, Chars *ch) {
+  const Vec2i *d = ch->get_char_dims();
+  SDL_Rect curs_rect = {curs->x * d->x, curs->y * d->y, d->x, d->y};
+  SDL_SetRenderDrawColor(rend, 255, 255, 255, 255 / 2);
+  SDL_RenderFillRect(rend, &curs_rect);
 }

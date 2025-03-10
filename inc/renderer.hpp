@@ -31,9 +31,7 @@ public:
   FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
-  std::vector<std::string> split_by_nl(const Buf *buf);
-  void render_buffer(std::vector<std::string> strbuf, Chars *c,
-                     const Vec2i *chardims);
+  void render_buffer(const Buf *buf, Chars *ch);
 
 private:
   SDL_Renderer *rend;
@@ -51,6 +49,7 @@ public:
   void render_present(void);
   FontRenderer create_font_renderer(void);
   FontRenderer *_frender(void);
+  void render_cursor(const Vec2i *curs, Chars *ch);
 
 private:
   SDL_Renderer *rend;

@@ -13,9 +13,9 @@ Window::~Window(void) {}
 SDL_Window *Window::get_window(void) { return w; }
 
 const void *Window::create_window(void) {
+  const int flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
   int x = SDL_WINDOWPOS_CENTERED, y = SDL_WINDOWPOS_CENTERED;
-  w = SDL_CreateWindow("SVTE", x, y, dimensions.x, dimensions.y,
-                       SDL_WINDOW_HIDDEN);
+  w = SDL_CreateWindow("SVTE", x, y, dimensions.x, dimensions.y, flags);
   if (!w) {
     fprintf(stderr, "Failed to create window! -> %s\n", SDL_GetError());
     return NULL;

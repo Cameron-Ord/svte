@@ -2,7 +2,6 @@
 #define EDITOR_HPP
 #include <vector>
 
-#include "grid.hpp"
 #include "vecdef.hpp"
 
 #include <cstdio>
@@ -12,6 +11,7 @@ struct Buf {
   std::string fn;
   int fn_needs_change;
   char *buf;
+  char **split;
   size_t size;
 };
 typedef struct Buf Buf;
@@ -28,6 +28,7 @@ public:
 
   void print_file(const int i);
   std::string random_fn(void);
+  int buf_split_by_nl(const size_t i);
   size_t buf_malloc(const size_t i, const size_t size);
   size_t buf_realloc(const size_t i, const size_t new_size);
   void delete_buffer(std::string fn);
@@ -53,12 +54,12 @@ public:
   Editor(std::string path, std::string str_arg);
   Buffers *_bufs(void) { return &bufs; }
   size_t _buf_i(void) { return curr_buffer_i; }
+  Vec2i *_cursor(void) { return &cursor; }
 
 private:
   size_t curr_buffer_i;
   Buffers bufs;
-  std::vector<Grid> grids;
-  Vec2i pos;
+  Vec2i cursor;
 };
 
 #endif
