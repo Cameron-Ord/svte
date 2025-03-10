@@ -63,6 +63,15 @@ int main(int argc, char *argv[]) {
   uint64_t frame_start;
   int frame_time;
 
+  editor.buffer_insert_char('i');
+  editor.buffer_insert_char('l');
+  editor.buffer_insert_char('i');
+  editor.buffer_insert_char('k');
+  editor.buffer_insert_char('e');
+  editor.buffer_insert_char('m');
+  editor.buffer_insert_char('e');
+  editor.buffer_insert_char('n');
+
   int quit = 0;
   while (!quit) {
     frame_start = SDL_GetTicks64();
@@ -86,7 +95,6 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    renderer.render_cursor(editor._cursor(), font._chars());
     renderer._frender()->render_buffer(editor._bufs()->get_buf(0),
                                        font._chars());
 

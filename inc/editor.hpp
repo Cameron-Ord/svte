@@ -31,6 +31,8 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  void buf_insert(const size_t i, unsigned char c);
+  void shift_buffer(const int direction, const size_t pos);
   void print_file(const int i);
   char *random_fn(void);
   size_t buf_malloc(const size_t i, const size_t size);
@@ -42,7 +44,6 @@ public:
   size_t read_file(const char *fn);
   size_t buffer_count(void) { return buffers.size(); }
   const Buf *get_buf(const size_t i);
-  const size_t get_buf_pos(const size_t i) { return buffers[i].pos; }
   void set_buf_pos(const size_t i, const size_t pos) { buffers[i].pos = pos; }
   void update_working_path(char *str) { working_path = str; }
   const char *get_working_path(void) { return working_path; }

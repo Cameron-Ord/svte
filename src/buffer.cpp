@@ -8,6 +8,25 @@
 
 #define DEFAULT_SIZE 1
 
+void Buffers::buf_insert(const size_t i, unsigned char c) {
+  buffers[i].buf[buffers[i].pos] = c;
+  buffers[i].pos++;
+}
+
+void Buffers::shift_buffer(const int direction, const size_t i) {
+  Buf buf = buffers[i];
+
+  switch (direction) {
+  case 1: {
+    memmove(&buf.buf[buf.pos + 1], &buf.buf[buf.pos], buf.size - buf.pos);
+  } break;
+
+  case -1: {
+    memmove(&buf.buf[buf.pos], &buf.buf[buf.pos + 1], buf.size - buf.pos - 1);
+  } break;
+  }
+}
+
 static size_t len_add(const size_t *lengths, const size_t size) {
   size_t accumulator = 0;
   for (size_t i = 0; i < size; i++) {
@@ -107,7 +126,7 @@ size_t Buffers::read_file(const char *fn) {
     rewind(fi.f);
     const size_t size = (size_t)fi.fs;
 
-    if (buf_malloc(i, size + 1)) {
+    if (buf_malloc(i, size)) {
       read = fread(buffers[i].buf, 1, size, fi.f);
     }
   }
