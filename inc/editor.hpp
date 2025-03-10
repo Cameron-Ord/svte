@@ -8,7 +8,9 @@ struct Buf {
   char *fn;
   int fn_needs_change;
   char *buf;
-  char **split;
+  // lines[rows][cols]
+  char **lines;
+  size_t lcount;
   size_t size;
 };
 typedef struct Buf Buf;
@@ -23,6 +25,8 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  int line_realloc(const size_t i, const size_t ns);
+  int line_alloc(const size_t i);
   void print_file(const int i);
   char *random_fn(void);
   int buf_split_by_nl(const size_t i);

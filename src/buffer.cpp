@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 
-#define DEFAULT_SIZE 2
+#define DEFAULT_SIZE 1
 
 static size_t len_add(const size_t *lengths, const size_t size) {
   size_t accumulator = 0;
@@ -20,6 +20,39 @@ int Buffers::buf_split_by_nl(const size_t i) {
   if (i >= buffers.size()) {
     return 0;
   }
+
+  const unsigned char nl = '\n';
+  size_t last_j = 0;
+  // lcount initializes as one as the initial row is always allocated.
+  size_t lcount = 1, l_idx = 0;
+
+  for (size_t j = 0; j < buffers[i].size; j++) {
+    if (buffers[i].buf[j] == nl) {
+      const size_t size = j - last_j;
+
+      char *line = (char *)malloc((size + 1) * sizeof(char));
+      char *pos = &buffers[i].buf[last_j];
+
+      for (size_t l = 0; l < size; l++) {
+        line[l] = pos[l];
+      }
+      line[size] = '\0';
+
+      if (lcount > buffers[i].lcount) {
+        line_realloc(i, lcount);
+      }
+      buffers[i].lines[l_idx] = line;
+
+      last_j = j + 1;
+      lcount++;
+      l_idx++;
+    }
+  }
+
+  for (size_t k = 0; k < l_idx; k++) {
+    std::cout << buffers[i].lines[k] << std::endl;
+  }
+
   return 1;
 }
 
@@ -67,16 +100,16 @@ Buffers::Buffers(char *pathstr, char *str_arg) : working_path(pathstr) {
 
   switch (gate) {
   case 0: {
-    std::cout << "New file" << std::endl;
     append_buffer(random_fn(), 1);
     buf_malloc(0, DEFAULT_SIZE);
+    line_alloc(0);
   } break;
 
   case 1: {
-    std::cout << "Read file" << std::endl;
     append_buffer(str_arg, 0);
     read_file(str_arg);
-    print_file(match_buffer(str_arg));
+    line_alloc(0);
+    buf_split_by_nl(0);
   } break;
   }
 }
@@ -128,14 +161,36 @@ size_t Buffers::read_file(const char *fn) {
 
 size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   assert(i >= 0 && size >= DEFAULT_SIZE);
-  buffers[i].buf = (char *)malloc(size);
+  buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
     return 0;
   }
-  buffers[i].buf[size - 1] = '\0';
+  buffers[i].buf[size] = '\0';
   buffers[i].size = size;
   return size;
+}
+
+int Buffers::line_realloc(const size_t i, const size_t ns) {
+  char **tmp = (char **)realloc(buffers[i].lines, ns * sizeof(char *));
+  if (!tmp) {
+    std::cerr << "Failed to reallocate line buffer with size: " << ns
+              << std::endl;
+    return 0;
+  }
+  buffers[i].lines = tmp;
+  buffers[i].lcount = ns;
+  return 1;
+}
+
+int Buffers::line_alloc(const size_t i) {
+  buffers[i].lines = (char **)malloc(1 * sizeof(char *));
+  if (!buffers[i].lines) {
+    std::cerr << "Failed to allocate line buffer with 1 row!" << std::endl;
+    return 0;
+  }
+  buffers[i].lcount = 1;
+  return 1;
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
@@ -163,7 +218,7 @@ void Buffers::delete_buffer(const char *file_name) {
 }
 
 void Buffers::append_buffer(char *file_name, const int fn_needs_change) {
-  Buf b = {file_name, fn_needs_change, NULL, NULL, 0};
+  Buf b = {file_name, fn_needs_change, NULL, NULL, 0, 0};
   buffers.push_back(b);
 }
 
