@@ -7,7 +7,10 @@
 #include <SDL2/SDL_ttf.h>
 #include <cstdio>
 #include <cstdlib>
-#include <filesystem>
+#include <cstring>
+#include <iostream>
+#include <linux/limits.h>
+#include <unistd.h>
 
 int main(int argc, char *argv[]) {
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
@@ -20,17 +23,17 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  std::string str_arg = "";
+  char *arg_str = NULL;
   if (argc > 1 && argc < 3) {
-    int i = 0;
-    const char *farg = argv[1];
-    while (farg[i] != '\0') {
-      str_arg += farg[i];
-      i++;
-    }
+    arg_str = strdup(argv[1]);
   }
 
-  Editor editor(std::filesystem::current_path().string(), str_arg);
+  char cwd[PATH_MAX];
+  if (!getcwd(cwd, PATH_MAX)) {
+    return 1;
+  }
+
+  Editor editor(cwd, arg_str);
 
   Window window;
   if (!window.create_window()) {

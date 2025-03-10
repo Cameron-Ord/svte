@@ -2,8 +2,7 @@
 #include <cassert>
 #include <cstdlib>
 
-Editor::Editor(std::string wpath, std::string str_arg)
-    : bufs(Buffers(wpath, str_arg)) {
+Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
   cursor.x = 0, cursor.y = 0;
   curr_buffer_i = 0;
 }
