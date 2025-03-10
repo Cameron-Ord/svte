@@ -4,12 +4,19 @@
 #include <cstdio>
 #include <vector>
 
+struct String {
+  char *str;
+  size_t len;
+  size_t locn;
+};
+typedef struct String String;
+
 struct Buf {
   char *fn;
-  int fn_needs_change;
   char *buf;
   // lines[rows][cols]
-  char **lines;
+  int fn_needs_change;
+  String *lines;
   size_t lcount;
   size_t size;
 };
@@ -25,7 +32,7 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
-  int line_realloc(const size_t i, const size_t ns);
+  int line_realloc(const size_t i, const size_t ns, const size_t pos);
   int line_alloc(const size_t i);
   void print_file(const int i);
   char *random_fn(void);
@@ -54,6 +61,8 @@ public:
   Buffers *_bufs(void) { return &bufs; }
   size_t _buf_i(void) { return curr_buffer_i; }
   Vec2i *_cursor(void) { return &cursor; }
+  int buffer_insert_char(const unsigned char);
+  int buffer_rm_char(const unsigned char c);
 
 private:
   size_t curr_buffer_i;

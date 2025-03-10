@@ -24,7 +24,7 @@ int Buffers::buf_split_by_nl(const size_t i) {
   const unsigned char nl = '\n';
   size_t last_j = 0;
   // lcount initializes as one as the initial row is always allocated.
-  size_t lcount = 1, l_idx = 0;
+  size_t lpos = 0;
 
   for (size_t j = 0; j < buffers[i].size; j++) {
     if (buffers[i].buf[j] == nl) {
@@ -38,19 +38,22 @@ int Buffers::buf_split_by_nl(const size_t i) {
       }
       line[size] = '\0';
 
-      if (lcount > buffers[i].lcount) {
-        line_realloc(i, lcount);
+      if (lpos + 1 > buffers[i].lcount) {
+        line_realloc(i, lpos + 1, lpos);
       }
-      buffers[i].lines[l_idx] = line;
+
+      // Always free prexisting char str before assigning a new ptr
+      if (buffers[i].lines[lpos].str) {
+        free(buffers[i].lines[lpos].str);
+      }
+
+      buffers[i].lines[lpos].str = line;
+      buffers[i].lines[lpos].len = size;
+      buffers[i].lines[lpos].locn = lpos;
 
       last_j = j + 1;
-      lcount++;
-      l_idx++;
+      lpos++;
     }
-  }
-
-  for (size_t k = 0; k < l_idx; k++) {
-    std::cout << buffers[i].lines[k] << std::endl;
   }
 
   return 1;
@@ -171,24 +174,28 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   return size;
 }
 
-int Buffers::line_realloc(const size_t i, const size_t ns) {
-  char **tmp = (char **)realloc(buffers[i].lines, ns * sizeof(char *));
+int Buffers::line_realloc(const size_t i, const size_t ns, const size_t pos) {
+  String *tmp = (String *)realloc(buffers[i].lines, ns * sizeof(String));
   if (!tmp) {
     std::cerr << "Failed to reallocate line buffer with size: " << ns
               << std::endl;
     return 0;
   }
   buffers[i].lines = tmp;
+  buffers[i].lines[pos].str = NULL;
+  buffers[i].lines[pos].len = 0;
   buffers[i].lcount = ns;
   return 1;
 }
 
 int Buffers::line_alloc(const size_t i) {
-  buffers[i].lines = (char **)malloc(1 * sizeof(char *));
+  buffers[i].lines = (String *)malloc(1 * sizeof(String));
   if (!buffers[i].lines) {
     std::cerr << "Failed to allocate line buffer with 1 row!" << std::endl;
     return 0;
   }
+  buffers[i].lines[0].str = NULL;
+  buffers[i].lines[0].len = 0;
   buffers[i].lcount = 1;
   return 1;
 }
@@ -218,7 +225,7 @@ void Buffers::delete_buffer(const char *file_name) {
 }
 
 void Buffers::append_buffer(char *file_name, const int fn_needs_change) {
-  Buf b = {file_name, fn_needs_change, NULL, NULL, 0, 0};
+  Buf b = {file_name, NULL, fn_needs_change, NULL, 0, 0};
   buffers.push_back(b);
 }
 
