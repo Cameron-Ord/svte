@@ -10,28 +10,37 @@ FontRenderer::FontRenderer(SDL_Renderer *r, const Vec2i *dimensions)
 
 void FontRenderer::frender_set_renderer(SDL_Renderer *r) { rend = r; }
 
+void FontRenderer::put_cursor(SDL_Rect *curs_rect) {
+  SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+  SDL_RenderFillRect(rend, curs_rect);
+}
+
 void FontRenderer::render_buffer(const Buf *buf, Chars *ch) {
   const unsigned char nl = '\n';
   const Vec2i *d = ch->get_char_dims();
-  int rowy = 0;
+  int rowy = 0, colx = 0;
 
-  for (size_t i = 0; i < buf->lcount; i++) {
-    String str = buf->lines[i];
-    int colx = 0;
-    for (size_t j = 0; j < str.len; j++) {
-      if (str.str[j] == nl) {
-        continue;
-      }
-      Char_Tables *ct = ch->char_lookup(str.str[j]);
-
-      const int y = d->y * rowy; // + 2
-      const int x = d->x * colx; // + 2
-
-      SDL_Rect char_rect = {x, y, ct->def.width, ct->def.height};
-      SDL_RenderCopy(rend, ct->def.t, NULL, &char_rect);
-      colx += 1;
+  for (size_t i = 0; i < buf->size; i++) {
+    if (buf->buf[i] == nl) {
+      colx = 0;
+      rowy += 1;
+      continue;
     }
-    rowy += 1;
+
+    Char_Tables *ct = ch->char_lookup(buf->buf[i]);
+
+    const int x = colx * d->x;
+    const int y = rowy * d->y;
+
+    SDL_Rect char_rect = {x, y, ct->def.width, ct->def.height};
+    SDL_RenderCopy(rend, ct->def.t, NULL, &char_rect);
+
+    if (i == buf->pos) {
+      SDL_Rect curs_rect = {x, y, ct->def.width, ct->def.height};
+      put_cursor(&curs_rect);
+    }
+
+    colx += 1;
   }
 }
 

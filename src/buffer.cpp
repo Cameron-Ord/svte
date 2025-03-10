@@ -16,49 +16,6 @@ static size_t len_add(const size_t *lengths, const size_t size) {
   return accumulator;
 }
 
-int Buffers::buf_split_by_nl(const size_t i) {
-  if (i >= buffers.size()) {
-    return 0;
-  }
-
-  const unsigned char nl = '\n';
-  size_t last_j = 0;
-  // lcount initializes as one as the initial row is always allocated.
-  size_t lpos = 0;
-
-  for (size_t j = 0; j < buffers[i].size; j++) {
-    if (buffers[i].buf[j] == nl) {
-      const size_t size = j - last_j;
-
-      char *line = (char *)malloc((size + 1) * sizeof(char));
-      char *pos = &buffers[i].buf[last_j];
-
-      for (size_t l = 0; l < size; l++) {
-        line[l] = pos[l];
-      }
-      line[size] = '\0';
-
-      if (lpos + 1 > buffers[i].lcount) {
-        line_realloc(i, lpos + 1, lpos);
-      }
-
-      // Always free prexisting char str before assigning a new ptr
-      if (buffers[i].lines[lpos].str) {
-        free(buffers[i].lines[lpos].str);
-      }
-
-      buffers[i].lines[lpos].str = line;
-      buffers[i].lines[lpos].len = size;
-      buffers[i].lines[lpos].locn = lpos;
-
-      last_j = j + 1;
-      lpos++;
-    }
-  }
-
-  return 1;
-}
-
 // Get buffer by idx
 const Buf *Buffers::get_buf(const size_t i) {
   if (i >= buffers.size()) {
@@ -105,14 +62,11 @@ Buffers::Buffers(char *pathstr, char *str_arg) : working_path(pathstr) {
   case 0: {
     append_buffer(random_fn(), 1);
     buf_malloc(0, DEFAULT_SIZE);
-    line_alloc(0);
   } break;
 
   case 1: {
     append_buffer(str_arg, 0);
     read_file(str_arg);
-    line_alloc(0);
-    buf_split_by_nl(0);
   } break;
   }
 }
@@ -174,32 +128,6 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   return size;
 }
 
-int Buffers::line_realloc(const size_t i, const size_t ns, const size_t pos) {
-  String *tmp = (String *)realloc(buffers[i].lines, ns * sizeof(String));
-  if (!tmp) {
-    std::cerr << "Failed to reallocate line buffer with size: " << ns
-              << std::endl;
-    return 0;
-  }
-  buffers[i].lines = tmp;
-  buffers[i].lines[pos].str = NULL;
-  buffers[i].lines[pos].len = 0;
-  buffers[i].lcount = ns;
-  return 1;
-}
-
-int Buffers::line_alloc(const size_t i) {
-  buffers[i].lines = (String *)malloc(1 * sizeof(String));
-  if (!buffers[i].lines) {
-    std::cerr << "Failed to allocate line buffer with 1 row!" << std::endl;
-    return 0;
-  }
-  buffers[i].lines[0].str = NULL;
-  buffers[i].lines[0].len = 0;
-  buffers[i].lcount = 1;
-  return 1;
-}
-
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   assert(i >= 0 && new_size >= DEFAULT_SIZE);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
@@ -225,7 +153,7 @@ void Buffers::delete_buffer(const char *file_name) {
 }
 
 void Buffers::append_buffer(char *file_name, const int fn_needs_change) {
-  Buf b = {file_name, NULL, fn_needs_change, NULL, 0, 0};
+  Buf b = {file_name, NULL, fn_needs_change, 0, 0};
   buffers.push_back(b);
 }
 

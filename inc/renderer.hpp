@@ -32,6 +32,7 @@ public:
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
   void render_buffer(const Buf *buf, Chars *ch);
+  void put_cursor(SDL_Rect *curs_rect);
 
 private:
   SDL_Renderer *rend;
@@ -49,7 +50,6 @@ public:
   void render_present(void);
   FontRenderer create_font_renderer(void);
   FontRenderer *_frender(void);
-  void render_cursor(const Vec2i *curs, Chars *ch);
 
 private:
   SDL_Renderer *rend;
