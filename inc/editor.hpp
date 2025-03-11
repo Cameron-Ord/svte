@@ -61,6 +61,7 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  int bounds(const int i);
   void buf_rm(const size_t i);
   void buf_insert(const size_t i, unsigned char c);
   void shift_buffer(const int direction, const size_t pos);

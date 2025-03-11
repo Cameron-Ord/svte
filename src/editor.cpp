@@ -8,14 +8,15 @@ Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
 }
 
 void Editor::switch_buffer(const int direction) {
-  const size_t buf_count = bufs.buffer_count();
+  const int buf_count = (int)bufs.buffer_count();
+  int signed_i = (int)buf_i;
 
   switch (direction) {
   default:
     return;
 
   case NEXT_BUFFER: {
-    if (buf_i + 1 < buf_count) {
+    if (signed_i + 1 < buf_count) {
       buf_i += 1;
     } else {
       buf_i = buf_count - 1;
@@ -23,7 +24,7 @@ void Editor::switch_buffer(const int direction) {
   } break;
 
   case PREV_BUFFER: {
-    if (buf_i - 1 >= 0) {
+    if (signed_i - 1 >= 0) {
       buf_i -= 1;
     } else {
       buf_i = 0;
@@ -37,7 +38,7 @@ int Editor::buffer_del_char(void) {
   if (b->size < 1)
     return 0;
 
-  if (b->pos >= 0 && b->pos < b->size) {
+  if (b->pos < b->size) {
     bufs.shift_buffer(DEL, buf_i);
     bufs.buf_realloc(buf_i, b->size - 1);
   }

@@ -8,6 +8,18 @@
 
 #define DEFAULT_SIZE 1
 
+int Buffers::bounds(const int i) {
+  if (i < 0) {
+    return 0;
+  }
+
+  if ((size_t)i >= buffers.size()) {
+    return 0;
+  }
+
+  return 1;
+}
+
 void Buffers::buf_mv_pos(const size_t i, const int operation) {
   switch (operation) {
   default:
@@ -184,7 +196,7 @@ size_t Buffers::read_file(const char *fn) {
 }
 
 size_t Buffers::buf_malloc(const size_t i, const size_t size) {
-  assert(i >= 0 && size >= DEFAULT_SIZE);
+  assert(bounds(i) && size >= DEFAULT_SIZE);
   buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
@@ -197,7 +209,7 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
-  assert(i >= 0 && new_size >= DEFAULT_SIZE);
+  assert(bounds(i) && new_size >= DEFAULT_SIZE);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;
@@ -215,7 +227,7 @@ size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
 
 void Buffers::delete_buffer(const char *file_name) {
   const int i = match_buffer(file_name);
-  assert(i >= 0);
+  assert(bounds(i));
   if (buffers[i].buf) {
     free(buffers[i].buf);
   }
@@ -241,7 +253,7 @@ int Buffers::match_buffer(const char *key) {
 // prompt to overwrite the fn if it's empty before calling this.
 int Buffers::write_buffer(const char *file_name) {
   const int i = match_buffer(file_name);
-  assert(i >= 0);
+  assert(bounds(i));
 
   const char *s = "/";
   const size_t lengths[] = {strlen(file_name), strlen(working_path), strlen(s)};
