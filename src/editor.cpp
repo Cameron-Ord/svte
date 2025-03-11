@@ -7,7 +7,13 @@ Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
   curr_buffer_i = 0;
 }
 
-int Editor::buffer_rm_char(const unsigned char c) {}
+int Editor::buffer_rm_char(void) {
+  const Buf *b = bufs.get_buf(curr_buffer_i);
+  bufs.shift_buffer(-1, curr_buffer_i);
+  bufs.buf_rm(curr_buffer_i);
+  bufs.buf_realloc(curr_buffer_i, b->size - 1);
+  return 1;
+}
 int Editor::buffer_insert_char(const unsigned char c) {
   const Buf *b = bufs.get_buf(curr_buffer_i);
   bufs.buf_realloc(curr_buffer_i, b->size + 1);

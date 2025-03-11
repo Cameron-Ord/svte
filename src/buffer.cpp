@@ -8,21 +8,23 @@
 
 #define DEFAULT_SIZE 1
 
+void Buffers::buf_rm(const size_t i) { buffers[i].pos--; }
+
 void Buffers::buf_insert(const size_t i, unsigned char c) {
   buffers[i].buf[buffers[i].pos] = c;
   buffers[i].pos++;
 }
 
 void Buffers::shift_buffer(const int direction, const size_t i) {
-  Buf buf = buffers[i];
+  Buf *buf = &buffers[i];
 
   switch (direction) {
   case 1: {
-    memmove(&buf.buf[buf.pos + 1], &buf.buf[buf.pos], buf.size - buf.pos);
+    memmove(&buf->buf[buf->pos + 1], &buf->buf[buf->pos], buf->size - buf->pos);
   } break;
 
   case -1: {
-    memmove(&buf.buf[buf.pos], &buf.buf[buf.pos + 1], buf.size - buf.pos - 1);
+    memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos], buf->size - buf->pos);
   } break;
   }
 }
@@ -138,23 +140,20 @@ size_t Buffers::read_file(const char *fn) {
 
 size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   assert(i >= 0 && size >= DEFAULT_SIZE);
-  buffers[i].buf = (char *)malloc(size + 2);
+  buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
     return 0;
   }
 
-  // Append a placeholder char at the end that won't get written to the file or
-  // rendered.
-  buffers[i].buf[size] = ' ';
-  buffers[i].buf[size + 1] = '\0';
-  buffers[i].size = size + 1;
+  buffers[i].buf[size] = '\0';
+  buffers[i].size = size;
   return size;
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   assert(i >= 0 && new_size >= DEFAULT_SIZE);
-  char *tmp = (char *)realloc(buffers[i].buf, new_size + 2);
+  char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;
     return 0;
@@ -163,9 +162,8 @@ size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   buffers[i].buf = tmp;
   // Append a placeholder char at the end that won't get written to the file or
   // rendered.
-  buffers[i].buf[new_size] = ' ';
-  buffers[i].buf[new_size + 1] = '\0';
-  buffers[i].size = new_size + 1;
+  buffers[i].buf[new_size] = '\0';
+  buffers[i].size = new_size;
 
   return new_size;
 }

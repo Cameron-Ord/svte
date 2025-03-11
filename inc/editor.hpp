@@ -31,6 +31,7 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  void buf_rm(const size_t i);
   void buf_insert(const size_t i, unsigned char c);
   void shift_buffer(const int direction, const size_t pos);
   void print_file(const int i);
@@ -62,7 +63,7 @@ public:
   Buffers *_bufs(void) { return &bufs; }
   size_t _buf_i(void) { return curr_buffer_i; }
   int buffer_insert_char(const unsigned char c);
-  int buffer_rm_char(const unsigned char c);
+  int buffer_rm_char(void);
   void buffer_mv_position(const int direction);
 
 private:
