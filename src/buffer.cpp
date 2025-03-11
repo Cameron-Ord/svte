@@ -24,7 +24,8 @@ void Buffers::shift_buffer(const int direction, const size_t i) {
   } break;
 
   case -1: {
-    memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos], buf->size - buf->pos);
+    memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos],
+            buf->size - buf->pos - 1);
   } break;
   }
 }
