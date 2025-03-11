@@ -83,6 +83,11 @@ int main(int argc, char *argv[]) {
       } break;
       case SDL_KEYDOWN: {
         switch (e.key.keysym.sym) {
+
+        case SDLK_RETURN: {
+          editor.buffer_insert_char('\n');
+        } break;
+
         case SDLK_LEFT: {
           editor.buffer_mv_position(-1);
         } break;

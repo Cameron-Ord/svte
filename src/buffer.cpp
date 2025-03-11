@@ -144,6 +144,8 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
     return 0;
   }
 
+  // Append a placeholder char at the end that won't get written to the file or
+  // rendered.
   buffers[i].buf[size] = ' ';
   buffers[i].buf[size + 1] = '\0';
   buffers[i].size = size + 1;
@@ -159,6 +161,8 @@ size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   }
 
   buffers[i].buf = tmp;
+  // Append a placeholder char at the end that won't get written to the file or
+  // rendered.
   buffers[i].buf[new_size] = ' ';
   buffers[i].buf[new_size + 1] = '\0';
   buffers[i].size = new_size + 1;
