@@ -8,6 +8,29 @@
 
 #define DEFAULT_SIZE 1
 
+void Buffers::buf_mv_pos(const size_t i, const int direction) {
+  switch (direction) {
+  default:
+    return;
+  case 1: {
+    if (buffers[i].pos < buffers[i].size - 1) {
+      buffers[i].pos += 1;
+      return;
+    } else {
+      buffers[i].pos = buffers[i].size - 1;
+      return;
+    }
+  } break;
+  case -1: {
+    if (buffers[i].pos <= 0) {
+      buffers[i].pos = 0;
+      return;
+    }
+    buffers[i].pos -= 1;
+  } break;
+  }
+}
+
 void Buffers::buf_rm(const size_t i) { buffers[i].pos--; }
 
 void Buffers::buf_insert(const size_t i, unsigned char c) {
@@ -24,8 +47,7 @@ void Buffers::shift_buffer(const int direction, const size_t i) {
   } break;
 
   case -1: {
-    memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos],
-            buf->size - buf->pos - 1);
+    memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos], buf->size - buf->pos);
   } break;
   }
 }
