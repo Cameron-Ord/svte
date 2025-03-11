@@ -27,8 +27,6 @@ void FontRenderer::render_buffer(const Buf *buf, Chars *ch) {
     const int x = (colx * d->x) + pad;
     const int y = (rowy * d->y) + pad;
 
-    std::cout << (int)buf->buf[i] << std::endl;
-
     if (buf->buf[i] != nl && i != buf->size - 1) {
       Char_Tables *ct = ch->char_lookup(buf->buf[i]);
       SDL_Rect char_rect = {x, y, ct->def.width, ct->def.height};
