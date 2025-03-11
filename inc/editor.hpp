@@ -3,7 +3,21 @@
 #include <cstdio>
 #include <vector>
 
-typedef enum { DEL = 0, RMV = -1, INS = 1 } OPERATIONS;
+// Representing operations as integers inside an enum.
+// Makes things straightforward and easy to understand/program. Which is cool
+// and good
+typedef enum {
+  DEL = 0,
+  RMV = -1,
+  INS = 1,
+  MV_RIGHT = 1,
+  MV_LEFT = -1,
+  NEXT_WORD = 1,
+  PREV_WORD = 0,
+  LAST_WORD = -1,
+  PREV_LINE = 1,
+  NEXT_LINE = 0,
+} OPERATIONS;
 
 struct String {
   char *str;

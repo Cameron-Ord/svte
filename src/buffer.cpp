@@ -13,7 +13,7 @@ void Buffers::buf_mv_pos(const size_t i, const int direction) {
   default:
     return;
   case 1: {
-    if (buffers[i].pos < buffers[i].size - 1) {
+    if (buffers[i].pos + 1 < buffers[i].size) {
       buffers[i].pos += 1;
     } else {
       buffers[i].pos = buffers[i].size - 1;

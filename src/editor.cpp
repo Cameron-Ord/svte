@@ -10,7 +10,7 @@ Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
 
 int Editor::buffer_del_char(void) {
   const Buf *b = bufs.get_buf(curr_buffer_i);
-  if (b->pos >= 0 && b->pos < b->size - 1) {
+  if (b->pos >= 0 && b->pos < b->size) {
     bufs.shift_buffer(DEL, curr_buffer_i);
     bufs.buf_realloc(curr_buffer_i, b->size - 1);
   }
@@ -19,7 +19,7 @@ int Editor::buffer_del_char(void) {
 
 int Editor::buffer_rm_char(void) {
   const Buf *b = bufs.get_buf(curr_buffer_i);
-  if (b->pos > 0 && b->pos <= b->size - 1) {
+  if (b->pos > 0 && b->pos < b->size) {
     bufs.shift_buffer(RMV, curr_buffer_i);
     bufs.buf_rm(curr_buffer_i);
     bufs.buf_realloc(curr_buffer_i, b->size - 1);
@@ -29,7 +29,7 @@ int Editor::buffer_rm_char(void) {
 
 int Editor::buffer_insert_char(const unsigned char c) {
   const Buf *b = bufs.get_buf(curr_buffer_i);
-  if (b->pos <= b->size - 1) {
+  if (b->pos < b->size) {
     bufs.buf_realloc(curr_buffer_i, b->size + 1);
     bufs.shift_buffer(INS, curr_buffer_i);
     bufs.buf_insert(curr_buffer_i, c);
