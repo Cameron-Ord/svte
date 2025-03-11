@@ -1,8 +1,9 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
-#include "vecdef.hpp"
 #include <cstdio>
 #include <vector>
+
+typedef enum { DEL = 0, RMV = -1, INS = 1 } OPERATIONS;
 
 struct String {
   char *str;
@@ -62,6 +63,7 @@ public:
   size_t _buf_i(void) { return curr_buffer_i; }
   int buffer_insert_char(const unsigned char c);
   int buffer_rm_char(void);
+  int buffer_del_char(void);
   void buffer_mv_position(const int direction);
 
 private:

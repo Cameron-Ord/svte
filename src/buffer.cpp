@@ -15,18 +15,16 @@ void Buffers::buf_mv_pos(const size_t i, const int direction) {
   case 1: {
     if (buffers[i].pos < buffers[i].size - 1) {
       buffers[i].pos += 1;
-      return;
     } else {
       buffers[i].pos = buffers[i].size - 1;
-      return;
     }
   } break;
   case -1: {
     if (buffers[i].pos <= 0) {
       buffers[i].pos = 0;
-      return;
+    } else {
+      buffers[i].pos -= 1;
     }
-    buffers[i].pos -= 1;
   } break;
   }
 }
@@ -42,11 +40,16 @@ void Buffers::shift_buffer(const int direction, const size_t i) {
   Buf *buf = &buffers[i];
 
   switch (direction) {
-  case 1: {
+  case INS: { // insert
     memmove(&buf->buf[buf->pos + 1], &buf->buf[buf->pos], buf->size - buf->pos);
   } break;
 
-  case -1: {
+  case DEL: { // delete
+    memmove(&buf->buf[buf->pos], &buf->buf[buf->pos + 1],
+            buf->size - buf->pos - 1);
+  } break;
+
+  case RMV: { // backspace/remove
     memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos], buf->size - buf->pos);
   } break;
   }

@@ -88,6 +88,10 @@ int main(int argc, char *argv[]) {
           editor.buffer_rm_char();
         } break;
 
+        case SDLK_DELETE: {
+          editor.buffer_del_char();
+        } break;
+
         case SDLK_RETURN: {
           editor.buffer_insert_char('\n');
         } break;
