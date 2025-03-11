@@ -62,6 +62,8 @@ public:
   Buffers(char *pathstr, char *arg_str);
 
   int bounds(const int i);
+
+  void buf_replace_at(const size_t i, const unsigned char c);
   void buf_rm(const size_t i);
   void buf_insert(const size_t i, unsigned char c);
   void shift_buffer(const int direction, const size_t pos);

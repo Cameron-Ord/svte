@@ -8,6 +8,11 @@
 
 #define DEFAULT_SIZE 1
 
+// needs some checks
+void Buffers::buf_replace_at(const size_t i, const unsigned char c) {
+  buffers[i].buf[buffers[i].pos] = c;
+}
+
 int Buffers::bounds(const int i) {
   if (i < 0) {
     return 0;
@@ -196,20 +201,21 @@ size_t Buffers::read_file(const char *fn) {
 }
 
 size_t Buffers::buf_malloc(const size_t i, const size_t size) {
-  assert(bounds(i) && size >= DEFAULT_SIZE);
+  assert(bounds(i) && size + 1 >= DEFAULT_SIZE + 1);
   buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
     return 0;
   }
 
+  buffers[i].buf[size - 1] = ' ';
   buffers[i].buf[size] = '\0';
   buffers[i].size = size;
   return size;
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
-  assert(bounds(i) && new_size >= DEFAULT_SIZE);
+  assert(bounds(i) && new_size + 1 >= DEFAULT_SIZE + 1);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;

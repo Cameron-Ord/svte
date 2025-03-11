@@ -35,8 +35,13 @@ void Editor::switch_buffer(const int direction) {
 
 int Editor::buffer_del_char(void) {
   const Buf *b = bufs.get_buf(buf_i);
-  if (b->size <= 1)
+  if (b->size < 1)
     return 0;
+
+  if (b->size == 1 && b->pos == 0) {
+    bufs.buf_replace_at(buf_i, ' ');
+    return 1;
+  }
 
   if (b->pos < b->size) {
     bufs.shift_buffer(DEL, buf_i);
@@ -51,7 +56,7 @@ int Editor::buffer_del_char(void) {
 
 int Editor::buffer_rm_char(void) {
   const Buf *b = bufs.get_buf(buf_i);
-  if (b->size <= 1)
+  if (b->size < 1)
     return 0;
 
   if (b->pos > 0 && b->pos < b->size) {
