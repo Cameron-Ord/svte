@@ -2,41 +2,73 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 
 Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
-  curr_buffer_i = 0;
+  buf_i = 0;
+}
+
+void Editor::switch_buffer(const int direction) {
+  const size_t buf_count = bufs.buffer_count();
+
+  switch (direction) {
+  default:
+    return;
+
+  case NEXT_BUFFER: {
+    if (buf_i + 1 < buf_count) {
+      buf_i += 1;
+    } else {
+      buf_i = buf_count - 1;
+    }
+  } break;
+
+  case PREV_BUFFER: {
+    if (buf_i - 1 >= 0) {
+      buf_i -= 1;
+    } else {
+      buf_i = 0;
+    }
+  } break;
+  }
 }
 
 int Editor::buffer_del_char(void) {
-  const Buf *b = bufs.get_buf(curr_buffer_i);
+  const Buf *b = bufs.get_buf(buf_i);
+  if (b->size < 1)
+    return 0;
+
   if (b->pos >= 0 && b->pos < b->size) {
-    bufs.shift_buffer(DEL, curr_buffer_i);
-    bufs.buf_realloc(curr_buffer_i, b->size - 1);
+    bufs.shift_buffer(DEL, buf_i);
+    bufs.buf_realloc(buf_i, b->size - 1);
   }
+
   return 1;
 }
 
 int Editor::buffer_rm_char(void) {
-  const Buf *b = bufs.get_buf(curr_buffer_i);
+  const Buf *b = bufs.get_buf(buf_i);
+  if (b->size < 1)
+    return 0;
+
   if (b->pos > 0 && b->pos < b->size) {
-    bufs.shift_buffer(RMV, curr_buffer_i);
-    bufs.buf_rm(curr_buffer_i);
-    bufs.buf_realloc(curr_buffer_i, b->size - 1);
+    bufs.shift_buffer(RMV, buf_i);
+    bufs.buf_rm(buf_i);
+    bufs.buf_realloc(buf_i, b->size - 1);
   }
+
   return 1;
 }
 
 int Editor::buffer_insert_char(const unsigned char c) {
-  const Buf *b = bufs.get_buf(curr_buffer_i);
+  const Buf *b = bufs.get_buf(buf_i);
   if (b->pos < b->size) {
-    bufs.buf_realloc(curr_buffer_i, b->size + 1);
-    bufs.shift_buffer(INS, curr_buffer_i);
-    bufs.buf_insert(curr_buffer_i, c);
+    bufs.buf_realloc(buf_i, b->size + 1);
+    bufs.shift_buffer(INS, buf_i);
+    bufs.buf_insert(buf_i, c);
   }
   return 1;
 }
 
-void Editor::buffer_mv_position(const int direction) {
-  bufs.buf_mv_pos(curr_buffer_i, direction);
+void Editor::buffer_mv_op(const int operation) {
+  bufs.buf_mv_pos(buf_i, operation);
 }

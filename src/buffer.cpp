@@ -8,23 +8,42 @@
 
 #define DEFAULT_SIZE 1
 
-void Buffers::buf_mv_pos(const size_t i, const int direction) {
-  switch (direction) {
+void Buffers::buf_mv_pos(const size_t i, const int operation) {
+  switch (operation) {
   default:
     return;
-  case 1: {
+  case MV_RIGHT: {
     if (buffers[i].pos + 1 < buffers[i].size) {
       buffers[i].pos += 1;
     } else {
       buffers[i].pos = buffers[i].size - 1;
     }
   } break;
-  case -1: {
+  case MV_LEFT: {
     if (buffers[i].pos <= 0) {
       buffers[i].pos = 0;
     } else {
       buffers[i].pos -= 1;
     }
+  } break;
+
+  // Words are seperated by spaces, so just find the first char after a space,
+  // can add skip to last position later
+  case NEXT_WORD_FIRST: {
+  } break;
+  case PREV_WORD_FIRST: {
+  } break;
+  case PREV_LINE_FIRST: {
+  } break;
+  case NEXT_LINE_FIRST: {
+  } break;
+  case NEXT_WORD_LAST: {
+  } break;
+  case NEXT_LINE_LAST: {
+  } break;
+  case PREV_WORD_LAST: {
+  } break;
+  case PREV_LINE_LAST: {
   } break;
   }
 }

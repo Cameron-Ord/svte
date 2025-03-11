@@ -8,7 +8,6 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <linux/limits.h>
 #include <unistd.h>
 
@@ -93,15 +92,15 @@ int main(int argc, char *argv[]) {
         } break;
 
         case SDLK_RETURN: {
-          editor.buffer_insert_char('\n');
+          editor.buffer_insert_char(NEWLINE);
         } break;
 
         case SDLK_LEFT: {
-          editor.buffer_mv_position(-1);
+          editor.buffer_mv_op(MV_LEFT);
         } break;
 
         case SDLK_RIGHT: {
-          editor.buffer_mv_position(1);
+          editor.buffer_mv_op(MV_RIGHT);
         } break;
         }
       } break;

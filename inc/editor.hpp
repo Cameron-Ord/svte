@@ -3,20 +3,35 @@
 #include <cstdio>
 #include <vector>
 
+#define NEWLINE '\n'
+
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
 // and good
 typedef enum {
+  NEXT_BUFFER = 0,
+  PREV_BUFFER = 1,
+
   DEL = 0,
   RMV = -1,
   INS = 1,
+
   MV_RIGHT = 1,
-  MV_LEFT = -1,
-  NEXT_WORD = 1,
-  PREV_WORD = 0,
-  LAST_WORD = -1,
-  PREV_LINE = 1,
-  NEXT_LINE = 0,
+  MV_LEFT = 2,
+
+  NEXT_WORD_FIRST = 3,
+  PREV_WORD_FIRST = 4,
+  PREV_LINE_FIRST = 5,
+  NEXT_LINE_FIRST = 6,
+
+  NEXT_WORD_LAST = 7,
+  PREV_WORD_LAST = 8,
+  PREV_LINE_LAST = 9,
+  NEXT_LINE_LAST = 10,
+
+  // not yet
+  // COPY_AT = 7,
+  // PASTE_AT = 8,
 } OPERATIONS;
 
 struct String {
@@ -60,7 +75,7 @@ public:
   size_t read_file(const char *fn);
   size_t buffer_count(void) { return buffers.size(); }
   const Buf *get_buf(const size_t i);
-  void buf_mv_pos(const size_t i, const int direction);
+  void buf_mv_pos(const size_t i, const int operation);
   void update_working_path(char *str) { working_path = str; }
   const char *get_working_path(void) { return working_path; }
 
@@ -74,14 +89,15 @@ class Editor {
 public:
   Editor(char *pathstr, char *arg_str);
   Buffers *_bufs(void) { return &bufs; }
-  size_t _buf_i(void) { return curr_buffer_i; }
+  size_t _buf_i(void) { return buf_i; }
   int buffer_insert_char(const unsigned char c);
   int buffer_rm_char(void);
   int buffer_del_char(void);
-  void buffer_mv_position(const int direction);
+  void buffer_mv_op(const int operation);
+  void switch_buffer(const int direction);
 
 private:
-  size_t curr_buffer_i;
+  size_t buf_i;
   Buffers bufs;
 };
 
