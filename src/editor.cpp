@@ -44,6 +44,11 @@ int Editor::buffer_del_char(void) {
   }
 
   if (b->pos < b->size) {
+    // Shift it over before deleting so the placeholder remains
+    if (b->pos == b->size - 1) {
+      bufs.buf_rm(buf_i);
+    }
+
     bufs.shift_buffer(DEL, buf_i);
     bufs.buf_realloc(buf_i, b->size - 1);
     if (b->pos == b->size) {

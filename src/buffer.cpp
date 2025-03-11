@@ -65,7 +65,12 @@ void Buffers::buf_mv_pos(const size_t i, const int operation) {
   }
 }
 
-void Buffers::buf_rm(const size_t i) { buffers[i].pos--; }
+void Buffers::buf_rm(const size_t i) {
+  int p = (int)buffers[i].pos;
+  if (p - 1 >= 0) {
+    buffers[i].pos--;
+  }
+}
 
 void Buffers::buf_insert(const size_t i, unsigned char c) {
   buffers[i].buf[buffers[i].pos] = c;
