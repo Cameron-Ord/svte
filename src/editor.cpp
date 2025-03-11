@@ -15,6 +15,6 @@ int Editor::buffer_insert_char(const unsigned char c) {
   bufs.buf_insert(curr_buffer_i, c);
   return 1;
 }
-void Editor::buffer_set_position(const size_t i) {
-  bufs.set_buf_pos(curr_buffer_i, i);
+void Editor::buffer_mv_position(const int direction) {
+  bufs.buf_mv_pos(curr_buffer_i, direction);
 }

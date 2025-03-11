@@ -63,15 +63,6 @@ int main(int argc, char *argv[]) {
   uint64_t frame_start;
   int frame_time;
 
-  editor.buffer_insert_char('i');
-  editor.buffer_insert_char('l');
-  editor.buffer_insert_char('i');
-  editor.buffer_insert_char('k');
-  editor.buffer_insert_char('e');
-  editor.buffer_insert_char('m');
-  editor.buffer_insert_char('e');
-  editor.buffer_insert_char('n');
-
   int quit = 0;
   while (!quit) {
     frame_start = SDL_GetTicks64();
@@ -84,8 +75,22 @@ int main(int argc, char *argv[]) {
       default:
         break;
       case SDL_TEXTINPUT: {
+        const char *t = e.text.text;
+        const size_t tlen = strlen(t);
+        for (size_t i = 0; i < tlen; i++) {
+          editor.buffer_insert_char(t[i]);
+        }
       } break;
       case SDL_KEYDOWN: {
+        switch (e.key.keysym.sym) {
+        case SDLK_LEFT: {
+          editor.buffer_mv_position(-1);
+        } break;
+
+        case SDLK_RIGHT: {
+          editor.buffer_mv_position(1);
+        } break;
+        }
       } break;
       case SDL_KEYUP: {
       } break;

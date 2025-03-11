@@ -44,7 +44,9 @@ public:
   size_t read_file(const char *fn);
   size_t buffer_count(void) { return buffers.size(); }
   const Buf *get_buf(const size_t i);
-  void set_buf_pos(const size_t i, const size_t pos) { buffers[i].pos = pos; }
+  void buf_mv_pos(const size_t i, const int direction) {
+    buffers[i].pos += direction;
+  }
   void update_working_path(char *str) { working_path = str; }
   const char *get_working_path(void) { return working_path; }
 
@@ -61,7 +63,7 @@ public:
   size_t _buf_i(void) { return curr_buffer_i; }
   int buffer_insert_char(const unsigned char c);
   int buffer_rm_char(const unsigned char c);
-  void buffer_set_position(const size_t i);
+  void buffer_mv_position(const int direction);
 
 private:
   size_t curr_buffer_i;

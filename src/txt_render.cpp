@@ -13,7 +13,7 @@ FontRenderer::FontRenderer(SDL_Renderer *r, const Vec2i *dimensions)
 void FontRenderer::frender_set_renderer(SDL_Renderer *r) { rend = r; }
 
 void FontRenderer::put_cursor(SDL_Rect *curs_rect) {
-  SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+  SDL_SetRenderDrawColor(rend, 255, 255, 255, 225);
   SDL_RenderFillRect(rend, curs_rect);
 }
 
@@ -23,30 +23,26 @@ void FontRenderer::render_buffer(const Buf *buf, Chars *ch) {
   const Vec2i *d = ch->get_char_dims();
   int rowy = 0, colx = 0;
 
-  for (size_t i = 0; i < buf->size; i++) {
-    if (buf->buf[i] == nl) {
-      colx = 0;
-      rowy += 1;
-      continue;
-    }
-
-    unsigned int c = buf->buf[i];
-    std::cout << c << std::endl;
-
-    Char_Tables *ct = ch->char_lookup(buf->buf[i]);
-
+  for (size_t i = 0; i < buf->size && buf->buf[i] != '\0'; i++) {
     const int x = (colx * d->x) + pad;
     const int y = (rowy * d->y) + pad;
 
-    SDL_Rect char_rect = {x, y, ct->def.width, ct->def.height};
-    SDL_RenderCopy(rend, ct->def.t, NULL, &char_rect);
+    if (buf->buf[i] != nl && i != buf->size - 1) {
+      Char_Tables *ct = ch->char_lookup(buf->buf[i]);
+      SDL_Rect char_rect = {x, y, ct->def.width, ct->def.height};
+      SDL_RenderCopy(rend, ct->def.t, NULL, &char_rect);
+      colx += 1;
+    }
 
     if (i == buf->pos) {
-      SDL_Rect curs_rect = {x, y, ct->def.width, ct->def.height};
+      SDL_Rect curs_rect = {x, y, d->x, d->y};
       put_cursor(&curs_rect);
     }
 
-    colx += 1;
+    if (buf->buf[i] == nl) {
+      colx = 0;
+      rowy += 1;
+    }
   }
 }
 

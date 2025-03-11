@@ -129,6 +129,7 @@ size_t Buffers::read_file(const char *fn) {
     if (buf_malloc(i, size)) {
       read = fread(buffers[i].buf, 1, size, fi.f);
     }
+    std::cout << (int)buffers[i].buf[size] << std::endl;
   }
   free(path);
 
@@ -137,27 +138,30 @@ size_t Buffers::read_file(const char *fn) {
 
 size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   assert(i >= 0 && size >= DEFAULT_SIZE);
-  buffers[i].buf = (char *)malloc(size + 1);
+  buffers[i].buf = (char *)malloc(size + 2);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
     return 0;
   }
-  buffers[i].buf[size] = '\0';
-  buffers[i].size = size;
+
+  buffers[i].buf[size] = ' ';
+  buffers[i].buf[size + 1] = '\0';
+  buffers[i].size = size + 1;
   return size;
 }
 
 size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   assert(i >= 0 && new_size >= DEFAULT_SIZE);
-  char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
+  char *tmp = (char *)realloc(buffers[i].buf, new_size + 2);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;
     return 0;
   }
 
   buffers[i].buf = tmp;
-  buffers[i].buf[new_size] = '\0';
-  buffers[i].size = new_size;
+  buffers[i].buf[new_size] = ' ';
+  buffers[i].buf[new_size + 1] = '\0';
+  buffers[i].size = new_size + 1;
 
   return new_size;
 }
