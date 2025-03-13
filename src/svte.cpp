@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
   renderer._frender()->frender_set_renderer(renderer.get_renderer());
 
   Font font;
-  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 12))) {
+  if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 16))) {
     return 1;
   }
 

@@ -6,40 +6,86 @@
 #include <iostream>
 #include <vector>
 
+#ifndef NULLCHAR
+#define NULLCHAR '\0'
+#endif
+
 #define DEFAULT_SIZE 1
 
-// needs some checks
-void Buffers::buf_replace_at(const size_t i, const unsigned char c) {
-  buffers[i].buf[buffers[i].pos] = c;
+static size_t len_add(const size_t *lengths, const size_t size) {
+  size_t accumulator = 0;
+  for (size_t i = 0; i < size; i++) {
+    accumulator += lengths[i];
+  }
+  return accumulator;
 }
 
-int Buffers::bounds(const int i) {
-  if (i < 0) {
+static File_Info fsize(FILE *fd) {
+  if (!fd) {
+    File_Info f = {0, NULL};
+    return f;
+  }
+  fseek(fd, 0, SEEK_END);
+  File_Info f = {ftell(fd), fd};
+  return f;
+}
+
+static FILE *file_open(const char *path) {
+  FILE *f = NULL;
+  if (!(f = fopen(path, "rb"))) {
+    std::cerr << "Failed to open path: " << path << std::endl;
+    return NULL;
+  }
+  return f;
+}
+
+// needs some checks
+void Buffers::buf_replace_at(const int i, const unsigned char c) {
+  if (buf_bounds(i) && buffers[i].pos < (int)buffers[i].size)
+    buffers[i].buf[buffers[i].pos] = c;
+}
+
+int Buffers::pos_bounds(const int i, const int pos) {
+  const size_t size = buffers[i].size;
+  if (pos >= (int)size) {
     return 0;
   }
 
-  if ((size_t)i >= buffers.size()) {
+  if (pos <= 0) {
     return 0;
   }
 
   return 1;
 }
 
-void Buffers::buf_mv_pos(const size_t i, const int operation) {
+int Buffers::buf_bounds(const int i) {
+  if (i < 0) {
+    return 0;
+  }
+
+  if (i >= (int)buffers.size()) {
+    return 0;
+  }
+
+  return 1;
+}
+
+void Buffers::buf_mv_pos(const int i, const int operation) {
   switch (operation) {
   default:
     return;
   case MV_RIGHT: {
-    if (buffers[i].pos + 1 < buffers[i].size) {
+    if (buf_bounds(i) && pos_bounds(i, buffers[i].pos + 1)) {
       buffers[i].pos += 1;
-    } else {
+    } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos + 1)) {
       buffers[i].pos = buffers[i].size - 1;
     }
   } break;
+
   case MV_LEFT: {
-    if (buffers[i].pos <= 0) {
+    if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
       buffers[i].pos = 0;
-    } else {
+    } else if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
       buffers[i].pos -= 1;
     }
   } break;
@@ -65,19 +111,25 @@ void Buffers::buf_mv_pos(const size_t i, const int operation) {
   }
 }
 
-void Buffers::buf_rm(const size_t i) {
-  int p = (int)buffers[i].pos;
-  if (p - 1 >= 0) {
+void Buffers::buf_pos_bw(const int i) {
+  if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
     buffers[i].pos--;
+  } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
+    buffers[i].pos = 0;
   }
 }
 
-void Buffers::buf_insert(const size_t i, unsigned char c) {
-  buffers[i].buf[buffers[i].pos] = c;
-  buffers[i].pos++;
+void Buffers::buf_insert(const int i, unsigned char c) {
+  if (buf_bounds(i) && (size_t)buffers[i].pos < buffers[i].size) {
+    buffers[i].buf[buffers[i].pos] = c;
+    buffers[i].pos++;
+  }
 }
 
-void Buffers::shift_buffer(const int direction, const size_t i) {
+void Buffers::shift_buffer(const int direction, const int i) {
+  if (!buf_bounds(i)) {
+    return;
+  }
   Buf *buf = &buffers[i];
 
   switch (direction) {
@@ -96,17 +148,9 @@ void Buffers::shift_buffer(const int direction, const size_t i) {
   }
 }
 
-static size_t len_add(const size_t *lengths, const size_t size) {
-  size_t accumulator = 0;
-  for (size_t i = 0; i < size; i++) {
-    accumulator += lengths[i];
-  }
-  return accumulator;
-}
-
 // Get buffer by idx
-const Buf *Buffers::get_buf(const size_t i) {
-  if (i >= buffers.size()) {
+const Buf *Buffers::get_buf(const int i) {
+  if (!buf_bounds(i)) {
     return NULL;
   }
 
@@ -117,27 +161,7 @@ void Buffers::print_file(const int i) {
   if (!buffers[i].buf) {
     return;
   }
-
   printf("%s\n", buffers[i].buf);
-}
-
-static File_Info fsize(FILE *fd) {
-  if (!fd) {
-    File_Info f = {0, NULL};
-    return f;
-  }
-  fseek(fd, 0, SEEK_END);
-  File_Info f = {ftell(fd), fd};
-  return f;
-}
-
-static FILE *file_open(const char *path) {
-  FILE *f = NULL;
-  if (!(f = fopen(path, "rb"))) {
-    std::cerr << "Failed to open path: " << path << std::endl;
-    return NULL;
-  }
-  return f;
 }
 
 // Append the initial filename. If it is empty, it will just append as empty
@@ -198,15 +222,14 @@ size_t Buffers::read_file(const char *fn) {
     if (buf_malloc(i, size)) {
       read = fread(buffers[i].buf, 1, size, fi.f);
     }
-    std::cout << (int)buffers[i].buf[size] << std::endl;
   }
   free(path);
 
   return read;
 }
 
-size_t Buffers::buf_malloc(const size_t i, const size_t size) {
-  assert(bounds(i) && size + 1 >= DEFAULT_SIZE + 1);
+size_t Buffers::buf_malloc(const int i, const size_t size) {
+  assert(buf_bounds(i) && size + 1 >= DEFAULT_SIZE + 1);
   buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
@@ -214,13 +237,13 @@ size_t Buffers::buf_malloc(const size_t i, const size_t size) {
   }
 
   buffers[i].buf[size - 1] = ' ';
-  buffers[i].buf[size] = '\0';
+  buffers[i].buf[size] = NULLCHAR;
   buffers[i].size = size;
   return size;
 }
 
-size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
-  assert(bounds(i) && new_size + 1 >= DEFAULT_SIZE + 1);
+size_t Buffers::buf_realloc(const int i, const size_t new_size) {
+  assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE + 1);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;
@@ -228,9 +251,7 @@ size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
   }
 
   buffers[i].buf = tmp;
-  // Append a placeholder char at the end that won't get written to the file or
-  // rendered.
-  buffers[i].buf[new_size] = '\0';
+  buffers[i].buf[new_size] = NULLCHAR;
   buffers[i].size = new_size;
 
   return new_size;
@@ -238,7 +259,7 @@ size_t Buffers::buf_realloc(const size_t i, const size_t new_size) {
 
 void Buffers::delete_buffer(const char *file_name) {
   const int i = match_buffer(file_name);
-  assert(bounds(i));
+  assert(buf_bounds(i));
   if (buffers[i].buf) {
     free(buffers[i].buf);
   }
@@ -264,7 +285,7 @@ int Buffers::match_buffer(const char *key) {
 // prompt to overwrite the fn if it's empty before calling this.
 int Buffers::write_buffer(const char *file_name) {
   const int i = match_buffer(file_name);
-  assert(bounds(i));
+  assert(buf_bounds(i));
 
   const char *s = "/";
   const size_t lengths[] = {strlen(file_name), strlen(working_path), strlen(s)};

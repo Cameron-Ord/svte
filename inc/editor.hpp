@@ -37,7 +37,7 @@ typedef enum {
 struct String {
   char *str;
   size_t len;
-  size_t locn;
+  int locn;
 };
 typedef struct String String;
 
@@ -47,7 +47,7 @@ struct Buf {
   // lines[rows][cols]
   int fn_needs_change;
   size_t size;
-  size_t pos;
+  int pos;
 };
 typedef struct Buf Buf;
 
@@ -61,24 +61,24 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
-  int bounds(const int i);
-
-  void buf_replace_at(const size_t i, const unsigned char c);
-  void buf_rm(const size_t i);
-  void buf_insert(const size_t i, unsigned char c);
-  void shift_buffer(const int direction, const size_t pos);
+  int buf_bounds(const int i);
+  int pos_bounds(const int i, const int pos);
+  void buf_replace_at(const int i, const unsigned char c);
+  void buf_pos_bw(const int i);
+  void buf_insert(const int i, unsigned char c);
+  void shift_buffer(const int direction, const int pos);
   void print_file(const int i);
   char *random_fn(void);
-  size_t buf_malloc(const size_t i, const size_t size);
-  size_t buf_realloc(const size_t i, const size_t new_size);
+  size_t buf_malloc(const int i, const size_t size);
+  size_t buf_realloc(const int i, const size_t new_size);
   void delete_buffer(const char *fn);
   void append_buffer(char *fn, const int fn_needs_change);
   int match_buffer(const char *key);
   int write_buffer(const char *fn);
   size_t read_file(const char *fn);
   size_t buffer_count(void) { return buffers.size(); }
-  const Buf *get_buf(const size_t i);
-  void buf_mv_pos(const size_t i, const int operation);
+  const Buf *get_buf(const int i);
+  void buf_mv_pos(const int i, const int operation);
   void update_working_path(char *str) { working_path = str; }
   const char *get_working_path(void) { return working_path; }
 
@@ -92,7 +92,7 @@ class Editor {
 public:
   Editor(char *pathstr, char *arg_str);
   Buffers *_bufs(void) { return &bufs; }
-  size_t _buf_i(void) { return buf_i; }
+  int _buf_i(void) { return buf_i; }
   int buffer_insert_char(const unsigned char c);
   int buffer_rm_char(void);
   int buffer_del_char(void);
@@ -100,7 +100,7 @@ public:
   void switch_buffer(const int direction);
 
 private:
-  size_t buf_i;
+  int buf_i;
   Buffers bufs;
 };
 

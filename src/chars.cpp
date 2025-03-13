@@ -1,5 +1,9 @@
 #include "../inc/font.hpp"
 
+#ifndef NULLCHAR
+#define NULLCHAR '\0'
+#endif
+
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
 #include <cstring>
@@ -59,7 +63,7 @@ Char_Tables *Chars::get_tbls(void) { return chtbls; }
 void Chars::set_table(void) {
   for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
     chtbls[i].c = i;
-    const char str[] = {(char)i, '\0'};
+    const char str[] = {(char)i, NULLCHAR};
     memcpy(chtbls[i].str, str, 2);
   }
 }
