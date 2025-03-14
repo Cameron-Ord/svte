@@ -154,7 +154,6 @@ int Buffers::find_line(const int i, const int direction) {
           return j;
         }
       }
-
       return 0;
     } break;
     }

@@ -3,10 +3,12 @@
 #include "../inc/renderer.hpp"
 #include "../inc/vecdef.hpp"
 
-#include <iostream>
-
 #ifndef NULLCHAR
 #define NULLCHAR '\0'
+#endif
+
+#ifndef NEWLINE
+#define NEWLINE '\n'
 #endif
 
 FontRenderer::FontRenderer(SDL_Renderer *r, const Vec2i *dimensions)

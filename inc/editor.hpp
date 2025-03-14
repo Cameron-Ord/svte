@@ -3,8 +3,6 @@
 #include <cstdio>
 #include <vector>
 
-#define NEWLINE '\n'
-
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
 // and good
