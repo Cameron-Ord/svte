@@ -71,6 +71,48 @@ int Buffers::buf_bounds(const int i) {
   return 1;
 }
 
+int Buffers::find_line(const int i, const int direction) {
+  if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
+    Buf *b = &buffers[i];
+    int pos = b->pos;
+
+    switch (direction) {
+    default:
+      return 0;
+    case 1: {
+      const int cond = b->buf[pos] == NEWLINE; //|| b->buf[pos] == NULLCHAR;
+      if (b->buf[pos] == NEWLINE && pos_bounds(i, pos + 1)) {
+        pos++;
+      }
+
+      for (int j = pos; j <= (int)b->size; j++) {
+        const char c = b->buf[j];
+        if (c == NEWLINE || c == NULLCHAR) {
+          return j;
+        }
+      }
+    } break;
+
+    case -1: {
+      const int cond = b->buf[pos] == NEWLINE || b->buf[pos] == NULLCHAR;
+      if (cond && pos_bounds(i, pos - 1)) {
+        pos--;
+      }
+
+      for (int j = pos; j >= 0; j--) {
+        const char c = b->buf[j];
+        if (c == NEWLINE || c == NULLCHAR) {
+          return j;
+        }
+      }
+    } break;
+    }
+
+    return (int)(b->size - 1);
+  }
+  return 0;
+}
+
 void Buffers::buf_mv_pos(const int i, const int operation) {
   switch (operation) {
   default:
@@ -94,21 +136,19 @@ void Buffers::buf_mv_pos(const int i, const int operation) {
 
   // Words are seperated by spaces, so just find the first char after a space,
   // can add skip to last position later
-  case NEXT_WORD_FIRST: {
+  case NEXT_WORD: {
   } break;
-  case PREV_WORD_FIRST: {
+  case PREV_WORD: {
   } break;
-  case PREV_LINE_FIRST: {
+  case PREV_LINE: {
+    if (buf_bounds(i)) {
+      buffers[i].pos = find_line(i, -1);
+    }
   } break;
-  case NEXT_LINE_FIRST: {
-  } break;
-  case NEXT_WORD_LAST: {
-  } break;
-  case NEXT_LINE_LAST: {
-  } break;
-  case PREV_WORD_LAST: {
-  } break;
-  case PREV_LINE_LAST: {
+  case NEXT_LINE: {
+    if (buf_bounds(i)) {
+      buffers[i].pos = find_line(i, 1);
+    }
   } break;
   }
 }

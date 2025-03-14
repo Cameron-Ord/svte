@@ -81,7 +81,9 @@ int main(int argc, char *argv[]) {
         }
       } break;
       case SDL_KEYDOWN: {
-        switch (e.key.keysym.sym) {
+        const int sym = e.key.keysym.sym;
+        const int mod = e.key.keysym.mod;
+        switch (sym) {
 
         case SDLK_BACKSPACE: {
           editor.buffer_rm_char();
@@ -96,11 +98,25 @@ int main(int argc, char *argv[]) {
         } break;
 
         case SDLK_LEFT: {
-          editor.buffer_mv_op(MV_LEFT);
+          if (mod & KMOD_SHIFT) {
+            editor.buffer_mv_op(PREV_WORD);
+          } else {
+            editor.buffer_mv_op(MV_LEFT);
+          }
         } break;
 
         case SDLK_RIGHT: {
-          editor.buffer_mv_op(MV_RIGHT);
+          if (mod & KMOD_SHIFT) {
+            editor.buffer_mv_op(NEXT_WORD);
+          } else {
+            editor.buffer_mv_op(MV_RIGHT);
+          }
+        } break;
+        case SDLK_UP: {
+          editor.buffer_mv_op(PREV_LINE);
+        } break;
+        case SDLK_DOWN: {
+          editor.buffer_mv_op(NEXT_LINE);
         } break;
         }
       } break;

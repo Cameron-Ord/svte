@@ -19,15 +19,10 @@ typedef enum {
   MV_RIGHT = 1,
   MV_LEFT = 2,
 
-  NEXT_WORD_FIRST = 3,
-  PREV_WORD_FIRST = 4,
-  PREV_LINE_FIRST = 5,
-  NEXT_LINE_FIRST = 6,
-
-  NEXT_WORD_LAST = 7,
-  PREV_WORD_LAST = 8,
-  PREV_LINE_LAST = 9,
-  NEXT_LINE_LAST = 10,
+  NEXT_WORD = 3,
+  PREV_WORD = 4,
+  PREV_LINE = 5,
+  NEXT_LINE = 6,
 
   // not yet
   // COPY_AT = 7,
@@ -61,6 +56,7 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  int find_line(const int i, const int direction);
   int buf_bounds(const int i);
   int pos_bounds(const int i, const int pos);
   void buf_replace_at(const int i, const unsigned char c);
