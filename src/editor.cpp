@@ -66,7 +66,7 @@ int Editor::buffer_del_char(void) {
 
 int Editor::buffer_rm_char(void) {
   const Buf *b = bufs.get_buf(buf_i);
-  if (!(b->pos >= 0) || b->size < 1)
+  if (!(b->pos > 0) || b->size < 1)
     return 0;
 
   if (bufs.buf_bounds(buf_i)) {

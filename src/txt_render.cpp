@@ -31,7 +31,7 @@ void FontRenderer::render_curs(const Buf *buf, const Vec2i *dims) {
       rowy += 1;
     }
 
-    if (i == buf->pos) {
+    if (i == (size_t)buf->pos) {
       SDL_Rect curs_rect = {x, y, dims->x, dims->y};
       SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
       SDL_RenderFillRect(rend, &curs_rect);

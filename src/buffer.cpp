@@ -5,6 +5,7 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
+#define PER_FILE_LIMIT (250 * 1024 * 1024) // 250 MiB
 
 #ifndef NULLCHAR
 #define NULLCHAR '\0'
@@ -214,20 +215,29 @@ size_t Buffers::read_file(const char *fn) {
   strncat(path, fn, lengths[0] + 1);
 
   File_Info fi = fsize(file_open(path));
+  const int i = match_buffer(fn);
   size_t read = 0;
 
   if (fi.f && fi.fs > 0) {
-    const int i = match_buffer(fn);
-
     rewind(fi.f);
-    const size_t size = (size_t)fi.fs;
+    const int cond = fi.fs > PER_FILE_LIMIT;
 
-    if (buf_malloc(i, size)) {
-      read = fread(buffers[i].buf, 1, size, fi.f);
+    switch (cond) {
+    case 0: {
+      if (buf_malloc(i, (size_t)fi.fs)) {
+        read = fread(buffers[i].buf, 1, fi.fs, fi.f);
+      }
+    } break;
+    case 1: {
+      std::cerr << "File too large!" << std::endl;
+    } break;
     }
-  }
-  free(path);
 
+  } else if (!fi.f) {
+    buf_malloc(i, 0);
+  }
+
+  free(path);
   return read;
 }
 
