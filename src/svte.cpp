@@ -15,6 +15,10 @@
 #define NEWLINE '\n'
 #endif
 
+#ifndef SPACECHAR
+#define SPACECHAR ' '
+#endif
+
 int main(int argc, char *argv[]) {
   if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
     fprintf(stderr, "Failed to initialize SDL2! -> %s\n", SDL_GetError());
@@ -88,6 +92,10 @@ int main(int argc, char *argv[]) {
         const int sym = e.key.keysym.sym;
         const int mod = e.key.keysym.mod;
         switch (sym) {
+
+        case SDLK_TAB: {
+          editor.buffer_insert_char(SPACECHAR);
+        } break;
 
         case SDLK_BACKSPACE: {
           editor.buffer_rm_char();
