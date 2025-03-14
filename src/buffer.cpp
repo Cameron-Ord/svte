@@ -88,25 +88,54 @@ int Buffers::find_word(const int i, const int direction) {
     default:
       return pos;
     case 1: {
-      unsigned char lastchar = 0;
+      unsigned char lastchar = NULLCHAR;
       for (int j = pos; j <= (int)b->size; j++) {
-        const unsigned char currchar = b->buf[j];
-        const int cond = lastchar == SPACECHAR || lastchar == NEWLINE;
+        unsigned char currchar = b->buf[j];
+        int cond = (lastchar == SPACECHAR || lastchar == NEWLINE) ||
+                   (lastchar == SPACECHAR || currchar == NEWLINE);
 
-        if (cond && currchar != lastchar) {
+        if (cond) {
+          // start at next position
+          for (int k = j + 1; k <= (int)b->size; k++) {
+            currchar = b->buf[k];
+            // use position of next space, or limit to size
+            cond = (currchar == SPACECHAR || currchar == NEWLINE) &&
+                   (lastchar != SPACECHAR || lastchar != NEWLINE);
+            if (cond || k == b->size) {
+              return k;
+            }
+          }
+          // fallback
           return j;
         }
-
         lastchar = currchar;
       }
     } break;
     case -1: {
-      unsigned char lastchar = 0;
+      unsigned char lastchar = NULLCHAR;
       for (int j = pos; j >= 0; j--) {
         const unsigned char currchar = b->buf[j];
-        const int cond = lastchar == SPACECHAR || lastchar == NEWLINE;
+        int cond = (lastchar == SPACECHAR || lastchar == NEWLINE) ||
+                   (lastchar == SPACECHAR || currchar == NEWLINE);
 
-        if (cond && currchar != lastchar) {
+        // Found it
+        if (cond) {
+          for (int k = j; k >= 0; k--) {
+            // traverse until the character is not the same as before
+            cond = b->buf[k] != SPACECHAR && b->buf[k] != NEWLINE;
+            if (cond) {
+              unsigned char next = NULLCHAR;
+              if (k > 0) {
+                next = b->buf[k - 1];
+              }
+              // use position before next space or 0
+              cond = (next == SPACECHAR || next == NEWLINE) || k == 0;
+              if (cond) {
+                return k;
+              }
+            }
+          }
+          // fallback
           return j;
         }
         lastchar = currchar;
