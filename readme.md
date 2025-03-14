@@ -17,5 +17,6 @@ Very much in early stages of development.
 1. Reading of text files.
 2. Editing text buffers (Insert, Remove, Delete).
 3. Move to start of previous word and move to end of next word.
-4. Single buffer rendering.
-5. Char atlases.
+4. Move to prev/next lines.
+5. Single buffer rendering.
+6. Char atlases.
