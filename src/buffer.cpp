@@ -101,14 +101,15 @@ int Buffers::find_word(const int i, const int direction) {
       }
     } break;
     case -1: {
-      for (int j = pos; j > 0; j--) {
+      unsigned char lastchar = 0;
+      for (int j = pos; j >= 0; j--) {
         const unsigned char currchar = b->buf[j];
-        const unsigned char nextchar = b->buf[j - 1];
+        const int cond = lastchar == SPACECHAR || lastchar == NEWLINE;
 
-        const int cond = currchar == SPACECHAR || currchar == NEWLINE;
-        if (cond && nextchar != currchar) {
+        if (cond && currchar != lastchar) {
           return j;
         }
+        lastchar = currchar;
       }
     } break;
     }
