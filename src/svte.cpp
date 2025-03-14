@@ -114,6 +114,8 @@ int main(int argc, char *argv[]) {
 
     renderer._frender()->render_buffer(editor._bufs()->get_buf(0),
                                        font._chars());
+    renderer._frender()->render_curs(editor._bufs()->get_buf(0),
+                                     font._chars()->get_char_dims());
 
     frame_time = SDL_GetTicks64() - frame_start;
     if (tpf > frame_time) {

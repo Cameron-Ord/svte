@@ -47,11 +47,11 @@ void Buffers::buf_replace_at(const int i, const unsigned char c) {
 
 int Buffers::pos_bounds(const int i, const int pos) {
   const size_t size = buffers[i].size;
-  if (pos >= (int)size) {
+  if (pos > (int)size) {
     return 0;
   }
 
-  if (pos <= 0) {
+  if (pos < 0) {
     return 0;
   }
 
@@ -74,19 +74,20 @@ void Buffers::buf_mv_pos(const int i, const int operation) {
   switch (operation) {
   default:
     return;
+
   case MV_RIGHT: {
     if (buf_bounds(i) && pos_bounds(i, buffers[i].pos + 1)) {
       buffers[i].pos += 1;
     } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos + 1)) {
-      buffers[i].pos = buffers[i].size - 1;
+      buffers[i].pos = buffers[i].size;
     }
   } break;
 
   case MV_LEFT: {
-    if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
-      buffers[i].pos = 0;
-    } else if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
+    if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
       buffers[i].pos -= 1;
+    } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
+      buffers[i].pos = 0;
     }
   } break;
 
@@ -119,10 +120,11 @@ void Buffers::buf_pos_bw(const int i) {
   }
 }
 
-void Buffers::buf_insert(const int i, unsigned char c) {
+void Buffers::buf_insert(const int i, const char *c) {
   if (buf_bounds(i) && (size_t)buffers[i].pos < buffers[i].size) {
-    buffers[i].buf[buffers[i].pos] = c;
-    buffers[i].pos++;
+    Buf *buf = &buffers[i];
+    memcpy(&buf->buf[buf->pos], c, 1);
+    buf->pos++;
   }
 }
 
@@ -134,7 +136,8 @@ void Buffers::shift_buffer(const int direction, const int i) {
 
   switch (direction) {
   case INS: { // insert
-    memmove(&buf->buf[buf->pos + 1], &buf->buf[buf->pos], buf->size - buf->pos);
+    memmove(&buf->buf[buf->pos + 1], &buf->buf[buf->pos],
+            buf->size - buf->pos - 1);
   } break;
 
   case DEL: { // delete
@@ -173,7 +176,7 @@ Buffers::Buffers(char *pathstr, char *str_arg) : working_path(pathstr) {
   switch (gate) {
   case 0: {
     append_buffer(random_fn(), 1);
-    buf_malloc(0, DEFAULT_SIZE);
+    buf_malloc(0, 0);
   } break;
 
   case 1: {
@@ -229,31 +232,40 @@ size_t Buffers::read_file(const char *fn) {
 }
 
 size_t Buffers::buf_malloc(const int i, const size_t size) {
-  assert(buf_bounds(i) && size + 1 >= DEFAULT_SIZE + 1);
+  assert(buf_bounds(i) && size + 1 >= DEFAULT_SIZE);
   buffers[i].buf = (char *)malloc(size + 1);
   if (!buffers[i].buf) {
     std::cerr << "Failed to allocate buffer!" << std::endl;
     return 0;
   }
 
-  buffers[i].buf[size - 1] = ' ';
-  buffers[i].buf[size] = NULLCHAR;
+  for (size_t j = 0; j < size + 1; j++)
+    buffers[i].buf[j] = NULLCHAR;
+
   buffers[i].size = size;
   return size;
 }
 
 size_t Buffers::buf_realloc(const int i, const size_t new_size) {
-  assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE + 1);
+  assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE);
   char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
   if (!tmp) {
     std::cerr << "Failed to reallocate buffer!" << std::endl;
     return 0;
   }
-
   buffers[i].buf = tmp;
+
+  if (new_size == 0) {
+    for (size_t j = 0; j < new_size + 1; j++) {
+      buffers[i].buf[j] = NULLCHAR;
+    }
+
+    buffers[i].size = new_size;
+    return new_size;
+  }
+
   buffers[i].buf[new_size] = NULLCHAR;
   buffers[i].size = new_size;
-
   return new_size;
 }
 

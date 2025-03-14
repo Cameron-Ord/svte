@@ -3,6 +3,20 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <iostream>
+
+static int del_char_force_bounds(const size_t bs, const int pos) {
+  if (pos >= (int)bs) {
+    return 0;
+  }
+
+  if (pos < 0) {
+    return 0;
+  }
+
+  return 1;
+}
+
 Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str)) {
   buf_i = 0;
 }
@@ -34,16 +48,12 @@ void Editor::switch_buffer(const int direction) {
 
 int Editor::buffer_del_char(void) {
   const Buf *b = bufs.get_buf(buf_i);
-  if (b->size < 1)
+  if (b->size < 1) {
     return 0;
-
-  if (b->size == 1 && b->pos == 0) {
-    bufs.buf_replace_at(buf_i, ' ');
-    return 1;
   }
 
   if (bufs.buf_bounds(buf_i)) {
-    if ((size_t)b->pos == b->size - 1) {
+    if (!del_char_force_bounds(b->size, b->pos)) {
       bufs.buf_pos_bw(buf_i);
     }
 
@@ -51,16 +61,12 @@ int Editor::buffer_del_char(void) {
     bufs.buf_realloc(buf_i, b->size - 1);
   }
 
-  if ((size_t)b->pos == b->size) {
-    bufs.buf_pos_bw(buf_i);
-  }
-
   return 1;
 }
 
 int Editor::buffer_rm_char(void) {
   const Buf *b = bufs.get_buf(buf_i);
-  if (!(b->pos > 0) || b->size - 1 <= 0)
+  if (!(b->pos >= 0) || b->size < 1)
     return 0;
 
   if (bufs.buf_bounds(buf_i)) {
@@ -72,12 +78,12 @@ int Editor::buffer_rm_char(void) {
   return 1;
 }
 
-int Editor::buffer_insert_char(const unsigned char c) {
+int Editor::buffer_insert_char(const char c) {
   const Buf *b = bufs.get_buf(buf_i);
   if (bufs.buf_bounds(buf_i)) {
     bufs.buf_realloc(buf_i, b->size + 1);
     bufs.shift_buffer(INS, buf_i);
-    bufs.buf_insert(buf_i, c);
+    bufs.buf_insert(buf_i, &c);
   }
   return 1;
 }

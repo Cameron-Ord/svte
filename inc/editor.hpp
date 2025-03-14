@@ -65,7 +65,7 @@ public:
   int pos_bounds(const int i, const int pos);
   void buf_replace_at(const int i, const unsigned char c);
   void buf_pos_bw(const int i);
-  void buf_insert(const int i, unsigned char c);
+  void buf_insert(const int i, const char *c);
   void shift_buffer(const int direction, const int pos);
   void print_file(const int i);
   char *random_fn(void);
@@ -93,7 +93,7 @@ public:
   Editor(char *pathstr, char *arg_str);
   Buffers *_bufs(void) { return &bufs; }
   int _buf_i(void) { return buf_i; }
-  int buffer_insert_char(const unsigned char c);
+  int buffer_insert_char(const char c);
   int buffer_rm_char(void);
   int buffer_del_char(void);
   void buffer_mv_op(const int operation);
