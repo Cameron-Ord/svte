@@ -139,6 +139,7 @@ int Buffers::find_line(const int i, const int direction) {
           return j;
         }
       }
+      return (int)b->size;
     } break;
 
     case -1: {
@@ -153,10 +154,10 @@ int Buffers::find_line(const int i, const int direction) {
           return j;
         }
       }
+
+      return 0;
     } break;
     }
-
-    return (int)(b->size - 1);
   }
   return 0;
 }
