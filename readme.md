@@ -16,7 +16,7 @@ Very much in early stages of development.
 ## What's been done:
 1. Reading of text files.
 2. Editing text buffers (Insert, Remove, Delete).
-3. Move to start of previous word and move to end of next word.
+3. Move to start of previous word and move to start of next word.
 4. Move to prev/next lines.
 5. Single buffer rendering.
 6. Char atlases.

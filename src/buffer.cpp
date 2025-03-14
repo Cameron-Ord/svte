@@ -90,18 +90,14 @@ int Buffers::find_word(const int i, const int direction) {
     case 1: {
       unsigned char lastchar = NULLCHAR;
       for (int j = pos; j <= (int)b->size; j++) {
-        unsigned char currchar = b->buf[j];
+        const unsigned char currchar = b->buf[j];
         int cond = (lastchar == SPACECHAR || lastchar == NEWLINE) ||
                    (lastchar == SPACECHAR || currchar == NEWLINE);
 
         if (cond) {
-          // start at next position
-          for (int k = j + 1; k <= (int)b->size; k++) {
-            currchar = b->buf[k];
-            // use position of next space, or limit to size
-            cond = (currchar == SPACECHAR || currchar == NEWLINE) &&
-                   (lastchar != SPACECHAR || lastchar != NEWLINE);
-            if (cond || k == b->size) {
+          for (int k = j; k <= (int)b->size; k++) {
+            cond = b->buf[k] != SPACECHAR && b->buf[k] != NEWLINE;
+            if (cond || k == (int)b->size) {
               return k;
             }
           }
