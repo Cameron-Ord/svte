@@ -56,6 +56,7 @@ class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
 
+  int find_word(const int i, const int direction);
   int find_line(const int i, const int direction);
   int buf_bounds(const int i);
   int pos_bounds(const int i, const int pos);

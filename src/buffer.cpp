@@ -11,6 +11,14 @@
 #define NULLCHAR '\0'
 #endif
 
+#ifndef SPACECHAR
+#define SPACECHAR ' '
+#endif
+
+#ifndef NEWLINE
+#define NEWLINE '\n'
+#endif
+
 #define DEFAULT_SIZE 1
 
 static size_t len_add(const size_t *lengths, const size_t size) {
@@ -71,6 +79,45 @@ int Buffers::buf_bounds(const int i) {
   return 1;
 }
 
+int Buffers::find_word(const int i, const int direction) {
+  if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
+    Buf *b = &buffers[i];
+    int pos = b->pos;
+
+    switch (direction) {
+    default:
+      return pos;
+    case 1: {
+      unsigned char lastchar = 0;
+      for (int j = pos; j <= (int)b->size; j++) {
+        const unsigned char currchar = b->buf[j];
+        const int cond = lastchar == SPACECHAR || lastchar == NEWLINE;
+
+        if (cond && currchar != lastchar) {
+          return j;
+        }
+
+        lastchar = currchar;
+      }
+    } break;
+    case -1: {
+      for (int j = pos; j > 0; j--) {
+        const unsigned char currchar = b->buf[j];
+        const unsigned char nextchar = b->buf[j - 1];
+
+        const int cond = currchar == SPACECHAR || currchar == NEWLINE;
+        if (cond && nextchar != currchar) {
+          return j;
+        }
+      }
+    } break;
+    }
+    return pos;
+  }
+
+  return 0;
+}
+
 int Buffers::find_line(const int i, const int direction) {
   if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
     Buf *b = &buffers[i];
@@ -81,7 +128,7 @@ int Buffers::find_line(const int i, const int direction) {
       return 0;
     case 1: {
       const int cond = b->buf[pos] == NEWLINE; //|| b->buf[pos] == NULLCHAR;
-      if (b->buf[pos] == NEWLINE && pos_bounds(i, pos + 1)) {
+      if (cond && pos_bounds(i, pos + 1)) {
         pos++;
       }
 
@@ -137,8 +184,14 @@ void Buffers::buf_mv_pos(const int i, const int operation) {
   // Words are seperated by spaces, so just find the first char after a space,
   // can add skip to last position later
   case NEXT_WORD: {
+    if (buf_bounds(i)) {
+      buffers[i].pos = find_word(i, 1);
+    }
   } break;
   case PREV_WORD: {
+    if (buf_bounds(i)) {
+      buffers[i].pos = find_word(i, -1);
+    }
   } break;
   case PREV_LINE: {
     if (buf_bounds(i)) {
