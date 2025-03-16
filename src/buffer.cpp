@@ -79,66 +79,73 @@ int Buffers::buf_bounds(const int i) {
   return 1;
 }
 
+int static next_delimit_pos(const char *buf, const int pos, const int ssize,
+                            const int direction) {
+  switch (direction) {
+  default:
+    return pos;
+  case -1: {
+    for (int i = pos; i >= 0; i--) {
+      if (buf[i] == NEWLINE || buf[i] == SPACECHAR) {
+        return i;
+      }
+    }
+  } break;
+  case 1: {
+    for (int i = pos; i <= ssize; i++) {
+      if (buf[i] == NEWLINE || buf[i] == SPACECHAR) {
+        return i;
+      }
+    }
+  } break;
+  }
+
+  return pos;
+}
+
 int Buffers::find_word(const int i, const int direction) {
   if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
     Buf *b = &buffers[i];
-    int pos = b->pos;
 
     switch (direction) {
     default:
-      return pos;
+      return b->pos;
     case 1: {
-      unsigned char lastchar = NULLCHAR;
-      for (int j = pos; j <= (int)b->size; j++) {
-        const unsigned char currchar = b->buf[j];
-        int cond = (lastchar == SPACECHAR || lastchar == NEWLINE) ||
-                   (lastchar == SPACECHAR || currchar == NEWLINE);
-
-        if (cond) {
+      // start at pos
+      // find first occurence of a space/newline
+      // traverse until a non space/newline character is found.
+      // return at pos;
+      for (int j = b->pos; j <= (int)b->size; j++) {
+        if (b->buf[j] == SPACECHAR || b->buf[j] == NEWLINE) {
           for (int k = j; k <= (int)b->size; k++) {
-            cond = b->buf[k] != SPACECHAR && b->buf[k] != NEWLINE;
-            if (cond || k == (int)b->size) {
-              return k;
+            if (b->buf[k] == SPACECHAR || b->buf[k] == NEWLINE) {
+              continue;
             }
+            return k;
           }
-          // fallback
           return j;
         }
-        lastchar = currchar;
       }
     } break;
     case -1: {
-      unsigned char lastchar = NULLCHAR;
-      for (int j = pos; j >= 0; j--) {
-        const unsigned char currchar = b->buf[j];
-        int cond = (lastchar == SPACECHAR || lastchar == NEWLINE) ||
-                   (lastchar == SPACECHAR || currchar == NEWLINE);
-
-        // Found it
-        if (cond) {
-          for (int k = j; k >= 0; k--) {
-            // traverse until the character is not the same as before
-            cond = b->buf[k] != SPACECHAR && b->buf[k] != NEWLINE;
-            if (cond) {
-              unsigned char next = NULLCHAR;
-              if (k > 0) {
-                next = b->buf[k - 1];
-              }
-              // use position before next space or 0
-              cond = (next == SPACECHAR || next == NEWLINE) || k == 0;
-              if (cond) {
-                return k;
-              }
-            }
-          }
-          // fallback
-          return j;
-        }
-        lastchar = currchar;
+      // Get starting pos (first space/newline)
+      // Skip over until a normal char is reached.
+      // Find next space/newline, and return the position before it.
+      int j = next_delimit_pos(b->buf, b->pos, b->size, -1);
+      while (j > 0 && (b->buf[j] == NEWLINE || b->buf[j] == SPACECHAR)) {
+        j--;
       }
+      for (int i = j; i > 0; i--) {
+        if (b->buf[i - 1] == NEWLINE || b->buf[i - 1] == SPACECHAR) {
+          return i;
+        } else if (i - 1 == 0) {
+          return i - 1;
+        }
+      }
+
     } break;
     }
-    return pos;
+    return b->pos;
   }
 
   return 0;
