@@ -109,6 +109,39 @@ int main(int argc, char *argv[]) {
           editor.buffer_insert_char(NEWLINE);
         } break;
 
+        // Vim like keybinds for movement. This is honestly just a work around
+        // for now as atm I am using a keyboard without cursor keys.
+
+        // This editor will not have modal editing and I don't want it to. But
+        // having Vim-ish keybinds is a good thing.
+        case SDLK_h: {
+          if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
+            editor.buffer_mv_op(PREV_WORD);
+          } else {
+            editor.buffer_mv_op(MV_LEFT);
+          }
+        } break;
+
+        case SDLK_j: {
+          if ((mod & KMOD_CTRL)) {
+            editor.buffer_mv_op(NEXT_LINE);
+          }
+        } break;
+
+        case SDLK_k: {
+          if ((mod & KMOD_CTRL)) {
+            editor.buffer_mv_op(PREV_LINE);
+          }
+        } break;
+
+        case SDLK_l: {
+          if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
+            editor.buffer_mv_op(NEXT_WORD);
+          } else {
+            editor.buffer_mv_op(MV_RIGHT);
+          }
+        } break;
+
         case SDLK_LEFT: {
           if (mod & KMOD_SHIFT) {
             editor.buffer_mv_op(PREV_WORD);

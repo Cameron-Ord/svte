@@ -83,6 +83,8 @@ private:
   std::vector<Buf> buffers;
 };
 
+typedef enum { VISUAL = 0, INSERT = 1, REPLACE = 2 } MODES;
+
 class Editor {
 public:
   Editor(char *pathstr, char *arg_str);
@@ -97,6 +99,7 @@ public:
 private:
   int buf_i;
   Buffers bufs;
+  int mode;
 };
 
 #endif

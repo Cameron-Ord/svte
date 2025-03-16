@@ -111,44 +111,28 @@ int Buffers::find_word(const int i, const int direction) {
     default:
       return b->pos;
     case 1: {
-      // start at pos
-      // find first occurence of a space/newline
-      // traverse until a non space/newline character is found.
-      // return at pos;
-      for (int j = b->pos; j <= (int)b->size; j++) {
-        if (b->buf[j] == SPACECHAR || b->buf[j] == NEWLINE) {
-          for (int k = j; k <= (int)b->size; k++) {
-            if (b->buf[k] == SPACECHAR || b->buf[k] == NEWLINE) {
-              continue;
-            }
-            return k;
-          }
-          return j;
-        }
+      int j = next_delimit_pos(b->buf, b->pos, b->size, 1);
+      const int ssize = (int)b->size;
+      while (j < ssize && (b->buf[j] == NEWLINE || b->buf[j] == SPACECHAR)) {
+        j++;
       }
+      return j;
     } break;
     case -1: {
-      // Get starting pos (first space/newline)
-      // Skip over until a normal char is reached.
-      // Find next space/newline, and return the position before it.
       int j = next_delimit_pos(b->buf, b->pos, b->size, -1);
       while (j > 0 && (b->buf[j] == NEWLINE || b->buf[j] == SPACECHAR)) {
         j--;
       }
-      for (int i = j; i > 0; i--) {
-        if (b->buf[i - 1] == NEWLINE || b->buf[i - 1] == SPACECHAR) {
-          return i;
-        } else if (i - 1 == 0) {
-          return i - 1;
-        }
+      while (j > 0 &&
+             !(b->buf[j - 1] == NEWLINE || b->buf[j - 1] == SPACECHAR)) {
+        j--;
       }
-
+      return j;
     } break;
     }
-    return b->pos;
+  } else {
+    return 0;
   }
-
-  return 0;
 }
 
 int Buffers::find_line(const int i, const int direction) {
