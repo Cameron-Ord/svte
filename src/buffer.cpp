@@ -41,7 +41,7 @@ static File_Info fsize(FILE *fd) {
 
 static FILE *file_open(const char *path) {
   FILE *f = NULL;
-  if (!(f = fopen(path, "rb"))) {
+  if (!(f = fopen(path, "r"))) {
     std::cerr << "Failed to open path: " << path << std::endl;
     return NULL;
   }
@@ -427,7 +427,7 @@ int Buffers::write_buffer(const char *file_name) {
   strncat(path, s, lengths[2] + 1);
   strncat(path, file_name, lengths[0] + 1);
 
-  FILE *f = fopen(path, "wa");
+  FILE *f = fopen(path, "w");
   if (!f) {
     std::cerr << "Failed to open file!" << std::endl;
     return 0;

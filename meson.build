@@ -1,0 +1,26 @@
+project('SVTE', 'cpp', default_options: ['bindir=bin'])
+src = [
+        'src/svte.cpp',
+        'src/audio.cpp',
+        'src/editor.cpp',
+        'src/buffer.cpp',
+        'src/font.cpp',
+        'src/txt_render.cpp',
+        'src/chars.cpp',
+        'src/renderer.cpp',
+        'src/window.cpp',
+]
+
+sdl2_dep = dependency('sdl2')
+sdl2_ttf_dep = dependency('sdl2_ttf')
+
+cmp_time_args = [
+
+]
+
+target = executable(
+        meson.project_name(),
+        src,
+        dependencies: [sdl2_dep, sdl2_ttf_dep],
+        c_args: cmp_time_args
+)
