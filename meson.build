@@ -5,7 +5,7 @@ src = [
         'src/editor.cpp',
         'src/buffer.cpp',
         'src/font.cpp',
-        'src/txt_render.cpp',
+        'src/render_draw.cpp',
         'src/chars.cpp',
         'src/renderer.cpp',
         'src/window.cpp',
@@ -13,9 +13,8 @@ src = [
 
 sdl2_dep = dependency('sdl2')
 sdl2_ttf_dep = dependency('sdl2_ttf')
-
 cmp_time_args = [
-
+    '-Wall', '-Wextra', '-Wpedantic'
 ]
 
 target = executable(

@@ -31,7 +31,7 @@ public:
   FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
-  void render_buffer(const Buf *buf, Chars *ch);
+  int render_buffer(const Buf *buf, Chars *ch);
   void render_curs(const Buf *b, const Vec2i *dims);
 
 private:

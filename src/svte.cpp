@@ -188,7 +188,6 @@ int main(int argc, char *argv[]) {
 
   SDL_DestroyRenderer(renderer.get_renderer());
   SDL_DestroyWindow(window.get_window());
-  TTF_CloseFont(font.get_font()->title);
   TTF_CloseFont(font.get_font()->def);
   TTF_Quit();
   SDL_Quit();
