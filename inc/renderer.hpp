@@ -32,7 +32,7 @@ public:
   ~FontRenderer(void);
   void frender_set_renderer(SDL_Renderer *r);
   int render_buffer(const Buf *buf, Chars *ch);
-  void render_curs(const Buf *b, const Vec2i *dims);
+  int render_curs(const Buf *b, const Vec2i *dims);
 
 private:
   SDL_Renderer *rend;

@@ -18,34 +18,35 @@ FontRenderer::FontRenderer(SDL_Renderer *r, const Vec2i *dimensions)
 
 void FontRenderer::frender_set_renderer(SDL_Renderer *r) { rend = r; }
 
-void FontRenderer::render_curs(const Buf *buf, const Vec2i *dims) {
-  const int pad = 4;
-  int rowy = 0, colx = 0;
+//Returns the height in which the cursor reaches.
+int FontRenderer::render_curs(const Buf *buf, const Vec2i *dims) {
+    const int pad = 4;
+    int rowy = 0, colx = 0;
 
-  for (size_t i = 0; i <= buf->size; i++) {
-    const int x = (colx * dims->x) + pad;
-    const int y = (rowy * dims->y) + pad;
+    for (size_t i = 0; i <= buf->size; i++) {
+      const int x = (colx * dims->x) + pad;
+      const int y = (rowy * dims->y) + pad;
 
-    const int is_nl = buf->buf[i] == NEWLINE;
-    switch(is_nl){
-        case 0:{
-            colx += 1;
-        }break;
-        case 1:{
-            colx = 0;
-            rowy += 1;
-        }break;
-    }
+      const int is_nl = buf->buf[i] == NEWLINE;
+      switch(is_nl){
+          case 0:{
+              colx += 1;
+          }break;
+          case 1:{
+              colx = 0;
+              rowy += 1;
+          }break;
+      }
 
-    if (i == (size_t)buf->pos) {
-        SDL_Rect curs_rect = {x, y, dims->x, dims->y};
-        SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
-        SDL_RenderFillRect(rend, &curs_rect);
-        return;
-    }
-  }
+      if (i == (size_t)buf->pos) {
+          SDL_Rect curs_rect = {x, y, dims->x, dims->y};
+          SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+          SDL_RenderFillRect(rend, &curs_rect);
+      }
+    }   
+    return rowy * dims->y;
 }
-
+//Returns the total height of the buffer when rendered.
 int FontRenderer::render_buffer(const Buf *buf, Chars *ch) {
     const int padding = 2;
     const int m_ch_width = ch->get_char_dims()->x, m_ch_height = ch->get_char_dims()->y;

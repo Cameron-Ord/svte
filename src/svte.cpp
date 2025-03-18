@@ -10,6 +10,7 @@
 #include <cstring>
 #include <linux/limits.h>
 #include <unistd.h>
+#include <iostream>
 
 #ifndef NEWLINE
 #define NEWLINE '\n'
@@ -172,11 +173,15 @@ int main(int argc, char *argv[]) {
       } break;
       }
     }
+    FontRenderer *fr = renderer._frender();
+    Buffers *b = editor._bufs();   
 
-    renderer._frender()->render_buffer(editor._bufs()->get_buf(0),
-                                       font._chars());
-    renderer._frender()->render_curs(editor._bufs()->get_buf(0),
-                                     font._chars()->get_char_dims());
+    b->set_buffer_height(fr->render_buffer(editor._bufs()->get_buf(0), font._chars()), 0);
+    b->set_curs_height(fr->render_curs(editor._bufs()->get_buf(0), font._chars()->get_char_dims()), 0);
+
+    std::cout << "TOTAL HEIGHT: " << b->get_text_height(0) << std::endl;
+    std::cout << "CURSOR HEIGHT: " << b->get_cursor_height(0) << std::endl;
+
 
     frame_time = SDL_GetTicks64() - frame_start;
     if (tpf > frame_time) {

@@ -21,6 +21,9 @@
 
 #define DEFAULT_SIZE 1
 
+
+
+
 static size_t len_add(const size_t *lengths, const size_t size) {
   size_t accumulator = 0;
   for (size_t i = 0; i < size; i++) {
@@ -48,7 +51,17 @@ static FILE *file_open(const char *path) {
   return f;
 }
 
-// needs some checks
+void Buffers::set_buffer_height(const int h, const int i){
+    buffers[i].text_height = h;
+}
+
+void Buffers::set_curs_height(const int h, const int i){
+    buffers[i].curs_height = h;
+}
+
+
+size_t Buffers::buffer_count(void){ return buffers.size(); }
+
 void Buffers::buf_replace_at(const int i, const unsigned char c) {
   if (buf_bounds(i) && buffers[i].pos < (int)buffers[i].size)
     buffers[i].buf[buffers[i].pos] = c;

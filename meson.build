@@ -11,8 +11,8 @@ src = [
         'src/window.cpp',
 ]
 
-sdl2_dep = dependency('sdl2')
-sdl2_ttf_dep = dependency('sdl2_ttf')
+sdl2_dep = dependency('SDL2')
+sdl2_ttf_dep = dependency('SDL2_ttf')
 cmp_time_args = [
     '-Wall', '-Wextra', '-Wpedantic'
 ]

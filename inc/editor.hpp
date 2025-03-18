@@ -41,6 +41,7 @@ struct Buf {
   int fn_needs_change;
   size_t size;
   int pos;
+  int text_height, curs_height;
 };
 typedef struct Buf Buf;
 
@@ -53,7 +54,10 @@ typedef struct File_Info File_Info;
 class Buffers {
 public:
   Buffers(char *pathstr, char *arg_str);
-
+  int get_text_height(const int i){ return buffers[i].text_height; }
+  int get_cursor_height(const int i){ return buffers[i].curs_height;}
+  void set_buffer_height(const int h, const int i);
+  void set_curs_height(const int h, const int i);
   int find_word(const int i, const int direction);
   int find_line(const int i, const int direction);
   int buf_bounds(const int i);
@@ -71,7 +75,7 @@ public:
   int match_buffer(const char *key);
   int write_buffer(const char *fn);
   size_t read_file(const char *fn);
-  size_t buffer_count(void) { return buffers.size(); }
+  size_t buffer_count(void);
   const Buf *get_buf(const int i);
   void buf_mv_pos(const int i, const int operation);
   void update_working_path(char *str) { working_path = str; }
