@@ -39,6 +39,7 @@ typedef struct String String;
 struct Buf
 {
     char *fn;
+    char *working_path;
     char *buf;
     // lines[rows][cols]
     int fn_needs_change;
@@ -59,8 +60,10 @@ class Buffers
 {
   public:
     Buffers(char *pathstr, char *arg_str);
-    int get_text_height(const int i) { return buffers[i].text_height; }
-    int get_cursor_height(const int i) { return buffers[i].curs_height; }
+    int allocate_buffer_list(void);
+    int realloc_buffer_list(const int direction);
+    int get_text_height(const int i);
+    int get_cursor_height(const int i);
     void set_buffer_height(const int h, const int i);
     void set_curs_height(const int h, const int i);
     int find_word(const int i, const int direction);
@@ -75,21 +78,19 @@ class Buffers
     char *random_fn(void);
     size_t buf_malloc(const int i, const size_t size);
     size_t buf_realloc(const int i, const size_t new_size);
-    void delete_buffer(const char *fn);
-    void append_buffer(char *fn, const int fn_needs_change);
+    void delete_buffer(const int i);
+    void append_buffer(char *wp, char *fn, const int fn_needs_change);
     int match_buffer(const char *key);
-    int write_buffer(const char *fn);
-    size_t read_file(const char *fn);
+    int write_buffer(const char *wp, const char *fn);
+    size_t read_file(const char *wp, const char *fn);
     size_t buffer_count(void);
     const Buf *get_buf(const int i);
     void buf_mv_pos(const int i, const int operation);
-    void update_working_path(char *str) { working_path = str; }
-    const char *get_working_path(void) { return working_path; }
+    const char *get_working_path(const int i);
 
   private:
-    // Mutable working path pointer
-    char *working_path;
-    std::vector<Buf> buffers;
+    Buf *buffers;
+    size_t buf_count;
 };
 
 typedef enum
@@ -99,22 +100,24 @@ typedef enum
     REPLACE = 2
 } MODES;
 
-class Editor
+struct Editor
 {
-  public:
-    Editor(char *pathstr, char *arg_str);
-    Buffers *_bufs(void) { return &bufs; }
-    int _buf_i(void) { return buf_i; }
-    int buffer_insert_char(const char c);
-    int buffer_rm_char(void);
-    int buffer_del_char(void);
-    void buffer_mv_op(const int operation);
-    void switch_buffer(const int direction);
-
-  private:
-    int buf_i;
-    Buffers bufs;
     int mode;
+    int current_buffer;
+    int open_buffers;
+    Buffers *buffers;
+    int (*del)(Editor *);
+    int (*rm)(Editor *);
+    int (*ins)(Editor *, const char);
+    void (*mv)(Editor *, const int);
+    void (*sb)(Editor *, const int);
 };
 
+void switch_buffer(Editor *e, const int direction);
+int buffer_del_char(Editor *e);
+int buffer_rm_char(Editor *e);
+int buffer_insert_char(Editor *e, const char c);
+void buffer_mv_op(Editor *e, const int op);
+
+typedef struct Editor Editor;
 #endif

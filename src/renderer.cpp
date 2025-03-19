@@ -5,20 +5,13 @@
 #include <cstdio>
 #include <cstdlib>
 
-FontRenderer Renderer::create_font_renderer(void)
-{
-    return FontRenderer(NULL, dim);
-}
-
-Renderer::Renderer(Window *w)
-    : rend(NULL), dim(w->get_dimensions()), frender(create_font_renderer())
+Renderer::Renderer()
+    : rend(NULL)
 {
     fprintf(stdout, "Renderer instance created\n");
 }
 
 Renderer::~Renderer(void) {}
-
-FontRenderer *Renderer::_frender(void) { return &frender; }
 
 void Renderer::bg_fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {

@@ -2,8 +2,11 @@
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-
 #include <iostream>
+
+void switch_buffer(Editor *e, const int direction)
+{
+}
 
 static int del_char_force_bounds(const size_t bs, const int pos)
 {
@@ -18,85 +21,53 @@ static int del_char_force_bounds(const size_t bs, const int pos)
     return 1;
 }
 
-Editor::Editor(char *pathstr, char *arg_str) : bufs(Buffers(pathstr, arg_str))
+int buffer_del_char(Editor *e)
 {
-    buf_i = 0;
-}
-
-void Editor::switch_buffer(const int direction)
-{
-    const int buf_count = (int)bufs.buffer_count();
-
-    switch (direction) {
-    default:
-        return;
-
-    case NEXT_BUFFER:
-    {
-        if (buf_i + 1 < buf_count) {
-            buf_i += 1;
-        } else {
-            buf_i = buf_count - 1;
-        }
-    } break;
-
-    case PREV_BUFFER:
-    {
-        if (buf_i - 1 >= 0) {
-            buf_i -= 1;
-        } else {
-            buf_i = 0;
-        }
-    } break;
-    }
-}
-
-int Editor::buffer_del_char(void)
-{
-    const Buf *b = bufs.get_buf(buf_i);
+    const Buf *b = e->buffers->get_buf(e->current_buffer);
     if (b->size < 1) {
         return 0;
     }
 
-    if (bufs.buf_bounds(buf_i)) {
+    if (e->buffers->buf_bounds(e->current_buffer)) {
         if (!del_char_force_bounds(b->size, b->pos)) {
-            bufs.buf_pos_bw(buf_i);
+            e->buffers->buf_pos_bw(e->current_buffer);
         }
 
-        bufs.shift_buffer(DEL, buf_i);
-        bufs.buf_realloc(buf_i, b->size - 1);
+        e->buffers->shift_buffer(DEL, e->current_buffer);
+        e->buffers->buf_realloc(e->current_buffer, b->size - 1);
     }
 
     return 1;
 }
-
-int Editor::buffer_rm_char(void)
+//
+int buffer_rm_char(Editor *e)
 {
-    const Buf *b = bufs.get_buf(buf_i);
+    const Buf *b = e->buffers->get_buf(e->current_buffer);
+    std::cout << b->pos << std::endl;
     if (!(b->pos >= 0) || b->size < 1)
         return 0;
 
-    if (bufs.buf_bounds(buf_i)) {
-        bufs.shift_buffer(RMV, buf_i);
-        bufs.buf_pos_bw(buf_i);
-        bufs.buf_realloc(buf_i, b->size - 1);
+    if (e->buffers->buf_bounds(e->current_buffer)) {
+        e->buffers->shift_buffer(RMV, e->current_buffer);
+        e->buffers->buf_pos_bw(e->current_buffer);
+        e->buffers->buf_realloc(e->current_buffer, b->size - 1);
     }
 
     return 1;
 }
-
-int Editor::buffer_insert_char(const char c)
+//
+int buffer_insert_char(Editor *e, const char c)
 {
-    const Buf *b = bufs.get_buf(buf_i);
-    if (bufs.buf_bounds(buf_i)) {
-        bufs.buf_realloc(buf_i, b->size + 1);
-        bufs.shift_buffer(INS, buf_i);
-        bufs.buf_insert(buf_i, &c);
+    const Buf *b = e->buffers->get_buf(e->current_buffer);
+    if (e->buffers->buf_bounds(e->current_buffer)) {
+        e->buffers->buf_realloc(e->current_buffer, b->size + 1);
+        e->buffers->shift_buffer(INS, e->current_buffer);
+        e->buffers->buf_insert(e->current_buffer, &c);
     }
     return 1;
 }
-
-void Editor::buffer_mv_op(const int operation)
+//
+void buffer_mv_op(Editor *e, const int op)
 {
-    bufs.buf_mv_pos(buf_i, operation);
+    e->buffers->buf_mv_pos(e->current_buffer, op);
 }

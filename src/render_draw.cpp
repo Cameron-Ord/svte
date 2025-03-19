@@ -11,16 +11,8 @@
 #define NEWLINE '\n'
 #endif
 
-FontRenderer::FontRenderer(SDL_Renderer *r, const Vec2i *dimensions)
-    : rend(NULL), dim(dimensions)
-{
-    fprintf(stdout, "Font renderer instance created\n");
-}
-
-void FontRenderer::frender_set_renderer(SDL_Renderer *r) { rend = r; }
-
 // Returns the height in which the cursor reaches.
-int FontRenderer::render_curs(const Buf *buf, const Vec2i *dims)
+int Renderer::render_curs(const Buf *buf, const Vec2i *dims)
 {
     const int pad = 2;
     int rowy = 0, colx = 0;
@@ -54,7 +46,7 @@ int FontRenderer::render_curs(const Buf *buf, const Vec2i *dims)
     return 0;
 }
 // Returns the total height of the buffer when rendered.
-int FontRenderer::render_buffer(const Buf *buf, Chars *ch)
+int Renderer::render_buffer(const Buf *buf, Chars *ch)
 {
     const int padding = 2;
     const int m_ch_width = ch->get_char_dims()->x, m_ch_height = ch->get_char_dims()->y;
@@ -85,4 +77,3 @@ int FontRenderer::render_buffer(const Buf *buf, Chars *ch)
     return rowy * m_ch_height + (padding * rowy);
 }
 
-FontRenderer::~FontRenderer(void) {}

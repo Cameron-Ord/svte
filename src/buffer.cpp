@@ -51,6 +51,17 @@ static FILE *file_open(const char *path)
     return f;
 }
 
+int Buffers::match_buffer(const char *key)
+{
+    for (size_t i = 0; i < buf_count; i++) {
+        const char *fn = buffers[i].fn;
+        if (strcmp(fn, key) == 0) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void Buffers::set_buffer_height(const int h, const int i)
 {
     buffers[i].text_height = h;
@@ -61,7 +72,7 @@ void Buffers::set_curs_height(const int h, const int i)
     buffers[i].curs_height = h;
 }
 
-size_t Buffers::buffer_count(void) { return buffers.size(); }
+size_t Buffers::buffer_count(void) { return buf_count; }
 
 void Buffers::buf_replace_at(const int i, const unsigned char c)
 {
@@ -89,7 +100,7 @@ int Buffers::buf_bounds(const int i)
         return 0;
     }
 
-    if (i >= (int)buffers.size()) {
+    if (i >= (int)buf_count) {
         return 0;
     }
 
@@ -319,26 +330,101 @@ void Buffers::print_file(const int i)
     printf("%s\n", buffers[i].buf);
 }
 
+void Buffers::delete_buffer(const int i)
+{
+    if (buffers[i].buf) {
+        free(buffers[i].buf);
+    }
+    // kinda not safe
+    memmove(&buffers[i], &buffers[i + 1], buf_count - i - 1);
+}
+
+size_t Buffers::buf_realloc(const int i, const size_t new_size)
+{
+    assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE);
+    char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
+    if (!tmp) {
+        std::cerr << "Failed to reallocate buffer!" << std::endl;
+        return 0;
+    }
+    buffers[i].buf = tmp;
+
+    if (new_size == 0) {
+        for (size_t j = 0; j < new_size + 1; j++) {
+            buffers[i].buf[j] = NULLCHAR;
+        }
+
+        buffers[i].size = new_size;
+        return new_size;
+    }
+
+    buffers[i].buf[new_size] = NULLCHAR;
+    buffers[i].size = new_size;
+    return new_size;
+}
+
+int Buffers::realloc_buffer_list(const int direction)
+{
+    const int tmp_size = (int)buf_count + direction;
+    assert(tmp_size >= 1);
+    Buf *tmp = (Buf *)realloc(buffers, tmp_size * sizeof(Buf));
+    if (!tmp) {
+        std::cout << "realloc for buffer list failed!" << std::endl;
+        return 0;
+    }
+    buffers = tmp;
+    buf_count = tmp_size;
+    return 1;
+}
+
+int Buffers::allocate_buffer_list(void)
+{
+    buffers = (Buf *)malloc(sizeof(Buf) * 1);
+    if (!buffers) {
+        std::cout << "Could not allocate char pointer array!" << std::endl;
+        return 0;
+    }
+    buf_count = 1;
+    return 1;
+}
 // Append the initial filename. If it is empty, it will just append as empty
 // and the file names vector will be empty, so this will need to be handled
 // later if no initial file name was provided
-Buffers::Buffers(char *pathstr, char *str_arg) : working_path(pathstr)
+Buffers::Buffers(char *wp, char *str_arg)
 {
-    const int gate = (str_arg && strlen(str_arg) > 0) ? 1 : 0;
+    if (allocate_buffer_list()) {
+        const int gate = (str_arg && strlen(str_arg) > 0) ? 1 : 0;
 
-    switch (gate) {
-    case 0:
-    {
-        append_buffer(random_fn(), 1);
-        buf_malloc(0, 0);
-    } break;
+        switch (gate) {
+        case 0:
+        {
+            append_buffer(wp, random_fn(), 1);
+            buf_malloc(0, 0);
+        } break;
 
-    case 1:
-    {
-        append_buffer(str_arg, 0);
-        read_file(str_arg);
-    } break;
+        case 1:
+        {
+            append_buffer(wp, str_arg, 0);
+            read_file(wp, str_arg);
+        } break;
+        }
     }
+}
+
+void Buffers::append_buffer(char *wp, char *fn, const int fn_needs_change)
+{
+
+    assert(buf_count >= 1);
+    buffers[buf_count - 1] = (Buf){
+        fn,
+        wp,
+        NULL,
+        fn_needs_change,
+        0,
+        0,
+        0,
+        0,
+    };
 }
 
 char *Buffers::random_fn(void)
@@ -349,6 +435,10 @@ char *Buffers::random_fn(void)
     const size_t ASCII_RAND_MAX = 128 - 32;
 
     char *str = (char *)malloc(str_length + 1);
+    if (!str) {
+        std::cout << "Could not allocate char pointer! - random_fn(void)" << std::endl;
+        return NULL;
+    }
     for (size_t i = 0; i < str_length; i++) {
         const unsigned char r = rand() % ASCII_RAND_MAX;
         str[i] = r;
@@ -357,16 +447,16 @@ char *Buffers::random_fn(void)
     return str;
 }
 
-size_t Buffers::read_file(const char *fn)
+size_t Buffers::read_file(const char *wp, const char *fn)
 {
     std::cout << fn << std::endl;
-    std::cout << working_path << std::endl;
+    std::cout << wp << std::endl;
 
     const char *s = "/";
-    const size_t lengths[] = {strlen(fn), strlen(working_path), strlen(s)};
+    const size_t lengths[] = {strlen(fn), strlen(wp), strlen(s)};
     char *path = (char *)malloc(len_add(lengths, 3) + 1);
 
-    strncpy(path, working_path, lengths[1] + 1);
+    strncpy(path, wp, lengths[1] + 1);
     strncat(path, s, lengths[2] + 1);
     strncat(path, fn, lengths[0] + 1);
 
@@ -407,79 +497,21 @@ size_t Buffers::buf_malloc(const int i, const size_t size)
         std::cerr << "Failed to allocate buffer!" << std::endl;
         return 0;
     }
-
-    for (size_t j = 0; j < size + 1; j++)
-        buffers[i].buf[j] = NULLCHAR;
-
-    buffers[i].size = size;
-    return size;
+    return 1;
 }
 
-size_t Buffers::buf_realloc(const int i, const size_t new_size)
+int Buffers::write_buffer(const char *wp, const char *fn)
 {
-    assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE);
-    char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
-    if (!tmp) {
-        std::cerr << "Failed to reallocate buffer!" << std::endl;
-        return 0;
-    }
-    buffers[i].buf = tmp;
-
-    if (new_size == 0) {
-        for (size_t j = 0; j < new_size + 1; j++) {
-            buffers[i].buf[j] = NULLCHAR;
-        }
-
-        buffers[i].size = new_size;
-        return new_size;
-    }
-
-    buffers[i].buf[new_size] = NULLCHAR;
-    buffers[i].size = new_size;
-    return new_size;
-}
-
-void Buffers::delete_buffer(const char *file_name)
-{
-    const int i = match_buffer(file_name);
-    assert(buf_bounds(i));
-    if (buffers[i].buf) {
-        free(buffers[i].buf);
-    }
-    buffers.erase(buffers.begin() + i);
-}
-
-void Buffers::append_buffer(char *file_name, const int fn_needs_change)
-{
-    Buf b = {file_name, NULL, fn_needs_change, 0, 0};
-    buffers.push_back(b);
-}
-
-int Buffers::match_buffer(const char *key)
-{
-    for (size_t i = 0; i < buffers.size(); i++) {
-        if (strcmp(key, buffers[i].fn) == 0) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-// This will need to be gated before it's called to make sure the file name
-// isn't empty. Can use the current buffer index to fetch the buffer and
-// prompt to overwrite the fn if it's empty before calling this.
-int Buffers::write_buffer(const char *file_name)
-{
-    const int i = match_buffer(file_name);
+    const int i = match_buffer(fn);
     assert(buf_bounds(i));
 
     const char *s = "/";
-    const size_t lengths[] = {strlen(file_name), strlen(working_path), strlen(s)};
+    const size_t lengths[] = {strlen(fn), strlen(wp), strlen(s)};
     char *path = (char *)malloc(len_add(lengths, 3) + 1);
 
-    strncpy(path, working_path, lengths[1] + 1);
+    strncpy(path, wp, lengths[1] + 1);
     strncat(path, s, lengths[2] + 1);
-    strncat(path, file_name, lengths[0] + 1);
+    strncat(path, fn, lengths[0] + 1);
 
     FILE *f = fopen(path, "w");
     if (!f) {
