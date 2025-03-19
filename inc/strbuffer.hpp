@@ -4,9 +4,10 @@
 
 #define STRLIMIT 256
 
-struct String {
-  char str[STRLIMIT];
-  size_t len;
+struct String
+{
+    char str[STRLIMIT];
+    size_t len;
 };
 
 #endif

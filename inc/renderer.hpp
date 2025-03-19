@@ -21,40 +21,43 @@ typedef struct Buf Buf;
 
 class Chars;
 
-struct Render_Rect {
-  SDL_Texture *t;
-  SDL_Rect rect;
+struct Render_Rect
+{
+    SDL_Texture *t;
+    SDL_Rect rect;
 };
 
-class FontRenderer {
-public:
-  FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
-  ~FontRenderer(void);
-  void frender_set_renderer(SDL_Renderer *r);
-  int render_buffer(const Buf *buf, Chars *ch);
-  int render_curs(const Buf *b, const Vec2i *dims);
+class FontRenderer
+{
+  public:
+    FontRenderer(SDL_Renderer *renderer, const Vec2i *dimensions);
+    ~FontRenderer(void);
+    void frender_set_renderer(SDL_Renderer *r);
+    int render_buffer(const Buf *buf, Chars *ch);
+    int render_curs(const Buf *b, const Vec2i *dims);
 
-private:
-  SDL_Renderer *rend;
-  const Vec2i *dim;
+  private:
+    SDL_Renderer *rend;
+    const Vec2i *dim;
 };
 
-class Renderer {
-public:
-  Renderer(Window *w);
-  ~Renderer(void);
-  SDL_Renderer *get_renderer(void);
-  const void *create_renderer(SDL_Window *w);
-  void bg_fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-  void clear_render(void);
-  void render_present(void);
-  FontRenderer create_font_renderer(void);
-  FontRenderer *_frender(void);
+class Renderer
+{
+  public:
+    Renderer(Window *w);
+    ~Renderer(void);
+    SDL_Renderer *get_renderer(void);
+    const void *create_renderer(SDL_Window *w);
+    void bg_fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void clear_render(void);
+    void render_present(void);
+    FontRenderer create_font_renderer(void);
+    FontRenderer *_frender(void);
 
-private:
-  SDL_Renderer *rend;
-  const Vec2i *dim;
-  FontRenderer frender;
+  private:
+    SDL_Renderer *rend;
+    const Vec2i *dim;
+    FontRenderer frender;
 };
 
 #endif
