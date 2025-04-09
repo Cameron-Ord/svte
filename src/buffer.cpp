@@ -473,7 +473,6 @@ size_t Buffers::read_file(const char *wp, const char *fn)
             if (buf_malloc(i, (size_t)fi.fs)) {
                 read = fread(buffers[i].buf, 1, fi.fs, fi.f);
             }
-            printf("%zu\n %s\n", read, buffers[i].buf);
         } break;
         case 1:
         {

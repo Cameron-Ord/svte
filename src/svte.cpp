@@ -83,6 +83,17 @@ int main(int argc, char *argv[])
             switch (e.type) {
             default:
                 break;
+
+            case SDL_WINDOWEVENT:{
+                switch(e.window.event){
+                    case SDL_WINDOWEVENT_RESIZED:{
+                        window.win_update_dimensions();
+                    }break;
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:{
+                        window.win_update_dimensions();
+                    }break;
+                }
+            }break;
             case SDL_TEXTINPUT:
             {
                 const char *t = e.text.text;
@@ -186,8 +197,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars());
-        renderer.render_curs(buffers.get_buf(editor.current_buffer), font._chars()->get_char_dims());
+        renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars(), window.get_dimensions());
+        renderer.render_curs(buffers.get_buf(editor.current_buffer), font._chars()->get_char_dims(), window.get_dimensions());
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

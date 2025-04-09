@@ -43,8 +43,7 @@ int buffer_del_char(Editor *e)
 int buffer_rm_char(Editor *e)
 {
     const Buf *b = e->buffers->get_buf(e->current_buffer);
-    std::cout << b->pos << std::endl;
-    if (!(b->pos >= 0) || b->size < 1)
+    if (!(b->pos > 0) || b->size < 1)
         return 0;
 
     if (e->buffers->buf_bounds(e->current_buffer)) {
