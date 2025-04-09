@@ -318,7 +318,6 @@ const Buf *Buffers::get_buf(const int i)
     if (!buf_bounds(i)) {
         return NULL;
     }
-
     return &buffers[i];
 }
 
@@ -474,6 +473,7 @@ size_t Buffers::read_file(const char *wp, const char *fn)
             if (buf_malloc(i, (size_t)fi.fs)) {
                 read = fread(buffers[i].buf, 1, fi.fs, fi.f);
             }
+            printf("%zu\n %s\n", read, buffers[i].buf);
         } break;
         case 1:
         {
@@ -497,6 +497,8 @@ size_t Buffers::buf_malloc(const int i, const size_t size)
         std::cerr << "Failed to allocate buffer!" << std::endl;
         return 0;
     }
+
+    buffers[i].size = size;
     return 1;
 }
 

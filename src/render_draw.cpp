@@ -45,12 +45,14 @@ int Renderer::render_curs(const Buf *buf, const Vec2i *dims)
     }
     return 0;
 }
-// Returns the total height of the buffer when rendered.
+// Returns the total height of the buffer when rendered. TODO: pass window size
+// and height and cull the loop to avoid rendering past visible area
 int Renderer::render_buffer(const Buf *buf, Chars *ch)
 {
     const int padding = 2;
     const int m_ch_width = ch->get_char_dims()->x, m_ch_height = ch->get_char_dims()->y;
     int rowy = 0, colx = 0;
+
 
     for (size_t i = 0; i < buf->size && buf->buf[i] != NULLCHAR; i++) {
         const int x = (colx * m_ch_width) + padding;
