@@ -21,6 +21,8 @@
 
 #define DEFAULT_SIZE 1
 
+
+
 static size_t len_add(const size_t *lengths, const size_t size)
 {
     size_t accumulator = 0;
@@ -51,10 +53,19 @@ static FILE *file_open(const char *path)
     return f;
 }
 
+//void Buffers::calculate_buffer_height(const int i){
+//    return;
+//}
+
+//void Buffers::calculate_cursor_positions(const int i){
+ //   return;
+//}
+
+
 int Buffers::match_buffer(const char *key)
 {
     for (size_t i = 0; i < buf_count; i++) {
-        const char *fn = buffers[i].fn;
+        const char *fn = buffers[i].bchar.fn;
         if (strcmp(fn, key) == 0) {
             return i;
         }
@@ -62,27 +73,18 @@ int Buffers::match_buffer(const char *key)
     return -1;
 }
 
-void Buffers::set_buffer_height(const int h, const int i)
-{
-    buffers[i].text_height = h;
-}
-
-void Buffers::set_curs_height(const int h, const int i)
-{
-    buffers[i].curs_height = h;
-}
 
 size_t Buffers::buffer_count(void) { return buf_count; }
 
 void Buffers::buf_replace_at(const int i, const unsigned char c)
 {
-    if (buf_bounds(i) && buffers[i].pos < (int)buffers[i].size)
-        buffers[i].buf[buffers[i].pos] = c;
+    if (buf_bounds(i) && buffers[i].bcurs.pos < (int)buffers[i].bchar.size)
+        buffers[i].bchar.buf[buffers[i].bcurs.pos] = c;
 }
 
 int Buffers::pos_bounds(const int i, const int pos)
 {
-    const size_t size = buffers[i].size;
+    const size_t size = buffers[i].bchar.size;
     if (pos > (int)size) {
         return 0;
     }
@@ -136,29 +138,28 @@ int static next_delimit_pos(const char *buf, const int pos, const int ssize,
 
 int Buffers::find_word(const int i, const int direction)
 {
-    if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
-        Buf *b = &buffers[i];
+    if (buf_bounds(i) && pos_bounds(i, buffers[i].bcurs.pos)) {
 
         switch (direction) {
         default:
-            return b->pos;
+            return buffers[i].bcurs.pos;
         case 1:
         {
-            int j = next_delimit_pos(b->buf, b->pos, b->size, 1);
-            const int ssize = (int)b->size;
-            while (j < ssize && (b->buf[j] == NEWLINE || b->buf[j] == SPACECHAR)) {
+            int j = next_delimit_pos(buffers[i].bchar.buf, buffers[i].bcurs.pos, buffers[i].bchar.size, 1);
+            const int ssize = (int)buffers[i].bchar.size;
+            while (j < ssize && (buffers[i].bchar.buf[j] == NEWLINE || buffers[i].bchar.buf[j] == SPACECHAR)) {
                 j++;
             }
             return j;
         } break;
         case -1:
         {
-            int j = next_delimit_pos(b->buf, b->pos, b->size, -1);
-            while (j > 0 && (b->buf[j] == NEWLINE || b->buf[j] == SPACECHAR)) {
+            int j = next_delimit_pos(buffers[i].bchar.buf, buffers[i].bcurs.pos, buffers[i].bchar.size, -1);
+            while (j > 0 && (buffers[i].bchar.buf[j] == NEWLINE || buffers[i].bchar.buf[j] == SPACECHAR)) {
                 j--;
             }
             while (j > 0 &&
-                   !(b->buf[j - 1] == NEWLINE || b->buf[j - 1] == SPACECHAR)) {
+                   !(buffers[i].bchar.buf[j - 1] == NEWLINE || buffers[i].bchar.buf[j - 1] == SPACECHAR)) {
                 j--;
             }
             return j;
@@ -171,38 +172,36 @@ int Buffers::find_word(const int i, const int direction)
 
 int Buffers::find_line(const int i, const int direction)
 {
-    if (buf_bounds(i) && pos_bounds(i, buffers[i].pos)) {
-        Buf *b = &buffers[i];
-        int pos = b->pos;
+    if (buf_bounds(i) && pos_bounds(i, buffers[i].bcurs.pos)) {
 
         switch (direction) {
         default:
             return 0;
         case 1:
         {
-            const int cond = b->buf[pos] == NEWLINE; //|| b->buf[pos] == NULLCHAR;
-            if (cond && pos_bounds(i, pos + 1)) {
-                pos++;
+            const int cond = buffers[i].bchar.buf[buffers[i].bcurs.pos] == NEWLINE; //|| buffers[i].bchar.buf[buffers[i].bcurs.pos] == NULLCHAR;
+            if (cond && pos_bounds(i, buffers[i].bcurs.pos + 1)) {
+                buffers[i].bcurs.pos++;
             }
 
-            for (int j = pos; j <= (int)b->size; j++) {
-                const char c = b->buf[j];
+            for (int j = buffers[i].bcurs.pos; j <= (int)buffers[i].bchar.size; j++) {
+                const char c = buffers[i].bchar.buf[j];
                 if (c == NEWLINE || c == NULLCHAR) {
                     return j;
                 }
             }
-            return (int)b->size;
+            return (int)buffers[i].bchar.size;
         } break;
 
         case -1:
         {
-            const int cond = b->buf[pos] == NEWLINE || b->buf[pos] == NULLCHAR;
-            if (cond && pos_bounds(i, pos - 1)) {
-                pos--;
+            const int cond = buffers[i].bchar.buf[buffers[i].bcurs.pos] == NEWLINE || buffers[i].bchar.buf[buffers[i].bcurs.pos] == NULLCHAR;
+            if (cond && pos_bounds(i, buffers[i].bcurs.pos - 1)) {
+                buffers[i].bcurs.pos--;
             }
 
-            for (int j = pos; j >= 0; j--) {
-                const char c = b->buf[j];
+            for (int j = buffers[i].bcurs.pos; j >= 0; j--) {
+                const char c = buffers[i].bchar.buf[j];
                 if (c == NEWLINE || c == NULLCHAR) {
                     return j;
                 }
@@ -222,19 +221,19 @@ void Buffers::buf_mv_pos(const int i, const int operation)
 
     case MV_RIGHT:
     {
-        if (buf_bounds(i) && pos_bounds(i, buffers[i].pos + 1)) {
-            buffers[i].pos += 1;
-        } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos + 1)) {
-            buffers[i].pos = buffers[i].size;
+        if (buf_bounds(i) && pos_bounds(i, buffers[i].bcurs.pos + 1)) {
+            buffers[i].bcurs.pos += 1;
+        } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].bcurs.pos + 1)) {
+            buffers[i].bcurs.pos = buffers[i].bchar.size;
         }
     } break;
 
     case MV_LEFT:
     {
-        if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
-            buffers[i].pos -= 1;
-        } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
-            buffers[i].pos = 0;
+        if (buf_bounds(i) && pos_bounds(i, buffers[i].bcurs.pos - 1)) {
+            buffers[i].bcurs.pos -= 1;
+        } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].bcurs.pos - 1)) {
+            buffers[i].bcurs.pos = 0;
         }
     } break;
 
@@ -243,25 +242,25 @@ void Buffers::buf_mv_pos(const int i, const int operation)
     case NEXT_WORD:
     {
         if (buf_bounds(i)) {
-            buffers[i].pos = find_word(i, 1);
+            buffers[i].bcurs.pos = find_word(i, 1);
         }
     } break;
     case PREV_WORD:
     {
         if (buf_bounds(i)) {
-            buffers[i].pos = find_word(i, -1);
+            buffers[i].bcurs.pos = find_word(i, -1);
         }
     } break;
     case PREV_LINE:
     {
         if (buf_bounds(i)) {
-            buffers[i].pos = find_line(i, -1);
+            buffers[i].bcurs.pos = find_line(i, -1);
         }
     } break;
     case NEXT_LINE:
     {
         if (buf_bounds(i)) {
-            buffers[i].pos = find_line(i, 1);
+            buffers[i].bcurs.pos = find_line(i, 1);
         }
     } break;
     }
@@ -269,19 +268,18 @@ void Buffers::buf_mv_pos(const int i, const int operation)
 
 void Buffers::buf_pos_bw(const int i)
 {
-    if (buf_bounds(i) && pos_bounds(i, buffers[i].pos - 1)) {
-        buffers[i].pos--;
-    } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].pos - 1)) {
-        buffers[i].pos = 0;
+    if (buf_bounds(i) && pos_bounds(i, buffers[i].bcurs.pos - 1)) {
+        buffers[i].bcurs.pos--;
+    } else if (buf_bounds(i) && !pos_bounds(i, buffers[i].bcurs.pos - 1)) {
+        buffers[i].bcurs.pos = 0;
     }
 }
 
 void Buffers::buf_insert(const int i, const char *c)
 {
-    if (buf_bounds(i) && (size_t)buffers[i].pos < buffers[i].size) {
-        Buf *buf = &buffers[i];
-        memcpy(&buf->buf[buf->pos], c, 1);
-        buf->pos++;
+    if (buf_bounds(i) && (size_t)buffers[i].bcurs.pos < buffers[i].bchar.size) {
+        memcpy(&buffers[i].bchar.buf[buffers[i].bcurs.pos], c, 1);
+        buffers[i].bcurs.pos++;
     }
 }
 
@@ -290,24 +288,23 @@ void Buffers::shift_buffer(const int direction, const int i)
     if (!buf_bounds(i)) {
         return;
     }
-    Buf *buf = &buffers[i];
 
     switch (direction) {
     case INS:
     { // insert
-        memmove(&buf->buf[buf->pos + 1], &buf->buf[buf->pos],
-                buf->size - buf->pos - 1);
+        memmove(&buffers[i].bchar.buf[buffers[i].bcurs.pos + 1], &buffers[i].bchar.buf[buffers[i].bcurs.pos],
+                buffers[i].bchar.size - buffers[i].bcurs.pos - 1);
     } break;
 
     case DEL:
     { // delete
-        memmove(&buf->buf[buf->pos], &buf->buf[buf->pos + 1],
-                buf->size - buf->pos - 1);
+        memmove(&buffers[i].bchar.buf[buffers[i].bcurs.pos], &buffers[i].bchar.buf[buffers[i].bcurs.pos + 1],
+                buffers[i].bchar.size - buffers[i].bcurs.pos - 1);
     } break;
 
     case RMV:
     { // backspace/remove
-        memmove(&buf->buf[buf->pos - 1], &buf->buf[buf->pos], buf->size - buf->pos);
+        memmove(&buffers[i].bchar.buf[buffers[i].bcurs.pos - 1], &buffers[i].bchar.buf[buffers[i].bcurs.pos], buffers[i].bchar.size - buffers[i].bcurs.pos);
     } break;
     }
 }
@@ -323,16 +320,16 @@ const Buf *Buffers::get_buf(const int i)
 
 void Buffers::print_file(const int i)
 {
-    if (!buffers[i].buf) {
+    if (!buffers[i].bchar.buf) {
         return;
     }
-    printf("%s\n", buffers[i].buf);
+    printf("%s\n", buffers[i].bchar.buf);
 }
 
 void Buffers::delete_buffer(const int i)
 {
-    if (buffers[i].buf) {
-        free(buffers[i].buf);
+    if (buffers[i].bchar.buf) {
+        free(buffers[i].bchar.buf);
     }
     // kinda not safe
     memmove(&buffers[i], &buffers[i + 1], buf_count - i - 1);
@@ -341,24 +338,24 @@ void Buffers::delete_buffer(const int i)
 size_t Buffers::buf_realloc(const int i, const size_t new_size)
 {
     assert(buf_bounds(i) && new_size + 1 >= DEFAULT_SIZE);
-    char *tmp = (char *)realloc(buffers[i].buf, new_size + 1);
+    char *tmp = (char *)realloc(buffers[i].bchar.buf, new_size + 1);
     if (!tmp) {
         std::cerr << "Failed to reallocate buffer!" << std::endl;
         return 0;
     }
-    buffers[i].buf = tmp;
+    buffers[i].bchar.buf = tmp;
 
     if (new_size == 0) {
         for (size_t j = 0; j < new_size + 1; j++) {
-            buffers[i].buf[j] = NULLCHAR;
+            buffers[i].bchar.buf[j] = NULLCHAR;
         }
 
-        buffers[i].size = new_size;
+        buffers[i].bchar.size = new_size;
         return new_size;
     }
 
-    buffers[i].buf[new_size] = NULLCHAR;
-    buffers[i].size = new_size;
+    buffers[i].bchar.buf[new_size] = NULLCHAR;
+    buffers[i].bchar.size = new_size;
     return new_size;
 }
 
@@ -412,17 +409,11 @@ Buffers::Buffers(char *wp, char *str_arg)
 
 void Buffers::append_buffer(char *wp, char *fn, const int fn_needs_change)
 {
-
     assert(buf_count >= 1);
     buffers[buf_count - 1] = (Buf){
-        fn,
-        wp,
-        NULL,
-        fn_needs_change,
-        0,
-        0,
-        0,
-        0,
+        (Buffer_Char){fn, wp, NULL, fn_needs_change, 0},
+        (Buffer_Cursor){0, 0, 0, 0},
+        (Buffer_Dims){0, 0, 0, 0, 0}
     };
 }
 
@@ -471,7 +462,7 @@ size_t Buffers::read_file(const char *wp, const char *fn)
         case 0:
         {
             if (buf_malloc(i, (size_t)fi.fs)) {
-                read = fread(buffers[i].buf, 1, fi.fs, fi.f);
+                read = fread(buffers[i].bchar.buf, 1, fi.fs, fi.f);
             }
         } break;
         case 1:
@@ -491,13 +482,13 @@ size_t Buffers::read_file(const char *wp, const char *fn)
 size_t Buffers::buf_malloc(const int i, const size_t size)
 {
     assert(buf_bounds(i) && size + 1 >= DEFAULT_SIZE);
-    buffers[i].buf = (char *)malloc(size + 1);
-    if (!buffers[i].buf) {
+    buffers[i].bchar.buf = (char *)malloc(size + 1);
+    if (!buffers[i].bchar.buf) {
         std::cerr << "Failed to allocate buffer!" << std::endl;
         return 0;
     }
 
-    buffers[i].size = size;
+    buffers[i].bchar.size = size;
     return 1;
 }
 
@@ -520,8 +511,8 @@ int Buffers::write_buffer(const char *wp, const char *fn)
         return 0;
     }
 
-    const size_t written = fwrite(buffers[i].buf, 1, buffers[i].size, f);
-    if (written != buffers[i].size) {
+    const size_t written = fwrite(buffers[i].bchar.buf, 1, buffers[i].bchar.size, f);
+    if (written != buffers[i].bchar.size) {
         std::cerr << "Failed to write to file!" << std::endl;
         return 0;
     }
@@ -529,4 +520,11 @@ int Buffers::write_buffer(const char *wp, const char *fn)
     fclose(f);
     free(path);
     return written;
+}
+
+void Buffers::update_cursor_dimensions(const int i, const Vec2i *dims){
+    if(buf_bounds(i)){
+        buffers[i].bcurs.w = dims->x;
+        buffers[i].bcurs.h = dims->y;
+    }
 }

@@ -2,6 +2,7 @@
 #define EDITOR_HPP
 #include <cstdio>
 #include <vector>
+#include "vecdef.hpp"
 
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
@@ -36,16 +37,35 @@ struct String
 };
 typedef struct String String;
 
-struct Buf
-{
+struct Buffer_Cursor {
+    int pos;
+    int rowy, rowx;
+    int w, h;
+};
+typedef struct Buffer_Cursor Buffer_Cursor;
+
+struct Buffer_Char { 
     char *fn;
     char *working_path;
     char *buf;
-    // lines[rows][cols]
     int fn_needs_change;
     size_t size;
-    int pos;
-    int text_height, curs_height;
+};
+typedef struct Buffer_Char Buffer_Char;
+
+struct Buffer_Dims {
+    int text_height;
+    int rows, cols;
+    int pos_offset_y, pos_offset_x;
+};
+typedef struct Buffer_Dims Buffer_Dims;
+
+
+struct Buf
+{
+    Buffer_Char bchar;
+    Buffer_Cursor bcurs;
+    Buffer_Dims bdims;
 };
 typedef struct Buf Buf;
 
@@ -56,16 +76,17 @@ struct File_Info
 };
 typedef struct File_Info File_Info;
 
+
 class Buffers
 {
   public:
     Buffers(char *pathstr, char *arg_str);
+    //void calculate_buffer_height(const int i); 
+    //void calculate_cursor_positions(const int i);
     int allocate_buffer_list(void);
     int realloc_buffer_list(const int direction);
     int get_text_height(const int i);
     int get_cursor_height(const int i);
-    void set_buffer_height(const int h, const int i);
-    void set_curs_height(const int h, const int i);
     int find_word(const int i, const int direction);
     int find_line(const int i, const int direction);
     int buf_bounds(const int i);
@@ -87,6 +108,7 @@ class Buffers
     const Buf *get_buf(const int i);
     void buf_mv_pos(const int i, const int operation);
     const char *get_working_path(const int i);
+    void update_cursor_dimensions(const int i, const Vec2i *dims);
 
   private:
     Buf *buffers;

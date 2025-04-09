@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
                                               font.get_font())) {
         return 1;
     }
+    buffers.update_cursor_dimensions(editor.current_buffer, font._chars()->get_char_dims());
 
     SDL_ShowWindow(window.get_window());
     SDL_StartTextInput();
@@ -198,7 +199,7 @@ int main(int argc, char *argv[])
         }
 
         renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars(), window.get_dimensions());
-        renderer.render_curs(buffers.get_buf(editor.current_buffer), font._chars()->get_char_dims(), window.get_dimensions());
+        renderer.render_curs(buffers.get_buf(editor.current_buffer), window.get_dimensions());
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
