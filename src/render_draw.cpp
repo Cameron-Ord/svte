@@ -1,15 +1,9 @@
 #include "../inc/editor.hpp"
+#include "../inc/globaldef.hpp"
 #include "../inc/font.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/vecdef.hpp"
 
-#ifndef NULLCHAR
-#define NULLCHAR '\0'
-#endif
-
-#ifndef NEWLINE
-#define NEWLINE '\n'
-#endif
 
  //Returns the height in which the cursor reaches.
  int Renderer::render_curs(const Buf *buf, const Vec2i *window_dims)

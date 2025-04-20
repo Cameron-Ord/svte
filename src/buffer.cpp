@@ -1,26 +1,13 @@
 #include "../inc/editor.hpp"
+#include "../inc/globaldef.hpp"
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
 #include <iostream>
-#include <vector>
-#define PER_FILE_LIMIT (250 * 1024 * 1024) // 250 MiB
 
-#ifndef NULLCHAR
-#define NULLCHAR '\0'
-#endif
-
-#ifndef SPACECHAR
-#define SPACECHAR ' '
-#endif
-
-#ifndef NEWLINE
-#define NEWLINE '\n'
-#endif
-
-#define DEFAULT_SIZE 1
-
+const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
+const int DEFAULT_SIZE = 1;
 
 
 static size_t len_add(const size_t *lengths, const size_t size)

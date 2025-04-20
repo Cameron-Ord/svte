@@ -1,8 +1,5 @@
 #include "../inc/font.hpp"
-
-#ifndef NULLCHAR
-#define NULLCHAR '\0'
-#endif
+#include "../inc/globaldef.hpp"
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>

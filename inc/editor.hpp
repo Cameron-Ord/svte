@@ -1,12 +1,14 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
 #include <cstdio>
-#include <vector>
 #include "vecdef.hpp"
 
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
 // and good
+//
+//
+
 typedef enum
 {
     NEXT_BUFFER = 0,

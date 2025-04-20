@@ -1,8 +1,8 @@
 #include "../inc/editor.hpp"
+
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 
 void switch_buffer(Editor *e, const int direction)
 {

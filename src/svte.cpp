@@ -2,23 +2,17 @@
 #include "../inc/font.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
+#include "../inc/globaldef.hpp"
+
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-#include <iostream>
 #include <linux/limits.h>
 #include <unistd.h>
 
-#ifndef NEWLINE
-#define NEWLINE '\n'
-#endif
-
-#ifndef SPACECHAR
-#define SPACECHAR ' '
-#endif
 
 int main(int argc, char *argv[])
 {
