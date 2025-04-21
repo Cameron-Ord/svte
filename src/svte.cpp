@@ -36,8 +36,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Buffers buffers(cwd, arg_str);
-    Editor editor = {VISUAL, 0, 1, &buffers, buffer_del_char, buffer_rm_char, buffer_insert_char, buffer_mv_op};
 
     Window window;
     if (!window.create_window()) {
@@ -49,16 +47,17 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    Font font;
-    if (!(font.get_font()->def = font.open_font("dogicapixel.ttf", 16))) {
+    //This is going to have to be reworked to have like 12 different fonts but
+    //thats also when I have to write syntax highlighting so just keep it simple
+    //for now.
+    Chars ch;
+    if (!(ch.set_font(ch.open_font("dogicapixel.ttf", 16)))) {
         return 1;
     }
 
-    if (!font._chars()->table_create_textures(renderer.get_renderer(),
-                                              font.get_font())) {
-        return 1;
+    if (!ch.table_create_textures(renderer.get_renderer(),
+                                              ch.get_fonts())) { return 1;
     }
-    buffers.update_cursor_dimensions(editor.current_buffer, font._chars()->get_char_dims());
 
     SDL_ShowWindow(window.get_window());
     SDL_StartTextInput();
@@ -94,7 +93,7 @@ int main(int argc, char *argv[])
                 const char *t = e.text.text;
                 const size_t tlen = strlen(t);
                 for (size_t i = 0; i < tlen; i++) {
-                    editor.ins(&editor, t[i]);
+                   // editor.ins(&editor, t[i]);
                 }
             } break;
             case SDL_KEYDOWN:
@@ -105,80 +104,63 @@ int main(int argc, char *argv[])
 
                 case SDLK_TAB:
                 {
-                    editor.ins(&editor, SPACECHAR);
+                //     editor.ins(&editor, SPACECHAR);
                 } break;
 
                 case SDLK_BACKSPACE:
                 {
-                    editor.rm(&editor);
+                //    editor.rm(&editor);
                 } break;
 
                 case SDLK_DELETE:
                 {
-                    editor.del(&editor);
+                //    editor.del(&editor);
                 } break;
 
                 case SDLK_RETURN:
                 {
-                    editor.ins(&editor, NEWLINE);
+                //    editor.ins(&editor, NEWLINE);
                 } break;
 
                 case SDLK_h:
                 {
                     if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
-                        editor.mv(&editor, PREV_WORD);
+                 //       editor.mv(&editor, PREV_WORD);
                     } else {
-                        editor.mv(&editor, MV_LEFT);
+                 //       editor.mv(&editor, MV_LEFT);
                     }
                 } break;
 
                 case SDLK_j:
                 {
                     if ((mod & KMOD_CTRL)) {
-                        editor.mv(&editor, NEXT_LINE);
+                    //    editor.mv(&editor, NEXT_LINE);
                     }
                 } break;
 
                 case SDLK_k:
                 {
                     if ((mod & KMOD_CTRL)) {
-                        editor.mv(&editor, PREV_LINE);
+                    //    editor.mv(&editor, PREV_LINE);
                     }
                 } break;
 
                 case SDLK_l:
                 {
                     if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
-                        editor.mv(&editor, NEXT_WORD);
+                   //     editor.mv(&editor, NEXT_WORD);
                     } else {
-                        editor.mv(&editor, MV_RIGHT);
+                   //     editor.mv(&editor, MV_RIGHT);
                     }
                 } break;
 
-                case SDLK_LEFT:
-                {
-                    if (mod & KMOD_SHIFT) {
-                        editor.mv(&editor, PREV_WORD);
-                    } else {
-                        editor.mv(&editor, MV_LEFT);
-                    }
-                } break;
-
-                case SDLK_RIGHT:
-                {
-                    if (mod & KMOD_SHIFT) {
-                        editor.mv(&editor, NEXT_WORD);
-                    } else {
-                        editor.mv(&editor, MV_RIGHT);
-                    }
-                } break;
                 case SDLK_UP:
                 {
-                    editor.mv(&editor, PREV_LINE);
+                 //   editor.mv(&editor, PREV_LINE);
                 } break;
                 case SDLK_DOWN:
                 {
-                    editor.mv(&editor, NEXT_LINE);
+                 //   editor.mv(&editor, NEXT_LINE);
                 } break;
                 }
             } break;
@@ -192,8 +174,8 @@ int main(int argc, char *argv[])
             }
         }
 
-        renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars(), window.get_dimensions());
-        renderer.render_curs(buffers.get_buf(editor.current_buffer), window.get_dimensions());
+     //    renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars(), window.get_dimensions());
+     //   renderer.render_curs(buffers.get_buf(editor.current_buffer), window.get_dimensions());
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

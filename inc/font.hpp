@@ -1,8 +1,6 @@
 #ifndef FONT_HPP
 #define FONT_HPP
 
-#include "vecdef.hpp"
-
 struct _TTF_Font;
 typedef struct _TTF_Font TTF_Font;
 struct SDL_Texture;
@@ -22,17 +20,15 @@ typedef struct Ascii_Char Ascii_Char;
 
 struct Fonts
 {
-    TTF_Font *title;
-    TTF_Font *def;
+    TTF_Font *base;
 };
 typedef struct Fonts Fonts;
 
-struct Char_Tables
+struct Char_Table
 {
     unsigned int c;
     char str[STRBUF_SIZE];
-    Ascii_Char title;
-    Ascii_Char def;
+    Ascii_Char base;
 };
 typedef struct Char_Tables Char_Tables;
 
@@ -40,29 +36,21 @@ class Chars
 {
   public:
     Chars();
-    Char_Tables *get_tbls(void);
-    Char_Tables *char_lookup(unsigned char c);
-    int table_create_textures(SDL_Renderer *rend, const Fonts *f);
-    const Vec2i *get_char_dims(void) { return &max_char_dim; }
-
-  private:
-    Vec2i max_char_dim;
-    void set_table(void);
-    Char_Tables chtbls[ASCII_TABLE_SIZE];
-};
-
-class Font
-{
-  public:
-    Font(void);
     TTF_Font *open_font(const char *fn, const int size);
-    Fonts *get_font(void);
-    Chars create_char_inst(void);
-    Chars *_chars(void);
+    const Fonts *get_fonts(void){return &f;}
+    const void* set_font(TTF_Font *f);
+    Char_Table *get_tbls(void) {return chtbls; }
+    Char_Table *char_lookup(unsigned char c);
+    int table_create_textures(SDL_Renderer *rend, const Fonts *f);
+    const int *ch_max_height(void){return &max_height;}
+    const int *ch_max_width(void){return &max_width;}
 
   private:
-    Fonts fonts;
-    Chars chars;
+    Fonts f;
+    Char_Table chtbls[ASCII_TABLE_SIZE];
+    void set_table(void);
+    int max_height, max_width;
 };
+
 
 #endif
