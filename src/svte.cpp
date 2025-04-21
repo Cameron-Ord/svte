@@ -4,6 +4,7 @@
 #include "../inc/window.hpp"
 #include "../inc/globaldef.hpp"
 
+#include <iostream>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
@@ -26,17 +27,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    char *arg_str = NULL;
-    if (argc > 1 && argc < 3) {
-        arg_str = strdup(argv[1]);
-    }
-
-    char cwd[PATH_MAX];
-    if (!getcwd(cwd, PATH_MAX)) {
-        return 1;
-    }
-
-
     Window window;
     if (!window.create_window()) {
         return 1;
@@ -57,6 +47,24 @@ int main(int argc, char *argv[])
 
     if (!ch.table_create_textures(renderer.get_renderer(),
                                               ch.get_fonts())) { return 1;
+    }
+
+
+    char *filename_arg = NULL;
+    if (argc > 1 && argc < 3) {
+        filename_arg = strdup(argv[1]);
+    }
+
+    char cwd[PATH_MAX];
+    if (!getcwd(cwd, PATH_MAX)) {
+        std::cerr << "Subpath could not be determined!" << std::endl;
+        return 1;
+    }
+    
+    Editor ed = Editor();
+    ed.ed_append_buffer(filename_arg, cwd);
+    if(filename_arg){
+        free(filename_arg);
     }
 
     SDL_ShowWindow(window.get_window());
@@ -124,43 +132,66 @@ int main(int argc, char *argv[])
 
                 case SDLK_h:
                 {
-                    if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
-                 //       editor.mv(&editor, PREV_WORD);
-                    } else {
-                 //       editor.mv(&editor, MV_LEFT);
+                    switch(ed.ed_get_mode()){
+                        default: break;
+                        case VISUAL: {
+
+                         }break;
+                        case INSERT: {
+
+                        }break;
+                        case REPLACE: {
+
+                        }break;
                     }
                 } break;
 
                 case SDLK_j:
                 {
-                    if ((mod & KMOD_CTRL)) {
-                    //    editor.mv(&editor, NEXT_LINE);
+                    switch(ed.ed_get_mode()){
+                        default: break;
+                        case VISUAL: {
+
+                         }break;
+                        case INSERT: {
+
+                        }break;
+                        case REPLACE: {
+
+                        }break;
                     }
                 } break;
 
                 case SDLK_k:
                 {
-                    if ((mod & KMOD_CTRL)) {
-                    //    editor.mv(&editor, PREV_LINE);
+                    switch(ed.ed_get_mode()){
+                        default: break;
+                        case VISUAL: {
+
+                         }break;
+                        case INSERT: {
+
+                        }break;
+                        case REPLACE: {
+
+                        }break;
                     }
                 } break;
 
                 case SDLK_l:
                 {
-                    if ((mod & KMOD_CTRL) && (mod & KMOD_SHIFT)) {
-                   //     editor.mv(&editor, NEXT_WORD);
-                    } else {
-                   //     editor.mv(&editor, MV_RIGHT);
-                    }
-                } break;
+                    switch(ed.ed_get_mode()){
+                        default: break;
+                        case VISUAL: {
 
-                case SDLK_UP:
-                {
-                 //   editor.mv(&editor, PREV_LINE);
-                } break;
-                case SDLK_DOWN:
-                {
-                 //   editor.mv(&editor, NEXT_LINE);
+                         }break;
+                        case INSERT: {
+
+                        }break;
+                        case REPLACE: {
+
+                        }break;
+                    }
                 } break;
                 }
             } break;

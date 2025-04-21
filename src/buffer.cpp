@@ -2,6 +2,7 @@
 #include "../inc/globaldef.hpp"
 #include <cassert>
 #include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <ctime>
 #include <iostream>
@@ -10,16 +11,74 @@ const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;
 
 
-Buffer::Buffer(void){
+Buffer::Buffer(char *fn, char *sp){
     buffer.clear();
-    raw_buffer = NULL, filename = NULL, subpath = NULL;
+    valid_buffer = 1;
+    raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
     buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
     long file_size_at_open = 0;
     cursor[0] = 0, cursor[1] = 0;
     filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0;
+
+    // Copy using strdup, wherever the original came from it must be freed after the buffer is constructed. (if necessary)
+    // these will need to be freed whenever the deconstructor is called.
+    if(!buf_dupe_paths(fn, sp)){
+        valid_buffer = 0;
+    }
+    
+    if(!buf_concat_path(filename && subpath)){
+        valid_buffer = 0;
+    }
+
+    
 }
 
+int Buffer::buf_dupe_paths(char *fn, char *sp){
+    if(fn){
+        filename = strdup(fn);
+        filename_str_len = strlen(filename);
+    } else if (!fn) {
+        filename_change_flag = 1;
+    }
+
+    if(sp){
+        subpath = strdup(sp);
+        subpath_str_len = strlen(subpath);
+    } 
+
+    if(subpath && filename || !filename && subpath){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+int Buffer::buf_concat_path(const int valid){
+    if(valid){
+        const size_t fpsize = subpath_str_len + filename_str_len + 1;
+        fullpath = (char *)malloc(sizeof(char) * fpsize);
+        if(!fullpath){
+            std::cerr << "malloc() for fullpath failed!" << std::endl;
+            return 0;
+        }
+
+        if(!strncpy(fullpath, subpath, subpath_str_len)){
+            std::cerr << "strncpy() failed!" << std::endl;
+            free(fullpath);
+            return 0; 
+        }
+
+        if(!strncat(fullpath, filename, filename_str_len)){
+            std::cerr << "strncpy() failed!" << std::endl;
+            free(fullpath);
+            return 0; 
+        }
+
+        return 1;
+    }
+    return 0;
+}
 
  //
  //

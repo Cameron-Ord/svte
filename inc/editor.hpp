@@ -116,7 +116,13 @@ typedef enum
 
 class Buffer {
     public:
-        Buffer(void);
+        Buffer(char *filename, char *subpath);
+        int buf_dupe_paths(char *filename, char *subpath);
+        int buf_concat_path(const int valid);
+        int buf_raw_allocate(void);
+        int buf_raw_destroy(void);
+        int buf_raw_read(void);
+        int buf_open_file(void);
         int buf_resize(void);
         int buf_shift(void);
         int buf_ins_char(void);
@@ -125,8 +131,10 @@ class Buffer {
         int buf_del_char(void);
         int buf_mv_find_line(void);
         int buf_mv_find_word(void);
+        int buf_get_valid(void) { return valid_buffer; }
 
     private:
+        int valid_buffer;
         // Using stdvec of strings because its generally just safer and easier
         // to use than char[rows][cols]
         std::vector<std::string> buffer;
@@ -134,19 +142,21 @@ class Buffer {
         char *raw_buffer;
         char *filename;
         char *subpath;
+        char *fullpath;
         size_t buffer_size;
         size_t buffer_size_max;
         long file_size_at_open;
         int cursor[2];
-        int filename_str_len;
-        int subpath_str_len;
+        size_t filename_str_len;
+        size_t subpath_str_len;
         int filename_change_flag;
 };
 
 class Editor {
     public:
         Editor(void);
-        void ed_create_buffer(const char* filename, const char *subpath);
+
+        void ed_append_buffer(const char* filename, const char *subpath);
         void ed_destroy_buffer(void);
         void ed_buffers_resize(void);
         void ed_buffers_shift(void);
@@ -157,6 +167,7 @@ class Editor {
         void ed_chng_buffer(void);
         void ed_name_find_buffer(void);
         void ed_chng_mode(void);
+        int  ed_get_mode(void) { return editor_mode; } 
 
     private:
         std::vector<Buffer> bufs;
