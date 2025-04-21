@@ -32,8 +32,8 @@ class Renderer
     void clear_render(void);
     void render_present(void);
 
-    int render_buffer(const Buf *buf, Chars *ch, const Vec2i *window_dims);
-    int render_curs(const Buf *b, const Vec2i *window_dims);
+ //   int render_buffer(const Buf *buf, Chars *ch, const Vec2i *window_dims);
+ //   int render_curs(const Buf *b, const Vec2i *window_dims);
   private:
     SDL_Renderer *rend;
 };

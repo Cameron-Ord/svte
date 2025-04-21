@@ -13,7 +13,7 @@
 #include <cstring>
 #include <linux/limits.h>
 #include <unistd.h>
-
+#include <ctime>
 
 int main(int argc, char *argv[])
 {
@@ -46,9 +46,11 @@ int main(int argc, char *argv[])
     }
 
     if (!ch.table_create_textures(renderer.get_renderer(),
-                                              ch.get_fonts())) { return 1;
+                                              ch.get_fonts())) {
+        return 1;
     }
 
+    srand(time(NULL));
 
     char *filename_arg = NULL;
     if (argc > 1 && argc < 3) {
@@ -218,7 +220,7 @@ int main(int argc, char *argv[])
 
     SDL_DestroyRenderer(renderer.get_renderer());
     SDL_DestroyWindow(window.get_window());
-    TTF_CloseFont(font.get_font()->def);
+    //TTF_CloseFont(font.get_font()->def);
     TTF_Quit();
     SDL_Quit();
 

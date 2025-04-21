@@ -1,12 +1,13 @@
 #ifndef FONT_HPP
 #define FONT_HPP
 
-struct _TTF_Font;
-typedef struct _TTF_Font TTF_Font;
 struct SDL_Texture;
 typedef struct SDL_Texture SDL_Texture;
 struct SDL_Renderer;
 typedef struct SDL_Renderer SDL_Renderer;
+
+struct TTF_Font;
+typedef struct TTF_Font TTF_Font;
 
 #define ASCII_TABLE_SIZE 128
 #define STRBUF_SIZE 2

@@ -12,10 +12,10 @@ const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;
 
 
-Buffer::Buffer(char *fn, char *sp, const int identifier){
+Buffer::Buffer(char *fn, char *sp){
     buffer.clear();
     file = NULL;
-    valid_buffer = BUF_STATE_VALID, id = identifier;
+    valid_buffer = 1;
     raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
     buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
     file_size_at_open = 0;
@@ -23,30 +23,26 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0;
 
-    std::cout << "Buffer ID: " << id << std::endl;
-    if(id == FILE_ID_BROKEN){
-        valid_buffer = BUF_STATE_ERR;
-    }
     // Copy using strdup, wherever the original came from it must be freed after the buffer is constructed. (if necessary)
     // these will need to be freed whenever the deconstructor is called.
     if(buf_dupe_paths(fn, sp) == STR_DUP_ERR){
-        valid_buffer = BUF_STATE_ERR;
+        valid_buffer = 0;
     }
     
     if(buf_concat_path() == STR_CONCAT_ERR){
-        valid_buffer = BUF_STATE_ERR;
+        valid_buffer = 0;
     }
     //Determine the size.
     if(buf_open_file() == FILE_RET_ERR){
-        valid_buffer = BUF_STATE_ERR;
+        valid_buffer = 0;
     }
 
-    if(buf_raw_allocate((size_t)file_size_at_open) == BUF_ALLOC_ERR){
-        valid_buffer = BUF_STATE_ERR;
+    if(!buf_raw_allocate((size_t)file_size_at_open)){
+        valid_buffer = 0;
     }
 
     if(buf_raw_read() == BUF_READ_ERR){
-        valid_buffer = BUF_STATE_ERR;
+        valid_buffer = 0;
     }
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
@@ -69,7 +65,7 @@ int Buffer::buf_raw_read(void){
             return BUF_READ_ERR;
         }
     }
-    std::cout << "File size at open: " << file_size_at_open << std::endl;
+    
     return BUF_READ_OK;
 }
 
@@ -102,19 +98,18 @@ int Buffer::buf_open_file(void){
 int Buffer::buf_raw_allocate(const size_t bsize){
     if(bsize >= buffer_size_max){
         std::cerr << "Buffer exceeds limit!" << std::endl;
-        return BUF_ALLOC_ERR;
+        return 0;
     }
     
     raw_buffer = (char*)malloc(sizeof(char) * bsize + 1);
     if(!raw_buffer){
         std::cerr << "malloc() failed!" << std::endl;
-        return BUF_ALLOC_ERR;
+        return 0;
     }
     
     raw_buffer[bsize] = NULLCHAR;
     buffer_size = bsize;
-    std::cout << "Allocated " << bsize * sizeof(char) + 1 << " bytes" << std::endl;
-    return BUF_ALLOC_OK;
+    return 1;
 }
 
 int Buffer::buf_dupe_paths(char *fn, char *sp){
@@ -131,7 +126,6 @@ int Buffer::buf_dupe_paths(char *fn, char *sp){
     if((subpath && filename) || (!filename && subpath)){
         return STR_DUP_OK;
     } else {
-        std::cout << "buf_dupe_paths: Path and filename are null!" << std::endl;
         return STR_DUP_ERR;
     }
 }
@@ -162,10 +156,8 @@ int Buffer::buf_concat_path(void){
 
         return STR_CONCAT_OK;
     } else if (!filename && subpath){
-        std::cout << "Subpath: " << subpath << std::endl;
         return STR_CONCAT_OK;
     }
-    std::cerr << "buf_concat_path: path and filename are null!" << std::endl;
     return STR_CONCAT_ERR;
 }
 

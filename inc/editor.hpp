@@ -1,8 +1,10 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
 #include <cstdio>
+#include <cstdint>
 #include <vector>
 #include <string>
+#include <unordered_set>
 
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
@@ -125,11 +127,30 @@ typedef enum {
     BUF_READ_ERR = 18
 }READRET;
 
+typedef enum {
+    STR_DUP_OK = 19,
+    STR_DUP_ERR = 20
+}DUPERET;
+
+typedef enum {
+    STR_CONCAT_OK = 21,
+    STR_CONCAT_ERR = 22
+}CONCATRET;
+
+typedef enum {
+    BUF_ALLOC_OK = 23,
+    BUF_ALLOC_ERR = 24
+}ALLOCRET;
+
+typedef enum { FILE_ID_BROKEN = -1, }FILE_ID_STATE;
+
+typedef enum {BUF_STATE_VALID = 25, BUF_STATE_ERR = 26}BUFFER_STATE;
+
 class Buffer {
     public:
-        Buffer(char *filename, char *subpath);
+        Buffer(char *filename, char *subpath, const int identifier);
         int buf_dupe_paths(char *filename, char *subpath);
-        int buf_concat_path(const int valid);
+        int buf_concat_path(void);
         int buf_open_file(void);
         int buf_raw_allocate(const size_t bsize);
         int buf_raw_destroy(void);
@@ -145,6 +166,7 @@ class Buffer {
         int buf_get_valid(void) { return valid_buffer; }
 
     private:
+        int32_t id;
         int valid_buffer;
         FILE *file;
         // Using stdvec of strings because its generally just safer and easier
@@ -168,7 +190,7 @@ class Editor {
     public:
         Editor(void);
 
-        void ed_append_buffer(const char* filename, const char *subpath);
+        void ed_append_buffer(char* filename, char *subpath);
         void ed_destroy_buffer(void);
         void ed_buffers_resize(void);
         void ed_buffers_shift(void);
@@ -180,9 +202,11 @@ class Editor {
         void ed_name_find_buffer(void);
         void ed_chng_mode(void);
         int  ed_get_mode(void) { return editor_mode; } 
+        int32_t  ed_gen_id(void);
 
     private:
         std::vector<Buffer> bufs;
+        std::unordered_set<int32_t> ids;
         int buffer_count;
         int current_buffer;
         int editor_mode;

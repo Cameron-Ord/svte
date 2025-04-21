@@ -1,10 +1,10 @@
 project('SVTE', 'cpp', default_options: ['bindir=bin'])
 src = [
         'src/svte.cpp',
-        'src/audio.cpp',
+        #       'src/audio.cpp',
         'src/editor.cpp',
         'src/buffer.cpp',
-        'src/font.cpp',
+        #       'src/font.cpp',
         'src/render_draw.cpp',
         'src/chars.cpp',
         'src/renderer.cpp',

@@ -6,13 +6,32 @@
 
 Editor::Editor(void){
     bufs.clear();
+    ids.clear();
     buffer_count = 0;
     current_buffer = 0;
     editor_mode = VISUAL;
 }
 
-void Editor::ed_append_buffer(const char* filename, const char *subpath){
-    
+int32_t Editor::ed_gen_id(void){
+    int attempt = 0;
+    const int max_attempts = 100;
+    std::unordered_set<int32_t>::iterator it;
+
+    while(attempt < max_attempts){
+        const uint32_t generated = rand() % UINT32_MAX;
+        it = ids.find(generated);
+        if(it == ids.end()){
+            ids.insert(generated);
+            return generated;
+        }
+        attempt++;
+    }
+
+    return FILE_ID_BROKEN;
+}
+
+void Editor::ed_append_buffer(char* filename, char *subpath){
+    bufs.push_back(Buffer(filename, subpath, ed_gen_id()));
 }
 
 
