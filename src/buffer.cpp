@@ -1,5 +1,6 @@
 #include "../inc/editor.hpp"
 #include "../inc/globaldef.hpp"
+#include <cerrno>
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
@@ -13,10 +14,11 @@ const int DEFAULT_SIZE = 1;
 
 Buffer::Buffer(char *fn, char *sp){
     buffer.clear();
+    file = NULL;
     valid_buffer = 1;
     raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
     buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
-    long file_size_at_open = 0;
+    file_size_at_open = 0;
     cursor[0] = 0, cursor[1] = 0;
     filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0;
@@ -31,22 +33,77 @@ Buffer::Buffer(char *fn, char *sp){
         valid_buffer = 0;
     }
     //Determine the size.
-    if(filename && subpath){
-        if(buf_open_file() == FILE_RET_ERR){
-            valid_buffer = 0;
-        }
+    if(buf_open_file() == FILE_RET_ERR){
+        valid_buffer = 0;
     }
 
-    if(subpath && valid_buffer){
-        if(!buf_raw_allocate()){
-            valid_buffer = 0;
-        }
+    if(!buf_raw_allocate((size_t)file_size_at_open)){
+        valid_buffer = 0;
     }
-    
+
+    if(buf_raw_read() == BUF_READ_ERR){
+        valid_buffer = 0;
+    }
+
 }
 
-int Buffer::buf_raw_allocate(void){
+int Buffer::buf_raw_read(void){
+    if(!raw_buffer){
+        std::cerr << "No valid buffer!" << std::endl;
+        return BUF_READ_ERR;
+    }
 
+    if(buffer_size != (size_t)file_size_at_open){
+        std::cerr << "Size mismatch!" << std::endl;
+        return BUF_READ_ERR;
+    }
+
+    if(file){
+        const int read = fread(raw_buffer, 1, file_size_at_open, file);
+        if(!read){
+            std::cerr << "fread() failed!" << std::endl;
+            return BUF_READ_ERR;
+        }
+    }
+
+    return BUF_READ_OK;
+}
+
+int Buffer::buf_open_file(void){
+    if(!fullpath){
+        return FILE_RET_ERR;
+    }
+    if(!(file = fopen(fullpath, "r"))){
+        if(errno == ENOENT){
+            return FILE_RET_NOEXIST;
+        }
+        std::cerr << 
+            "Failed to open: " << 
+            fullpath << 
+            " " << 
+            strerror(errno) << 
+            std::endl;
+        return FILE_RET_ERR;
+    }
+    fseek(file, 0, SEEK_END);
+    file_size_at_open = ftell(file);
+    return FILE_RET_OK;
+}
+
+int Buffer::buf_raw_allocate(const size_t bsize){
+    if(bsize >= buffer_size_max){
+        std::cerr << "Buffer exceeds limit!" << std::endl;
+        return 0;
+    }
+    
+    raw_buffer = (char*)malloc(sizeof(char) * bsize + 1);
+    if(!raw_buffer){
+        std::cerr << "malloc() failed!" << std::endl;
+        return 0;
+    }
+
+    raw_buffer[bsize] = NULLCHAR;
+    buffer_size = bsize;
     return 1;
 }
 

@@ -8,7 +8,11 @@ Editor::Editor(void){
     bufs.clear();
     buffer_count = 0;
     current_buffer = 0;
-    editor_mode = 0;
+    editor_mode = VISUAL;
+}
+
+void Editor::ed_append_buffer(const char* filename, const char *subpath){
+    
 }
 
 

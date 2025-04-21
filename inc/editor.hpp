@@ -116,8 +116,14 @@ typedef enum
 
 typedef enum {
     FILE_RET_NOEXIST = 14,
-    FILE_RET_ERR = 15
+    FILE_RET_ERR = 15,
+    FILE_RET_OK = 16
 }FILERET;
+
+typedef enum {
+    BUF_READ_OK = 17,
+    BUF_READ_ERR = 18
+}READRET;
 
 class Buffer {
     public:
@@ -125,21 +131,22 @@ class Buffer {
         int buf_dupe_paths(char *filename, char *subpath);
         int buf_concat_path(const int valid);
         int buf_open_file(void);
-        int buf_raw_allocate(void);
+        int buf_raw_allocate(const size_t bsize);
         int buf_raw_destroy(void);
         int buf_raw_read(void);
-        int buf_resize(void);
-        int buf_shift(void);
-        int buf_ins_char(void);
-        int buf_rmv_char(void);
-        int buf_mv_cursor(void);
-        int buf_del_char(void);
-        int buf_mv_find_line(void);
-        int buf_mv_find_word(void);
+         //int buf_resize(void);
+         //int buf_shift(void);
+         //int buf_ins_char(void);
+         //int buf_rmv_char(void);
+         //int buf_mv_cursor(void);
+         //int buf_del_char(void);
+         //int buf_mv_find_line(void);
+         //int buf_mv_find_word(void);
         int buf_get_valid(void) { return valid_buffer; }
 
     private:
         int valid_buffer;
+        FILE *file;
         // Using stdvec of strings because its generally just safer and easier
         // to use than char[rows][cols]
         std::vector<std::string> buffer;
