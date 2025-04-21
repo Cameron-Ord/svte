@@ -114,15 +114,20 @@ typedef enum
     // PASTE_AT = 8,
 } OPERATIONS;
 
+typedef enum {
+    FILE_RET_NOEXIST = 14,
+    FILE_RET_ERR = 15
+}FILERET;
+
 class Buffer {
     public:
         Buffer(char *filename, char *subpath);
         int buf_dupe_paths(char *filename, char *subpath);
         int buf_concat_path(const int valid);
+        int buf_open_file(void);
         int buf_raw_allocate(void);
         int buf_raw_destroy(void);
         int buf_raw_read(void);
-        int buf_open_file(void);
         int buf_resize(void);
         int buf_shift(void);
         int buf_ins_char(void);

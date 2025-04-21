@@ -30,8 +30,24 @@ Buffer::Buffer(char *fn, char *sp){
     if(!buf_concat_path(filename && subpath)){
         valid_buffer = 0;
     }
+    //Determine the size.
+    if(filename && subpath){
+        if(buf_open_file() == FILE_RET_ERR){
+            valid_buffer = 0;
+        }
+    }
 
+    if(subpath && valid_buffer){
+        if(!buf_raw_allocate()){
+            valid_buffer = 0;
+        }
+    }
     
+}
+
+int Buffer::buf_raw_allocate(void){
+
+    return 1;
 }
 
 int Buffer::buf_dupe_paths(char *fn, char *sp){
