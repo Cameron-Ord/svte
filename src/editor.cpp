@@ -1,5 +1,6 @@
 #include "../inc/editor.hpp"
 
+#include <iostream>
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -7,7 +8,7 @@
 Editor::Editor(void){
     bufs.clear();
     ids.clear();
-    buffer_count = 0;
+    open_buffers.clear();
     current_buffer = 0;
     editor_mode = VISUAL;
 }
@@ -31,7 +32,11 @@ int32_t Editor::ed_gen_id(void){
 }
 
 void Editor::ed_append_buffer(char* filename, char *subpath){
-    bufs.push_back(Buffer(filename, subpath, ed_gen_id()));
+    int32_t id = ed_gen_id();
+    bufs.insert({id, Buffer(filename, subpath, id)});
+    current_buffer = id;
+    open_buffers.push_back(id);
+    std::cout << "external buffer ID: " << id << std::endl;
 }
 
 

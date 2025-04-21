@@ -11,26 +11,30 @@
 const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;
 
-
 Buffer::Buffer(char *fn, char *sp, const int identifier){
     buffer.clear();
-    file = NULL;
     valid_buffer = BUF_STATE_VALID, id = identifier;
-    raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
+    file = NULL, raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
     buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
     file_size_at_open = 0;
     cursor[0] = 0, cursor[1] = 0;
     filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0;
 
-    std::cout << "Buffer ID: " << id << std::endl;
+    std::cout << "internal buffer ID: " << id << std::endl;
     if(id == FILE_ID_BROKEN){
         valid_buffer = BUF_STATE_ERR;
     }
     // Copy using strdup, wherever the original came from it must be freed after the buffer is constructed. (if necessary)
     // these will need to be freed whenever the deconstructor is called.
+    // General idea for this contructor is just toss the values at it and the
+    // behavior is defined from within the respective functions.
     if(buf_dupe_paths(fn, sp) == STR_DUP_ERR){
         valid_buffer = BUF_STATE_ERR;
+    }
+
+    if(!filename){
+        filename_change_flag = 1;
     }
     
     if(buf_concat_path() == STR_CONCAT_ERR){
@@ -48,7 +52,45 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     if(buf_raw_read() == BUF_READ_ERR){
         valid_buffer = BUF_STATE_ERR;
     }
+
+    if(buf_split_buffer() == SPLIT_BUF_ERR){
+        valid_buffer = BUF_STATE_ERR;
+    }
     std::cout << "Buffer state: " << valid_buffer << std::endl;
+}
+
+int Buffer::buf_split_buffer(void){
+    if(buffer_size == 0){
+        buffer.push_back("");
+        return SPLIT_BUF_OK;
+    }
+
+    size_t outer = 0;
+    size_t prev = outer;
+    while(outer < buffer_size && raw_buffer[outer] != NULLCHAR){
+        std::string line = "";
+        int inner = 0;
+
+        while (outer + inner < buffer_size && (raw_buffer[inner + outer] != NULLCHAR && raw_buffer[inner + outer] != NEWLINE)){
+            line += raw_buffer[inner + outer];
+            inner++;
+        }
+
+        if(outer + inner < buffer_size && raw_buffer[inner + outer] == NEWLINE){
+            inner++;
+        }
+
+        prev = outer;
+        outer = outer + inner;
+        // If something happens and the inner while fails conditions at first
+        // index just return because something broke.
+        if(!(outer > prev)){
+            return SPLIT_BUF_ERR;
+        }
+
+        buffer.push_back(line);
+    }
+    return SPLIT_BUF_OK;
 }
 
 int Buffer::buf_raw_read(void){
@@ -63,11 +105,13 @@ int Buffer::buf_raw_read(void){
     }
 
     if(file){
+        fseek(file, 0, SEEK_SET);
         const int read = fread(raw_buffer, 1, file_size_at_open, file);
         if(!read){
-            std::cerr << "fread() failed!" << std::endl;
+            std::cerr << "fread() failed!: " << strerror(errno) << std::endl;
             return BUF_READ_ERR;
         }
+        std::cout << "Read: " << read << std::endl;
     }
     std::cout << "File size at open: " << file_size_at_open << std::endl;
     return BUF_READ_OK;
@@ -83,6 +127,7 @@ int Buffer::buf_open_file(void){
 
     if(!(file = fopen(fullpath, "r"))){
         if(errno == ENOENT){
+            std::cout << "Path: " << fullpath << " does not exist" << std::endl;
             return FILE_RET_NOEXIST;
         }
         std::cerr << 
@@ -141,8 +186,11 @@ int Buffer::buf_concat_path(void){
         std::cout << "File name: " << filename << std::endl;
         std::cout << "Subpath: " << subpath << std::endl;
 
+        const char* slash = "/";
+        const size_t slen = strlen(slash);
         const size_t fpsize = subpath_str_len + filename_str_len + 1;
-        fullpath = (char *)malloc(sizeof(char) * fpsize);
+
+        fullpath = (char *)malloc(sizeof(char) * fpsize + slen);
         if(!fullpath){
             std::cerr << "malloc() for fullpath failed!" << std::endl;
             return STR_CONCAT_ERR;
@@ -154,12 +202,19 @@ int Buffer::buf_concat_path(void){
             return STR_CONCAT_ERR; 
         }
 
-        if(!strncat(fullpath, filename, filename_str_len)){
+        if(!strncat(fullpath, slash, slen)){
             std::cerr << "strncpy() failed!" << std::endl;
             free(fullpath);
             return STR_CONCAT_ERR; 
         }
 
+        if(!strncat(fullpath, filename, filename_str_len)){
+            std::cerr << "strncpy() failed!" << std::endl;
+            free(fullpath);
+            return STR_CONCAT_ERR; 
+        }
+        
+        std::cout << "Fullpath: " << fullpath << std::endl;
         return STR_CONCAT_OK;
     } else if (!filename && subpath){
         std::cout << "Subpath: " << subpath << std::endl;

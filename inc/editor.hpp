@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <unordered_set>
+#include <unordered_map>
 
 // Representing operations as integers inside an enum.
 // Makes things straightforward and easy to understand/program. Which is cool
@@ -116,6 +117,7 @@ typedef enum
     // PASTE_AT = 8,
 } OPERATIONS;
 
+
 typedef enum {
     FILE_RET_NOEXIST = 14,
     FILE_RET_ERR = 15,
@@ -146,6 +148,7 @@ typedef enum { FILE_ID_BROKEN = -1, }FILE_ID_STATE;
 
 typedef enum {BUF_STATE_VALID = 25, BUF_STATE_ERR = 26}BUFFER_STATE;
 
+typedef enum { SPLIT_BUF_ERR = 27, SPLIT_BUF_OK = 28 } SPLITRET;
 class Buffer {
     public:
         Buffer(char *filename, char *subpath, const int identifier);
@@ -155,6 +158,7 @@ class Buffer {
         int buf_raw_allocate(const size_t bsize);
         int buf_raw_destroy(void);
         int buf_raw_read(void);
+        int buf_split_buffer(void);
          //int buf_resize(void);
          //int buf_shift(void);
          //int buf_ins_char(void);
@@ -203,12 +207,13 @@ class Editor {
         void ed_chng_mode(void);
         int  ed_get_mode(void) { return editor_mode; } 
         int32_t  ed_gen_id(void);
+        
 
     private:
-        std::vector<Buffer> bufs;
+        std::unordered_map<int32_t, Buffer> bufs;
         std::unordered_set<int32_t> ids;
-        int buffer_count;
-        int current_buffer;
+        std::vector<int32_t> open_buffers;
+        int32_t current_buffer;
         int editor_mode;
 };
 
