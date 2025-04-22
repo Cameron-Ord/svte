@@ -17,7 +17,7 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     file = NULL, raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
     buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
     file_size_at_open = 0;
-    cursor[0] = 0, cursor[1] = 0;
+    cursor.row = 0, cursor.col = 0;
     filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0;
 
@@ -70,12 +70,16 @@ int Buffer::buf_split_buffer(void){
     while(outer < buffer_size && raw_buffer[outer] != NULLCHAR){
         std::string line = "";
         int inner = 0;
+        const char *end = raw_buffer + outer;
+        if(end == NULL){
+            return SPLIT_BUF_ERR;
+        }
 
         while (outer + inner < buffer_size && (raw_buffer[inner + outer] != NULLCHAR && raw_buffer[inner + outer] != NEWLINE)){
             line += raw_buffer[inner + outer];
             inner++;
         }
-
+        //Skip new lines (add them back when flattening)
         if(outer + inner < buffer_size && raw_buffer[inner + outer] == NEWLINE){
             inner++;
         }

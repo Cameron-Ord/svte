@@ -1,11 +1,12 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
-#include "grid.hpp"
-#include <SDL2/SDL_render.h>
-#include <string>
-#include <vector>
+
+#include <cstdint>
 
 class Window;
+
+struct SDL_Renderer;
+typedef struct SDL_Renderer SDL_Renderer;
 
 struct SDL_Rect;
 typedef struct SDL_Rect SDL_Rect;
@@ -20,6 +21,7 @@ struct Buf;
 typedef struct Buf Buf;
 
 class Chars;
+class Buffer;
 
 class Renderer
 {
@@ -32,7 +34,7 @@ class Renderer
     void clear_render(void);
     void render_present(void);
 
- //   int render_buffer(const Buf *buf, Chars *ch, const Vec2i *window_dims);
+    int render_buffer(class Buffer *buf, class Chars *ch);
  //   int render_curs(const Buf *b, const Vec2i *window_dims);
   private:
     SDL_Renderer *rend;

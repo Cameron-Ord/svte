@@ -206,8 +206,8 @@ int main(int argc, char *argv[])
             } break;
             }
         }
-
-     //    renderer.render_buffer(buffers.get_buf(editor.current_buffer), font._chars(), window.get_dimensions());
+            
+        renderer.render_buffer(ed.ed_grab_buffer(), &ch);
      //   renderer.render_curs(buffers.get_buf(editor.current_buffer), window.get_dimensions());
 
         frame_time = SDL_GetTicks64() - frame_start;

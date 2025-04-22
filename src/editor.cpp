@@ -13,6 +13,15 @@ Editor::Editor(void){
     editor_mode = VISUAL;
 }
 
+Buffer *Editor::ed_grab_buffer(void){
+    std::unordered_map<int32_t, Buffer>::iterator it = bufs.find(current_buffer);
+    if(it != bufs.end()){
+        return &it->second;
+    } else {
+        return nullptr;
+    }
+}
+
 int32_t Editor::ed_gen_id(void){
     int attempt = 0;
     const int max_attempts = 100;

@@ -11,37 +11,11 @@
 // Makes things straightforward and easy to understand/program. Which is cool
 // and good
 
-struct Buffer_Cursor {
-    int pos;
-    int rowy, rowx;
+struct Cursor {
+    int row, col;
     int w, h;
 };
 typedef struct Buffer_Cursor Buffer_Cursor;
-
-struct Buffer_Char { 
-    char *fn;
-    char *working_path;
-    char *buf;
-    int fn_needs_change;
-    size_t size;
-};
-typedef struct Buffer_Char Buffer_Char;
-
-struct Buffer_Dims {
-    int text_height;
-    int rows, cols;
-    int pos_offset_y, pos_offset_x;
-};
-typedef struct Buffer_Dims Buffer_Dims;
-
-
-struct Buf
-{
-    Buffer_Char bchar;
-    Buffer_Cursor bcurs;
-    Buffer_Dims bdims;
-};
-typedef struct Buf Buf;
 
 struct File_Info
 {
@@ -152,6 +126,8 @@ typedef enum { SPLIT_BUF_ERR = 27, SPLIT_BUF_OK = 28 } SPLITRET;
 class Buffer {
     public:
         Buffer(char *filename, char *subpath, const int identifier);
+        std::vector<std::string> *buf_get_buffer(void) { return &buffer; } 
+        const Cursor *buf_get_curs(void) { return &cursor; }
         int buf_dupe_paths(char *filename, char *subpath);
         int buf_concat_path(void);
         int buf_open_file(void);
@@ -184,7 +160,7 @@ class Buffer {
         size_t buffer_size;
         size_t buffer_size_max;
         long file_size_at_open;
-        int cursor[2];
+        Cursor cursor;
         size_t filename_str_len;
         size_t subpath_str_len;
         int filename_change_flag;
@@ -193,7 +169,7 @@ class Buffer {
 class Editor {
     public:
         Editor(void);
-
+        
         void ed_append_buffer(char* filename, char *subpath);
         void ed_destroy_buffer(void);
         void ed_buffers_resize(void);
@@ -207,6 +183,7 @@ class Editor {
         void ed_chng_mode(void);
         int  ed_get_mode(void) { return editor_mode; } 
         int32_t  ed_gen_id(void);
+        Buffer *ed_grab_buffer(void);
         
 
     private:

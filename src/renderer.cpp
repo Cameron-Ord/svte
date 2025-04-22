@@ -1,10 +1,12 @@
 #include "../inc/renderer.hpp"
 #include "../inc/font.hpp"
 #include "../inc/window.hpp"
+#include "../inc/editor.hpp"
 
 #include <cstdio>
 #include <cstdlib>
-
+#include <SDL2/SDL_render.h>
+#include <iostream>
 Renderer::Renderer()
     : rend(NULL)
 {
@@ -35,4 +37,35 @@ const void *Renderer::create_renderer(SDL_Window *w)
 
     SDL_SetRenderDrawBlendMode(rend, SDL_BLENDMODE_BLEND);
     return rend;
+}
+
+int Renderer::render_buffer(class Buffer *buf, class Chars *ch){
+    int row = 0, row_height = *ch->ch_max_height();
+    int col_width = *ch->ch_max_width(), padding = 2;
+
+    std::vector<std::string> *buffer = buf->buf_get_buffer();
+    for(size_t i = 0; i < buffer->size(); i++){
+        std::string str = (*buffer)[i];
+        int col = 0;
+        const int y = row * row_height + padding;
+        for(size_t t = 0; t < str.size(); t++){
+            const char c = str[t];
+            const Char_Table * ct = ch->char_lookup(c);
+            const int x = col * col_width + padding;
+
+            SDL_Rect char_rect = {x, y, ct->base.width, ct->base.height};
+            SDL_RenderCopy(rend, ct->base.t, NULL, &char_rect);
+            
+            const Cursor *curs = buf->buf_get_curs();
+            if(curs->col == col && curs->row == row){
+                SDL_Rect cursor_rect = {x, y, ct->base.width, ct->base.height};
+                SDL_SetRenderDrawColor(rend, 255, 255, 255, 150);
+                SDL_RenderFillRect(rend, &cursor_rect);
+            }
+
+            col += 1;
+        }
+        row += 1;
+    }
+    return (row * row_height) + (row * padding);   
 }

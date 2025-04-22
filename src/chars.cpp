@@ -67,6 +67,8 @@ int Chars::table_create_textures(SDL_Renderer *rend, const Fonts *f)
             return -1;
         }
 
+        ct->base.width = s->w, ct->base.height = s->h;
+
         if (s->w > max_width) {
             max_width = s->w;
         }
@@ -75,7 +77,6 @@ int Chars::table_create_textures(SDL_Renderer *rend, const Fonts *f)
             max_height = s->h;
         }
 
-        ct->base.width = s->w, ct->base.height = s->h;
         SDL_FreeSurface(s);
     }
     return 1;
