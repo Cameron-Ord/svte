@@ -5,7 +5,7 @@ src = [
         'src/editor.cpp',
         'src/buffer.cpp',
         #       'src/font.cpp',
-        'src/render_draw.cpp',
+        #       'src/render_draw.cpp',
         'src/chars.cpp',
         'src/renderer.cpp',
         'src/window.cpp',

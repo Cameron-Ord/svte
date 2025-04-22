@@ -2,6 +2,7 @@
 #include "../inc/font.hpp"
 #include "../inc/window.hpp"
 #include "../inc/editor.hpp"
+#include "../inc/globaldef.hpp"
 
 #include <cstdio>
 #include <cstdlib>
@@ -46,16 +47,21 @@ int Renderer::render_buffer(class Buffer *buf, class Chars *ch){
     std::vector<std::string> *buffer = buf->buf_get_buffer();
     for(size_t i = 0; i < buffer->size(); i++){
         std::string str = (*buffer)[i];
-        int col = 0;
         const int y = row * row_height + padding;
+
+        int col = 0;
+        int xaccumulate = 0;
+        
         for(size_t t = 0; t < str.size(); t++){
             const char c = str[t];
             const Char_Table * ct = ch->char_lookup(c);
-            const int x = col * col_width + padding;
+            const int x = xaccumulate;
 
-            SDL_Rect char_rect = {x, y, ct->base.width, ct->base.height};
-            SDL_RenderCopy(rend, ct->base.t, NULL, &char_rect);
-            
+            if(str[t] != SPACECHAR){
+                SDL_Rect char_rect = {x, y, ct->base.width, ct->base.height};
+                SDL_RenderCopy(rend, ct->base.t, NULL, &char_rect);
+            }
+
             const Cursor *curs = buf->buf_get_curs();
             if(curs->col == col && curs->row == row){
                 SDL_Rect cursor_rect = {x, y, ct->base.width, ct->base.height};
@@ -63,6 +69,7 @@ int Renderer::render_buffer(class Buffer *buf, class Chars *ch){
                 SDL_RenderFillRect(rend, &cursor_rect);
             }
 
+            xaccumulate += ct->base.width + padding;
             col += 1;
         }
         row += 1;
