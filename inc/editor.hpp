@@ -135,6 +135,9 @@ class Buffer {
         int buf_raw_destroy(void);
         int buf_raw_read(void);
         int buf_split_buffer(void);
+        int buf_shift_curs_x(const int d);
+        int buf_shift_curs_y(const int d);
+        int buf_clamp_col(const int col, const int ssize);
          //int buf_resize(void);
          //int buf_shift(void);
          //int buf_ins_char(void);
@@ -177,7 +180,7 @@ class Editor {
         void ed_rmv_char(void);
         void ed_del_char(void);
         void ed_ins_char(void);
-        void ed_mv_op(void);
+        void ed_mv_op(const int DIRECTION);
         void ed_chng_buffer(void);
         void ed_name_find_buffer(void);
         void ed_chng_mode(void);

@@ -59,6 +59,44 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
+int Buffer::buf_clamp_col(const int col, const int ssize){
+    if(col >= ssize){
+        return ssize - 1;
+    } else if(col < 0){
+        return 0;
+    }
+    return col;
+}
+
+int Buffer::buf_shift_curs_x(const int d){
+    const int buf_ssize = buffer.size();
+    if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
+        return 0;
+    }
+
+    std::string s = buffer[cursor.row];
+    const int string_ssize = s.size();
+    if(cursor.col + d >= 0 && cursor.col + d < string_ssize){
+        cursor.col += d;
+    }
+    return 1;
+}
+
+int Buffer::buf_shift_curs_y(const int d){
+    const int ssize = buffer.size();
+    if(!(cursor.row >= 0 && cursor.row < ssize)){
+        return 0;
+    }
+
+    if(cursor.row + d >= 0 && cursor.row + d < ssize){
+        cursor.row += d;
+    }
+
+    std::string s = buffer[cursor.row];
+    cursor.col = buf_clamp_col(cursor.col, s.size());
+    return 1;
+}
+
 int Buffer::buf_split_buffer(void){
     if(buffer_size == 0){
         buffer.push_back("");

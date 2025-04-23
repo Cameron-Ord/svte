@@ -5,6 +5,9 @@
 
 class Window;
 
+struct SDL_Texture;
+typedef struct SDL_Texture SDL_Texture;
+
 struct SDL_Renderer;
 typedef struct SDL_Renderer SDL_Renderer;
 
@@ -30,12 +33,12 @@ class Renderer
     ~Renderer(void);
     SDL_Renderer *get_renderer(void);
     const void *create_renderer(SDL_Window *w);
-    void bg_fill(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    void clear_render(void);
-    void render_present(void);
-
-    int render_buffer(class Buffer *buf, class Chars *ch);
- //   int render_curs(const Buf *b, const Vec2i *window_dims);
+    void renderer_fill_bg(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    void renderer_clear(void);
+    void renderer_present(void);
+    int renderer_draw_char(const int x, const int y, const int w, const int h, SDL_Texture *tex);
+    int renderer_draw_cursor(const int x, const int y, const int w, const int h);
+    int renderer_draw_file(class Buffer *buf, class Chars *ch);
   private:
     SDL_Renderer *rend;
 };

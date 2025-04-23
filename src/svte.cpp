@@ -41,12 +41,12 @@ int main(int argc, char *argv[])
     //thats also when I have to write syntax highlighting so just keep it simple
     //for now.
     Chars ch;
-    if (!(ch.set_font(ch.open_font("dogicapixel.ttf", 16)))) {
+    if (!(ch.ch_set_font(ch.ch_open_font("dogicapixel.ttf", 16)))) {
         return 1;
     }
 
-    if (!ch.table_create_textures(renderer.get_renderer(),
-                                              ch.get_fonts())) {
+    if (!ch.ch_create_textures(renderer.get_renderer(),
+                                              ch.ch_get_fonts())) {
         return 1;
     }
 
@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
     int quit = 0;
     while (!quit) {
         frame_start = SDL_GetTicks64();
-        renderer.bg_fill(0, 0, 0, 255);
-        renderer.clear_render();
+        renderer.renderer_fill_bg(0, 0, 0, 255);
+        renderer.renderer_clear();
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
                     switch(ed.ed_get_mode()){
                         default: break;
                         case VISUAL: {
-
+                            ed.ed_mv_op(MV_LEFT);
                          }break;
                         case INSERT: {
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
                     switch(ed.ed_get_mode()){
                         default: break;
                         case VISUAL: {
-
+                            ed.ed_mv_op(NEXT_LINE);
                          }break;
                         case INSERT: {
 
@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
                     switch(ed.ed_get_mode()){
                         default: break;
                         case VISUAL: {
-
+                            ed.ed_mv_op(PREV_LINE);
                          }break;
                         case INSERT: {
 
@@ -185,7 +185,7 @@ int main(int argc, char *argv[])
                     switch(ed.ed_get_mode()){
                         default: break;
                         case VISUAL: {
-
+                            ed.ed_mv_op(MV_RIGHT);
                          }break;
                         case INSERT: {
 
@@ -207,15 +207,14 @@ int main(int argc, char *argv[])
             }
         }
             
-        renderer.render_buffer(ed.ed_grab_buffer(), &ch);
-     //   renderer.render_curs(buffers.get_buf(editor.current_buffer), window.get_dimensions());
+        renderer.renderer_draw_file(ed.ed_grab_buffer(), &ch);
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
             SDL_Delay(tpf - frame_time);
         }
 
-        renderer.render_present();
+        renderer.renderer_present();
     }
 
     SDL_DestroyRenderer(renderer.get_renderer());

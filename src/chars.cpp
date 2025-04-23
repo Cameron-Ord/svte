@@ -31,12 +31,12 @@ Chars::Chars(void) {
     set_table(); 
 }
 
-const void* Chars::set_font(TTF_Font *fp){
+const void* Chars::ch_set_font(TTF_Font *fp){
     f.base = fp;
     return f.base;
 }
 
-TTF_Font *Chars::open_font(const char *fn, const int size)
+TTF_Font *Chars::ch_open_font(const char *fn, const int size)
 {
     TTF_Font *f = TTF_OpenFont(fn, size);
     if (!f) {
@@ -47,7 +47,7 @@ TTF_Font *Chars::open_font(const char *fn, const int size)
 
 
 
-int Chars::table_create_textures(SDL_Renderer *rend, const Fonts *f)
+int Chars::ch_create_textures(SDL_Renderer *rend, const Fonts *f)
 {
     SDL_Color col = {255, 255, 255, 255};
     for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
@@ -92,7 +92,7 @@ void Chars::set_table(void)
     }
 }
 
-Char_Table *Chars::char_lookup(unsigned char c)
+Char_Table *Chars::ch_lookup(unsigned char c)
 {
     if (!force_bounds((int)c)) {
         return &chtbls['?'];
