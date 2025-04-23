@@ -19,7 +19,7 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     file_size_at_open = 0;
     cursor.row = 0, cursor.col = 0;
     filename_str_len = 0, subpath_str_len = 0;
-    filename_change_flag = 0;
+    filename_change_flag = 0, curs_prev_loc = 0;
 
     std::cout << "internal buffer ID: " << id << std::endl;
     if(id == FILE_ID_BROKEN){
@@ -59,19 +59,58 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
-int Buffer::buf_clamp_col(const int col, const int ssize){
-    if(col >= ssize){
-        return ssize - 1;
-    } else if(col < 0){
-        return 0;
+int Buffer::buf_col_first_char(std::string row){
+    for(size_t i = 0; i < row.size(); i++){
+        if(row[i] != SPACECHAR){
+            return i;
+        }
     }
-    return col;
+    return 0;
 }
 
-int Buffer::buf_shift_curs_x(const int d){
+void Buffer::buf_col_resize_to_row(void){
     const int buf_ssize = buffer.size();
     if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
-        return 0;
+        return;
+    }
+
+    std::string s = buffer[cursor.row];
+
+    const int string_ssize = s.size();
+    const int cond = cursor.col >= string_ssize;
+
+    if(cond){
+        cursor.col = string_ssize -1;
+        return;
+    } else if(!cond && s[cursor.col] == SPACECHAR && buf_col_first_char(s) >= curs_prev_loc){
+        cursor.col = buf_col_first_char(s);
+        curs_prev_loc = cursor.col;
+        return;
+    } else if(!cond && s[cursor.col] == SPACECHAR && buf_col_first_char(s) < curs_prev_loc){
+        if(curs_prev_loc < string_ssize){
+            cursor.col = curs_prev_loc;
+        } else {
+            cursor.col = string_ssize - 1;
+        }
+        return;
+    } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col < curs_prev_loc){
+        if(curs_prev_loc < string_ssize){
+            cursor.col = curs_prev_loc;
+        } else {
+            cursor.col = string_ssize - 1;
+        }
+        return;
+    } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col >= curs_prev_loc){
+        curs_prev_loc = cursor.col;
+        return;
+    }
+}
+
+
+void Buffer::buf_shift_curs_x(const int d){
+    const int buf_ssize = buffer.size();
+    if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
+        return;
     }
 
     std::string s = buffer[cursor.row];
@@ -79,22 +118,18 @@ int Buffer::buf_shift_curs_x(const int d){
     if(cursor.col + d >= 0 && cursor.col + d < string_ssize){
         cursor.col += d;
     }
-    return 1;
+    curs_prev_loc = cursor.col;
 }
 
-int Buffer::buf_shift_curs_y(const int d){
+void Buffer::buf_shift_curs_y(const int d){
     const int ssize = buffer.size();
     if(!(cursor.row >= 0 && cursor.row < ssize)){
-        return 0;
+        return;
     }
 
     if(cursor.row + d >= 0 && cursor.row + d < ssize){
         cursor.row += d;
     }
-
-    std::string s = buffer[cursor.row];
-    cursor.col = buf_clamp_col(cursor.col, s.size());
-    return 1;
 }
 
 int Buffer::buf_split_buffer(void){
@@ -108,11 +143,7 @@ int Buffer::buf_split_buffer(void){
     while(outer < buffer_size && raw_buffer[outer] != NULLCHAR){
         std::string line = "";
         int inner = 0;
-        const char *end = raw_buffer + outer;
-        if(end == NULL){
-            return SPLIT_BUF_ERR;
-        }
-
+        
         while (outer + inner < buffer_size && (raw_buffer[inner + outer] != NULLCHAR && raw_buffer[inner + outer] != NEWLINE)){
             line += raw_buffer[inner + outer];
             inner++;

@@ -64,9 +64,11 @@ void Editor::ed_mv_op(const int DIRECTION){
         }break;
         case PREV_LINE:{
             buf->buf_shift_curs_y(-1);           
+            buf->buf_col_resize_to_row();
         }break;
         case NEXT_LINE:{
             buf->buf_shift_curs_y(1);           
+            buf->buf_col_resize_to_row();
         }break;
     }
 }

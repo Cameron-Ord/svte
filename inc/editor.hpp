@@ -135,9 +135,10 @@ class Buffer {
         int buf_raw_destroy(void);
         int buf_raw_read(void);
         int buf_split_buffer(void);
-        int buf_shift_curs_x(const int d);
-        int buf_shift_curs_y(const int d);
-        int buf_clamp_col(const int col, const int ssize);
+        int buf_col_first_char(std::string row); 
+        void buf_col_resize_to_row(void);
+        void buf_shift_curs_x(const int d);
+        void buf_shift_curs_y(const int d);
          //int buf_resize(void);
          //int buf_shift(void);
          //int buf_ins_char(void);
@@ -149,6 +150,7 @@ class Buffer {
         int buf_get_valid(void) { return valid_buffer; }
 
     private:
+        int curs_prev_loc;
         int32_t id;
         int valid_buffer;
         FILE *file;
