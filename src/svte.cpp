@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
                 const char *t = e.text.text;
                 const size_t tlen = strlen(t);
                 for (size_t i = 0; i < tlen; i++) {
-                   // editor.ins(&editor, t[i]);
+                   ed.ed_ins_char(t[i]);
                 }
             } break;
             case SDL_KEYDOWN:

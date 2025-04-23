@@ -135,8 +135,9 @@ class Buffer {
         int buf_raw_destroy(void);
         int buf_raw_read(void);
         int buf_split_buffer(void);
-        int buf_col_first_char(std::string row); 
-        void buf_col_resize_to_row(void);
+        int buf_row_first_char(std::string row); 
+        void buf_cols_resize_to_row(void);
+        void buf_row_insert_char(const char c);
         void buf_shift_curs_x(const int d);
         void buf_shift_curs_y(const int d);
          //int buf_resize(void);
@@ -181,7 +182,7 @@ class Editor {
         void ed_buffers_shift(void);
         void ed_rmv_char(void);
         void ed_del_char(void);
-        void ed_ins_char(void);
+        void ed_ins_char(const char c);
         void ed_mv_op(const int DIRECTION);
         void ed_chng_buffer(void);
         void ed_name_find_buffer(void);

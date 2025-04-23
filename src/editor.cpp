@@ -48,6 +48,15 @@ void Editor::ed_append_buffer(char* filename, char *subpath){
     std::cout << "external buffer ID: " << id << std::endl;
 }
 
+void Editor::ed_ins_char(const char c){
+    Buffer *buf = nullptr;
+    if(!(buf = ed_grab_buffer())){
+        return;
+    }
+
+    buf->buf_row_insert_char(c);
+}
+
 void Editor::ed_mv_op(const int DIRECTION){
     Buffer *buf = nullptr;
     if(!(buf = ed_grab_buffer())){
@@ -64,11 +73,11 @@ void Editor::ed_mv_op(const int DIRECTION){
         }break;
         case PREV_LINE:{
             buf->buf_shift_curs_y(-1);           
-            buf->buf_col_resize_to_row();
+            buf->buf_cols_resize_to_row();
         }break;
         case NEXT_LINE:{
             buf->buf_shift_curs_y(1);           
-            buf->buf_col_resize_to_row();
+            buf->buf_cols_resize_to_row();
         }break;
     }
 }

@@ -59,7 +59,14 @@ Buffer::Buffer(char *fn, char *sp, const int identifier){
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
-int Buffer::buf_col_first_char(std::string row){
+//no checks for now just testing
+void Buffer::buf_row_insert_char(const char c){
+    buffer[cursor.row].insert(buffer[cursor.row].begin() + cursor.col, c);
+    cursor.col++;
+}
+
+
+int Buffer::buf_row_first_char(std::string row){
     for(size_t i = 0; i < row.size(); i++){
         if(row[i] != SPACECHAR){
             return i;
@@ -68,7 +75,7 @@ int Buffer::buf_col_first_char(std::string row){
     return 0;
 }
 
-void Buffer::buf_col_resize_to_row(void){
+void Buffer::buf_cols_resize_to_row(void){
     const int buf_ssize = buffer.size();
     if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
         return;
@@ -82,11 +89,11 @@ void Buffer::buf_col_resize_to_row(void){
     if(cond){
         cursor.col = string_ssize -1;
         return;
-    } else if(!cond && s[cursor.col] == SPACECHAR && buf_col_first_char(s) >= curs_prev_loc){
-        cursor.col = buf_col_first_char(s);
+    } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) >= curs_prev_loc){
+        cursor.col = buf_row_first_char(s);
         curs_prev_loc = cursor.col;
         return;
-    } else if(!cond && s[cursor.col] == SPACECHAR && buf_col_first_char(s) < curs_prev_loc){
+    } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) < curs_prev_loc){
         if(curs_prev_loc < string_ssize){
             cursor.col = curs_prev_loc;
         } else {
