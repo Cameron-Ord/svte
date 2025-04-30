@@ -8,6 +8,9 @@
 #include <cstdlib>
 #include <SDL2/SDL_render.h>
 #include <iostream>
+
+const int padding = 2;
+
 Renderer::Renderer()
     : rend(NULL)
 {
@@ -40,8 +43,11 @@ const void *Renderer::create_renderer(SDL_Window *w)
     return rend;
 }
 
-int Renderer::renderer_draw_cursor(const int x, const int y, const int w, const int h){
-    SDL_Rect cursor_rect = {x, y, w, h};
+int Renderer::renderer_draw_cursor(const Cursor *c, const int *max_width, const int *max_height){
+    const int x = c->col * *max_width + padding;
+    const int y = c->row * *max_height + padding;
+
+    SDL_Rect cursor_rect = {x, y, *max_width, *max_height};
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 150);
     SDL_RenderFillRect(rend, &cursor_rect);
     return 1;
@@ -54,32 +60,22 @@ int Renderer::renderer_draw_char(const int x, const int y, const int w, const in
 }
 
 int Renderer::renderer_draw_file(class Buffer *buf, class Chars *ch){
-    int row = 0, row_height = *ch->ch_max_height();
-    int padding = 2;
+    int row = 0, row_height = *ch->ch_max_height(), col_width = *ch->ch_max_width();
 
     std::vector<std::string> *buffer = buf->buf_get_buffer();
     for(size_t i = 0; i < buffer->size(); i++){
         std::string str = (*buffer)[i];
-        const int y = row * row_height + padding;
-
         int col = 0;
-        int xaccumulate = 0;
+        const int y = row * row_height + padding;
         
         for(size_t t = 0; t < str.size(); t++){
             const char c = str[t];
             const Char_Table * ct = ch->ch_lookup(c);
-            const int x = xaccumulate;
+            const int x = col * col_width + padding;
 
             if(str[t] != SPACECHAR){
                 renderer_draw_char(x, y, ct->base.width, ct->base.height, ct->base.t);
             }
-
-            const Cursor *curs = buf->buf_get_curs();
-            if(curs->col == col && curs->row == row){
-                renderer_draw_cursor(x, y, ct->base.width, ct->base.height);
-            }
-
-            xaccumulate += ct->base.width + padding;
             col += 1;
         }
         row += 1;

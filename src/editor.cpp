@@ -40,7 +40,7 @@ int32_t Editor::ed_gen_id(void){
     return FILE_ID_BROKEN;
 }
 
-void Editor::ed_append_buffer(char* filename, char *subpath){
+void Editor::ed_append_buffer(std::string filename, std::string subpath){
     int32_t id = ed_gen_id();
     bufs.insert({id, Buffer(filename, subpath, id)});
     current_buffer = id;

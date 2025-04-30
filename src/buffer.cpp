@@ -11,58 +11,63 @@
 const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;
 
-Buffer::Buffer(char *fn, char *sp, const int identifier){
+Buffer::Buffer(std::string fn, std::string sp, const int identifier){
     buffer.clear();
     valid_buffer = BUF_STATE_VALID, id = identifier;
-    file = NULL, raw_buffer = NULL, filename = NULL, subpath = NULL, fullpath = NULL;
-    buffer_size = 0, buffer_size_max = PER_FILE_LIMIT;
+    buffer_size_max = PER_FILE_LIMIT;
     file_size_at_open = 0;
     cursor.row = 0, cursor.col = 0;
-    filename_str_len = 0, subpath_str_len = 0;
     filename_change_flag = 0, curs_prev_loc = 0;
+    path_delimiter = "/", fullpath = "", filename = fn, subpath = sp;
 
     std::cout << "internal buffer ID: " << id << std::endl;
     if(id == FILE_ID_BROKEN){
         valid_buffer = BUF_STATE_ERR;
     }
-    // Copy using strdup, wherever the original came from it must be freed after the buffer is constructed. (if necessary)
-    // these will need to be freed whenever the deconstructor is called.
-    // General idea for this contructor is just toss the values at it and the
-    // behavior is defined from within the respective functions.
-    if(buf_dupe_paths(fn, sp) == STR_DUP_ERR){
-        valid_buffer = BUF_STATE_ERR;
-    }
 
-    if(!filename){
+    if(buf_concat_paths() == STR_CONCAT_NO_FN){
         filename_change_flag = 1;
     }
-    
-    if(buf_concat_path() == STR_CONCAT_ERR){
-        valid_buffer = BUF_STATE_ERR;
-    }
-    //Determine the size.
+
     if(buf_open_file() == FILE_RET_ERR){
         valid_buffer = BUF_STATE_ERR;
     }
 
-    if(buf_raw_allocate((size_t)file_size_at_open) == BUF_ALLOC_ERR){
-        valid_buffer = BUF_STATE_ERR;
+    if(buffer.size() == 0){
+        //Initialize as size of DEFAULT_SIZE and ensure empty strings.
+        buffer.resize(DEFAULT_SIZE);
+        for(size_t j = 0; j < DEFAULT_SIZE; j++){
+            buffer[j] = "";
+        }
     }
 
-    if(buf_raw_read() == BUF_READ_ERR){
-        valid_buffer = BUF_STATE_ERR;
-    }
-
-    if(buf_split_buffer() == SPLIT_BUF_ERR){
-        valid_buffer = BUF_STATE_ERR;
-    }
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
-//no checks for now just testing
-void Buffer::buf_row_insert_char(const char c){
-    buffer[cursor.row].insert(buffer[cursor.row].begin() + cursor.col, c);
-    cursor.col++;
+
+int Buffer::buf_row_insert_char(const char c){
+    const size_t usize = buffer.size();
+    if(usize == 0){
+        return INS_BAD_SIZE;
+    }
+
+    const size_t y = cursor.row;
+    if(!(y < usize)){
+        return INS_BAD_ROW;
+    }
+
+    const size_t x = cursor.col;
+    std::string *strptr = &buffer[y];
+    if(!strptr){
+        return INS_BAD_PTR;
+    }
+
+    const int can_insert = (x == 0 && strptr->empty()) || (x >= 0 && x <= strptr->size());
+    if(can_insert){
+        strptr->insert(strptr->begin() + x, c);
+        cursor.col++;
+    }
+    return INS_OK;
 }
 
 
@@ -80,36 +85,32 @@ void Buffer::buf_cols_resize_to_row(void){
     if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
         return;
     }
-
     std::string s = buffer[cursor.row];
 
     const int string_ssize = s.size();
-    const int cond = cursor.col >= string_ssize;
+    const int cond = cursor.col >= string_ssize && string_ssize > 0;
 
     if(cond){
         cursor.col = string_ssize -1;
-        return;
     } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) >= curs_prev_loc){
         cursor.col = buf_row_first_char(s);
         curs_prev_loc = cursor.col;
-        return;
     } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) < curs_prev_loc){
         if(curs_prev_loc < string_ssize){
             cursor.col = curs_prev_loc;
         } else {
             cursor.col = string_ssize - 1;
         }
-        return;
     } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col < curs_prev_loc){
         if(curs_prev_loc < string_ssize){
             cursor.col = curs_prev_loc;
         } else {
             cursor.col = string_ssize - 1;
         }
-        return;
     } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col >= curs_prev_loc){
         curs_prev_loc = cursor.col;
-        return;
+    } else {
+        cursor.col = 0;
     }
 }
 
@@ -122,7 +123,7 @@ void Buffer::buf_shift_curs_x(const int d){
 
     std::string s = buffer[cursor.row];
     const int string_ssize = s.size();
-    if(cursor.col + d >= 0 && cursor.col + d < string_ssize){
+    if(cursor.col + d >= 0 && cursor.col + d <= string_ssize){
         cursor.col += d;
     }
     curs_prev_loc = cursor.col;
@@ -130,178 +131,54 @@ void Buffer::buf_shift_curs_x(const int d){
 
 void Buffer::buf_shift_curs_y(const int d){
     const int ssize = buffer.size();
-    if(!(cursor.row >= 0 && cursor.row < ssize)){
+    if(!(cursor.row + d >= 0 && cursor.row + d < ssize)){
         return;
     }
-
-    if(cursor.row + d >= 0 && cursor.row + d < ssize){
-        cursor.row += d;
-    }
-}
-
-int Buffer::buf_split_buffer(void){
-    if(buffer_size == 0){
-        buffer.push_back("");
-        return SPLIT_BUF_OK;
-    }
-
-    size_t outer = 0;
-    size_t prev = outer;
-    while(outer < buffer_size && raw_buffer[outer] != NULLCHAR){
-        std::string line = "";
-        int inner = 0;
-        
-        while (outer + inner < buffer_size && (raw_buffer[inner + outer] != NULLCHAR && raw_buffer[inner + outer] != NEWLINE)){
-            line += raw_buffer[inner + outer];
-            inner++;
-        }
-        //Skip new lines (add them back when flattening)
-        if(outer + inner < buffer_size && raw_buffer[inner + outer] == NEWLINE){
-            inner++;
-        }
-
-        prev = outer;
-        outer = outer + inner;
-        // If something happens and the inner while fails conditions at first
-        // index just return because something broke.
-        if(!(outer > prev)){
-            return SPLIT_BUF_ERR;
-        }
-
-        buffer.push_back(line);
-    }
-    return SPLIT_BUF_OK;
-}
-
-int Buffer::buf_raw_read(void){
-    if(!raw_buffer){
-        std::cerr << "No valid buffer!" << std::endl;
-        return BUF_READ_ERR;
-    }
-
-    if(buffer_size != (size_t)file_size_at_open){
-        std::cerr << "Size mismatch!" << std::endl;
-        return BUF_READ_ERR;
-    }
-
-    if(file){
-        fseek(file, 0, SEEK_SET);
-        const int read = fread(raw_buffer, 1, file_size_at_open, file);
-        if(!read){
-            std::cerr << "fread() failed!: " << strerror(errno) << std::endl;
-            return BUF_READ_ERR;
-        }
-        std::cout << "Read: " << read << std::endl;
-    }
-    std::cout << "File size at open: " << file_size_at_open << std::endl;
-    return BUF_READ_OK;
+    cursor.row += d;
 }
 
 int Buffer::buf_open_file(void){
-    if(!fullpath && subpath){
-        return FILE_RET_OK;
-    } else if (!fullpath && !subpath){
-        std::cout << "Required paths are NULL!" << std::endl;
+    if (fullpath.size() == 0 || filename.size() == 0){
+        std::cout << "No provided filename" << std::endl;
+        return FILE_RET_NO_FN;
+    }
+
+    const std::string checkstr = subpath + path_delimiter + filename;
+    if(!(fullpath.size() > 0 && fullpath == checkstr)){
+        std::cerr << "Path mismatch!" << std::endl;
         return FILE_RET_ERR;
     }
 
-    if(!(file = fopen(fullpath, "r"))){
-        if(errno == ENOENT){
-            std::cout << "Path: " << fullpath << " does not exist" << std::endl;
-            return FILE_RET_NOEXIST;
+    std::ifstream file(fullpath, std::ios::in); 
+    if(!file.is_open()){
+        if(file.bad()){
+            std::cerr << "Fatal error while opening in read mode" << std::endl;
+            return FILE_RET_ERR;
+        } else if (file.fail()){
+            return FILE_RET_OK;
         }
-        std::cerr << 
-            "Failed to open: " << 
-            fullpath << 
-            " " << 
-            strerror(errno) << 
-            std::endl;
-        return FILE_RET_ERR;
     }
-    fseek(file, 0, SEEK_END);
-    file_size_at_open = ftell(file);
+
+    std::string line;
+    while(std::getline(file, line)){
+        buffer.push_back(line);
+    }
+
+    file.seekg(std::ios::end);
+    file_size_at_open = file.tellg();
+    file.close();
+
     std::cout << "File size: " << file_size_at_open << std::endl;
     return FILE_RET_OK;
 }
 
-int Buffer::buf_raw_allocate(const size_t bsize){
-    if(bsize >= buffer_size_max){
-        std::cerr << "Buffer exceeds limit!" << std::endl;
-        return BUF_ALLOC_ERR;
+
+int Buffer::buf_concat_paths(void){
+    if(filename.size() == 0){
+        return STR_CONCAT_NO_FN;
     }
-    
-    raw_buffer = (char*)malloc(sizeof(char) * bsize + 1);
-    if(!raw_buffer){
-        std::cerr << "malloc() failed!" << std::endl;
-        return BUF_ALLOC_ERR;
-    }
-    
-    raw_buffer[bsize] = NULLCHAR;
-    buffer_size = bsize;
-    std::cout << "Allocated " << bsize * sizeof(char) + 1 << " bytes" << std::endl;
-    return BUF_ALLOC_OK;
-}
-
-int Buffer::buf_dupe_paths(char *fn, char *sp){
-    if(fn){
-        filename = strdup(fn);
-        filename_str_len = strlen(filename);
-    }
-    
-    if(sp){
-        subpath = strdup(sp);
-        subpath_str_len = strlen(subpath);
-    } 
-
-    if((subpath && filename) || (!filename && subpath)){
-        return STR_DUP_OK;
-    } else {
-        std::cout << "buf_dupe_paths: Path and filename are null!" << std::endl;
-        return STR_DUP_ERR;
-    }
-}
-
-int Buffer::buf_concat_path(void){
-    if(filename && subpath){
-        std::cout << "File name: " << filename << std::endl;
-        std::cout << "Subpath: " << subpath << std::endl;
-
-        const char* slash = "/";
-        const size_t slen = strlen(slash);
-        const size_t fpsize = subpath_str_len + filename_str_len + 1;
-
-        fullpath = (char *)malloc(sizeof(char) * fpsize + slen);
-        if(!fullpath){
-            std::cerr << "malloc() for fullpath failed!" << std::endl;
-            return STR_CONCAT_ERR;
-        }
-
-        if(!strncpy(fullpath, subpath, subpath_str_len)){
-            std::cerr << "strncpy() failed!" << std::endl;
-            free(fullpath);
-            return STR_CONCAT_ERR; 
-        }
-
-        if(!strncat(fullpath, slash, slen)){
-            std::cerr << "strncpy() failed!" << std::endl;
-            free(fullpath);
-            return STR_CONCAT_ERR; 
-        }
-
-        if(!strncat(fullpath, filename, filename_str_len)){
-            std::cerr << "strncpy() failed!" << std::endl;
-            free(fullpath);
-            return STR_CONCAT_ERR; 
-        }
-        
-        std::cout << "Fullpath: " << fullpath << std::endl;
-        return STR_CONCAT_OK;
-    } else if (!filename && subpath){
-        std::cout << "Subpath: " << subpath << std::endl;
-        return STR_CONCAT_OK;
-    }
-    std::cerr << "buf_concat_path: path and filename are null!" << std::endl;
-    return STR_CONCAT_ERR;
+    fullpath = subpath + path_delimiter + filename;
+    return STR_CONCAT_OK;
 }
 
  //

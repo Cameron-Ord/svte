@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <unordered_set>
 #include <unordered_map>
 
@@ -95,49 +96,36 @@ typedef enum
 typedef enum {
     FILE_RET_NOEXIST = 14,
     FILE_RET_ERR = 15,
-    FILE_RET_OK = 16
-}FILERET;
-
-typedef enum {
-    BUF_READ_OK = 17,
-    BUF_READ_ERR = 18
-}READRET;
-
-typedef enum {
-    STR_DUP_OK = 19,
-    STR_DUP_ERR = 20
-}DUPERET;
+    FILE_RET_OK = 16,
+    FILE_RET_NO_FN = 29
+}FILE_RET;
 
 typedef enum {
     STR_CONCAT_OK = 21,
-    STR_CONCAT_ERR = 22
-}CONCATRET;
+    STR_CONCAT_NO_FN = 22
+}STR_RET;
 
 typedef enum {
-    BUF_ALLOC_OK = 23,
-    BUF_ALLOC_ERR = 24
-}ALLOCRET;
+    INS_BAD_SIZE = 30,
+    INS_BAD_ROW = 31,
+    INS_BAD_PTR = 32,
+    INS_OK = 33
+} INS_RET;
 
 typedef enum { FILE_ID_BROKEN = -1, }FILE_ID_STATE;
 
 typedef enum {BUF_STATE_VALID = 25, BUF_STATE_ERR = 26}BUFFER_STATE;
 
-typedef enum { SPLIT_BUF_ERR = 27, SPLIT_BUF_OK = 28 } SPLITRET;
 class Buffer {
     public:
-        Buffer(char *filename, char *subpath, const int identifier);
+        Buffer(std::string filename, std::string subpath, const int identifier);
         std::vector<std::string> *buf_get_buffer(void) { return &buffer; } 
         const Cursor *buf_get_curs(void) { return &cursor; }
-        int buf_dupe_paths(char *filename, char *subpath);
-        int buf_concat_path(void);
         int buf_open_file(void);
-        int buf_raw_allocate(const size_t bsize);
-        int buf_raw_destroy(void);
-        int buf_raw_read(void);
-        int buf_split_buffer(void);
+        int buf_concat_paths(void);
         int buf_row_first_char(std::string row); 
         void buf_cols_resize_to_row(void);
-        void buf_row_insert_char(const char c);
+        int buf_row_insert_char(const char c);
         void buf_shift_curs_x(const int d);
         void buf_shift_curs_y(const int d);
          //int buf_resize(void);
@@ -151,32 +139,25 @@ class Buffer {
         int buf_get_valid(void) { return valid_buffer; }
 
     private:
+        Cursor cursor;
         int curs_prev_loc;
-        int32_t id;
         int valid_buffer;
-        FILE *file;
-        // Using stdvec of strings because its generally just safer and easier
-        // to use than char[rows][cols]
-        std::vector<std::string> buffer;
-        // raw buffer is used when opening and saving files.
-        char *raw_buffer;
-        char *filename;
-        char *subpath;
-        char *fullpath;
-        size_t buffer_size;
+        int filename_change_flag;
+        int32_t id;
         size_t buffer_size_max;
         long file_size_at_open;
-        Cursor cursor;
-        size_t filename_str_len;
-        size_t subpath_str_len;
-        int filename_change_flag;
+        std::vector<std::string> buffer;
+        std::string filename;
+        std::string subpath;
+        std::string fullpath;
+        std::string path_delimiter;
 };
 
 class Editor {
     public:
         Editor(void);
         
-        void ed_append_buffer(char* filename, char *subpath);
+        void ed_append_buffer(std::string filename, std::string subpath);
         void ed_destroy_buffer(void);
         void ed_buffers_resize(void);
         void ed_buffers_shift(void);

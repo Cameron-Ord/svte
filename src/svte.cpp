@@ -5,12 +5,10 @@
 #include "../inc/globaldef.hpp"
 
 #include <iostream>
+#include <filesystem>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
 #include <linux/limits.h>
 #include <unistd.h>
 #include <ctime>
@@ -18,12 +16,12 @@
 int main(int argc, char *argv[])
 {
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) < 0) {
-        fprintf(stderr, "Failed to initialize SDL2! -> %s\n", SDL_GetError());
+        std::cerr << "Failed to initialize SDL2! -> " << SDL_GetError();
         return 1;
     }
 
     if (TTF_Init() < 0) {
-        fprintf(stderr, "Failed to initialize SDL2_ttf! -> %s\n", TTF_GetError());
+        std::cerr << "Failed to initialize SDL2_ttf! -> " << SDL_GetError();
         return 1;
     }
 
@@ -51,23 +49,26 @@ int main(int argc, char *argv[])
     }
 
     srand(time(NULL));
+    std::error_code err;
+    std::filesystem::path cwd = std::filesystem::current_path(err);
+    if(err){
+        std::cerr << "Failed to retrieve current path -> " << err.message() << std::endl;
+        return 0;
+    }
 
-    char *filename_arg = NULL;
+    size_t arg_slen = 0;
     if (argc > 1 && argc < 3) {
-        filename_arg = strdup(argv[1]);
+        arg_slen = strlen(argv[1]);
     }
 
-    char cwd[PATH_MAX];
-    if (!getcwd(cwd, PATH_MAX)) {
-        std::cerr << "Subpath could not be determined!" << std::endl;
-        return 1;
-    }
-    
+    std::string cpath = cwd.string();
+    std::string fn(argv[1], arg_slen);
+
+    std::cout << "CWD: " << cpath << std::endl;
+    std::cout << "FN: " << fn << std::endl;
+
     Editor ed = Editor();
-    ed.ed_append_buffer(filename_arg, cwd);
-    if(filename_arg){
-        free(filename_arg);
-    }
+    ed.ed_append_buffer(fn, cpath);
 
     SDL_ShowWindow(window.get_window());
     SDL_StartTextInput();
@@ -206,9 +207,8 @@ int main(int argc, char *argv[])
             } break;
             }
         }
-            
         renderer.renderer_draw_file(ed.ed_grab_buffer(), &ch);
-
+        renderer.renderer_draw_cursor(ed.ed_grab_buffer()->buf_get_curs(), ch.ch_max_width(), ch.ch_max_height());
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
             SDL_Delay(tpf - frame_time);
