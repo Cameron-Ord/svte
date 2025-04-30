@@ -1,12 +1,8 @@
 #include "../inc/window.hpp"
 
-#include <SDL2/SDL_video.h>
-#include <cstdio>
-#include <cstdlib>
-
 #include <SDL2/SDL.h>
 
-Window::Window(void) { dimensions.x = 600, dimensions.y = 400; }
+Window::Window(void) { s_width = 600, s_height = 400; }
 
 Window::~Window(void) {}
 
@@ -16,7 +12,7 @@ const void *Window::create_window(void)
 {
     const int flags = SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE;
     int x = SDL_WINDOWPOS_CENTERED, y = SDL_WINDOWPOS_CENTERED;
-    w = SDL_CreateWindow("SVTE", x, y, dimensions.x, dimensions.y, flags);
+    w = SDL_CreateWindow("SVTE", x, y, s_width, s_height, flags);
     if (!w) {
         fprintf(stderr, "Failed to create window! -> %s\n", SDL_GetError());
         return NULL;
@@ -24,9 +20,7 @@ const void *Window::create_window(void)
     return w;
 }
 
-Vec2i *Window::get_dimensions(void) { return &dimensions; }
 void Window::win_update_dimensions(void)
 {
-    int *wth = &dimensions.x, *hgt = &dimensions.y;
-    SDL_GetWindowSize(w, wth, hgt);
+    SDL_GetWindowSize(w, &s_width, &s_height);
 }

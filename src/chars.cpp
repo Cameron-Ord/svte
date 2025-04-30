@@ -3,7 +3,6 @@
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
-#include <cstring>
 #include <iostream>
 
 static int force_bounds(const int i)

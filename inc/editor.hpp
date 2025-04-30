@@ -1,10 +1,8 @@
 #ifndef EDITOR_HPP
 #define EDITOR_HPP
-#include <cstdio>
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <fstream>
 #include <unordered_set>
 #include <unordered_map>
 

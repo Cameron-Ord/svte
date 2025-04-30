@@ -4,10 +4,7 @@
 #include "../inc/editor.hpp"
 #include "../inc/globaldef.hpp"
 
-#include <cstdio>
-#include <cstdlib>
 #include <SDL2/SDL_render.h>
-#include <iostream>
 
 const int padding = 2;
 

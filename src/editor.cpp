@@ -1,9 +1,5 @@
 #include "../inc/editor.hpp"
-
 #include <iostream>
-#include <cassert>
-#include <cstdlib>
-#include <cstring>
 
 Editor::Editor(void){
     bufs.clear();

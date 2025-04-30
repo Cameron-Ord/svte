@@ -1,12 +1,7 @@
 #include "../inc/editor.hpp"
 #include "../inc/globaldef.hpp"
-#include <cerrno>
-#include <cassert>
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
-#include <ctime>
 #include <iostream>
+#include <fstream>
 
 const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;

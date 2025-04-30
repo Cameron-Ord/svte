@@ -2,7 +2,6 @@
 #include "../inc/font.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
-#include "../inc/globaldef.hpp"
 
 #include <iostream>
 #include <filesystem>
