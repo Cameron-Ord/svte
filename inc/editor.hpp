@@ -121,7 +121,7 @@ class Buffer {
         const Cursor *buf_get_curs(void) { return &cursor; }
         int buf_open_file(void);
         int buf_concat_paths(void);
-        int buf_row_first_char(std::string row); 
+        int buf_row_first_char(std::string row, const int offset); 
         void buf_cols_resize_to_row(void);
         int buf_row_insert_char(const char c);
         void buf_shift_curs_x(const int d);
@@ -167,6 +167,7 @@ class Editor {
         void ed_name_find_buffer(void);
         void ed_chng_mode(void);
         int  ed_get_mode(void) { return editor_mode; } 
+        void ed_set_mode(const int mode){ editor_mode = mode; }
         int32_t  ed_gen_id(void);
         Buffer *ed_grab_buffer(void);
         

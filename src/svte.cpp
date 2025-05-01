@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     ed.ed_append_buffer(fn, cpath);
 
     SDL_ShowWindow(window.get_window());
-    SDL_StartTextInput();
+    SDL_StopTextInput();
 
     const int tpf = (1000.0 / 30);
     uint64_t frame_start;
@@ -111,6 +111,17 @@ int main(int argc, char *argv[])
                 const int sym = e.key.keysym.sym;
                 const int mod = e.key.keysym.mod;
                 switch (sym) {
+                
+                case SDLK_ESCAPE:{
+                    ed.ed_set_mode(VISUAL);
+                    SDL_StopTextInput();
+                }break;
+
+                //insert mode
+                case SDLK_i:{
+                    ed.ed_set_mode(INSERT);
+                    SDL_StartTextInput();
+                }break;
 
                 case SDLK_TAB:
                 {

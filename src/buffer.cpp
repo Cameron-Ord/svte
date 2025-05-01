@@ -66,8 +66,8 @@ int Buffer::buf_row_insert_char(const char c){
 }
 
 
-int Buffer::buf_row_first_char(std::string row){
-    for(size_t i = 0; i < row.size(); i++){
+int Buffer::buf_row_first_char(std::string row, const int offset){
+    for(size_t i = offset; i < row.size(); i++){
         if(row[i] != SPACECHAR){
             return i;
         }
@@ -77,36 +77,44 @@ int Buffer::buf_row_first_char(std::string row){
 
 void Buffer::buf_cols_resize_to_row(void){
     const int buf_ssize = buffer.size();
-    if(!(cursor.row >= 0 && cursor.row < buf_ssize)){
+    const int x = cursor.col, y = cursor.row;
+    if(!(y >= 0 && y < buf_ssize)){
         return;
     }
-    std::string s = buffer[cursor.row];
+    std::string str = buffer[y];
 
-    const int string_ssize = s.size();
-    const int cond = cursor.col >= string_ssize && string_ssize > 0;
+    const int string_ssize = str.size();
+    const int greater = x >= string_ssize && string_ssize > 0;
+    const int lesser = x <= string_ssize && string_ssize > 0;
 
-    if(cond){
-        cursor.col = string_ssize -1;
-    } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) >= curs_prev_loc){
-        cursor.col = buf_row_first_char(s);
-        curs_prev_loc = cursor.col;
-    } else if(!cond && s[cursor.col] == SPACECHAR && buf_row_first_char(s) < curs_prev_loc){
-        if(curs_prev_loc < string_ssize){
-            cursor.col = curs_prev_loc;
-        } else {
-            cursor.col = string_ssize - 1;
-        }
-    } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col < curs_prev_loc){
-        if(curs_prev_loc < string_ssize){
-            cursor.col = curs_prev_loc;
-        } else {
-            cursor.col = string_ssize - 1;
-        }
-    } else if(!cond && s[cursor.col] != SPACECHAR && cursor.col >= curs_prev_loc){
-        curs_prev_loc = cursor.col;
-    } else {
-        cursor.col = 0;
+    if(greater){
+        cursor.col = string_ssize;
+        return;
     }
+    
+    //Creates nice cursor alignment while maintaining complete freedom of
+    //movement, pls dont change this.
+    if(lesser){
+        const int cond = x > curs_prev_loc;
+        switch(cond){
+            case 0:{
+               if(curs_prev_loc > string_ssize){
+                   cursor.col = string_ssize;
+                   return;
+               } else {
+                   cursor.col = curs_prev_loc;
+                   return;
+               }
+            }
+            case 1:{
+                curs_prev_loc = cursor.col;
+                return;
+            }
+        }
+    }
+
+    cursor.col = 0;
+    return;
 }
 
 
@@ -158,9 +166,6 @@ int Buffer::buf_open_file(void){
     while(std::getline(file, line)){
         buffer.push_back(line);
     }
-
-    file.seekg(std::ios::end);
-    file_size_at_open = file.tellg();
     file.close();
 
     std::cout << "File size: " << file_size_at_open << std::endl;
