@@ -77,8 +77,9 @@ typedef enum
     DEL = 5,
     RMV = 6,
     INS = 7,
+    APND = 37,
 
-    INS_NEWLINE = 34,
+    C_NEWLINE = 36,
 
     MV_RIGHT = 8,
     MV_LEFT = 9,
@@ -106,11 +107,14 @@ typedef enum {
 }STR_RET;
 
 typedef enum {
-    INS_BAD_SIZE = 30,
-    INS_BAD_ROW = 31,
-    INS_BAD_COL = 32,
+    BAD_SIZE = 30,
+    DEL_OK = 31,
+    BAD_APND = 40,
     INS_OK = 33,
-    RMV_OK = 34
+    RMV_OK = 34,
+    ROW_OK = 35,
+    BAD_INS = 39,
+    BAD_DEL = 44
 } INS_RET;
 
 typedef enum { FILE_ID_BROKEN = -1, }FILE_ID_STATE;
@@ -126,19 +130,13 @@ class Buffer {
         int buf_concat_paths(void);
         int buf_row_first_char(std::string row, const int offset); 
         int buf_row_insert_char(const char c);
+        int buf_row_append_char(const char c);
         int buf_row_remove_char(void);
-        int buf_new_row_at_cursor(const char c);
+        int buf_row_append(void);
+        int buf_row_delete_char(void);
         void buf_cols_resize_to_row(void);
         void buf_shift_curs_x(const int d);
         void buf_shift_curs_y(const int d);
-         //int buf_resize(void);
-         //int buf_shift(void);
-         //int buf_ins_char(void);
-         //int buf_rmv_char(void);
-         //int buf_mv_cursor(void);
-         //int buf_del_char(void);
-         //int buf_mv_find_line(void);
-         //int buf_mv_find_word(void);
         int buf_get_valid(void) { return valid_buffer; }
 
     private:

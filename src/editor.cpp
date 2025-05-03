@@ -58,20 +58,34 @@ void Editor::ed_str_op(const int OPERATION, const char c){
 
     switch(OPERATION){
         default:break;
-        case INS_NEWLINE:{
-            if(buf->buf_new_row_at_cursor(c) != INS_OK){
-                std::cerr << "Failed to insert newline!" << std::endl;
+        case C_NEWLINE:{
+            if(buf->buf_row_append() != ROW_OK){
+                std::cerr << "Failed to append row!" << std::endl;
                 return;
             }
-            buf->buf_cols_resize_to_row();
         }break;
         case DEL:{
+            if(buf->buf_row_delete_char() != DEL_OK){
+                std::cerr << "Failed to delete character!" << std::endl;
+                return;
+            }
         }break;
         case RMV:{
+            if(buf->buf_row_remove_char() != RMV_OK){
+                std::cerr << "Failed to remove character!" << std::endl;
+                return;
+            }
         }break;
         case INS:{
             if(buf->buf_row_insert_char(c) != INS_OK){
                 std::cerr << "Failed to insert character!" << std::endl;
+                return;
+            }
+        }break;
+
+        case APND:{
+            if(buf->buf_row_append_char(c) != INS_OK){
+                std::cerr << "Failed to append character!" << std::endl;
                 return;
             }
         }break;
@@ -94,11 +108,9 @@ void Editor::ed_mv_op(const int DIRECTION){
         }break;
         case PREV_LINE:{
             buf->buf_shift_curs_y(-1);           
-            buf->buf_cols_resize_to_row();
         }break;
         case NEXT_LINE:{
             buf->buf_shift_curs_y(1);           
-            buf->buf_cols_resize_to_row();
         }break;
     }
 }

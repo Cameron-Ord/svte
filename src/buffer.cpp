@@ -6,6 +6,7 @@
 const int PER_FILE_LIMIT = (250 * 1024 * 1024); // 250 MiB
 const int DEFAULT_SIZE = 1;
 
+
 Buffer::Buffer(std::string fn, std::string sp, const int identifier){
     buffer.clear();
     valid_buffer = BUF_STATE_VALID, id = identifier;
@@ -39,44 +40,64 @@ Buffer::Buffer(std::string fn, std::string sp, const int identifier){
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
-int Buffer::buf_new_row_at_cursor(const char c){
-    const size_t usize = buffer.size();
-    if(usize == 0){
-        return INS_BAD_SIZE;
-    }
-
-    const size_t y = cursor.row + 1;
-    if(!(y <= usize)){
-        return INS_BAD_ROW;
-    }
-
-    buffer.insert(buffer.begin() + y, std::string(""));
-    cursor.row = static_cast<int>(y);
-    return INS_OK;
+void Buffer::buf_cols_resize_to_row(void){
 }
 
+//Remove char from row
+int Buffer::buf_row_remove_char(void){
+    return RMV_OK;
+}
 
+//Append from row
+int Buffer::buf_row_append(void){
+    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+        buffer.insert(buffer.begin() + cursor.row, std::string(""));
+        cursor.row++;
+        return ROW_OK;
+    }
+    return BAD_APND;
+}
+
+//Insert at cursor
 int Buffer::buf_row_insert_char(const char c){
-    const size_t usize = buffer.size();
-    if(usize == 0){
-        std::cerr << "Bad size" << std::endl;
-        return INS_BAD_SIZE;
+    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+        std::string *str = &buffer.at(cursor.row);
+        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
+            str->insert(str->begin() + cursor.col, c);
+            cursor.col++;
+            return INS_OK;
+        } 
     }
+    return BAD_INS;
+}
 
-    const size_t y = cursor.row;
-    if(!(y < usize)){
-        std::cerr << "Bad row" << std::endl;
-        return INS_BAD_ROW;
+//Insert after cursor
+int Buffer::buf_row_append_char(const char c){
+    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+        std::string *str = &buffer.at(cursor.row);
+        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
+            str->insert(str->begin() + (cursor.col + 1), c);
+            cursor.col++;
+            return INS_OK;
+        }
     }
+    return BAD_INS;
+}
 
-    const size_t x = cursor.col;
-    if(!(x <= buffer[y].size())){
-        return INS_BAD_COL;
+//Delete at cursor
+int Buffer::buf_row_delete_char(void){
+    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+        std::string *str = &buffer.at(cursor.row);
+        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
+            str->erase(str->begin() + cursor.col);
+        }
+
+        if(str->begin() + cursor.col == str->end() && cursor.col - 1 >= 0){
+            cursor.col--;
+        }
+        return DEL_OK;
     }
-
-    buffer[y].insert(buffer[y].begin() + x, c);
-    cursor.col = static_cast<int>(x+1);
-    return INS_OK;
+    return BAD_DEL;
 }
 
 
@@ -89,47 +110,6 @@ int Buffer::buf_row_first_char(std::string row, const int offset){
     return 0;
 }
 
-void Buffer::buf_cols_resize_to_row(void){
-    const int buf_ssize = buffer.size();
-    const int x = cursor.col, y = cursor.row;
-    if(!(y >= 0 && y < buf_ssize)){
-        return;
-    }
-    std::string str = buffer[y];
-
-    const int string_ssize = str.size();
-    const int greater = x >= string_ssize && string_ssize > 0;
-    const int lesser = x <= string_ssize && string_ssize > 0;
-
-    if(greater){
-        cursor.col = string_ssize;
-        return;
-    }
-    
-    //Creates nice cursor alignment while maintaining complete freedom of
-    //movement, pls dont change this.
-    if(lesser){
-        const int cond = x > curs_prev_loc;
-        switch(cond){
-            case 0:{
-               if(curs_prev_loc > string_ssize){
-                   cursor.col = string_ssize;
-                   return;
-               } else {
-                   cursor.col = curs_prev_loc;
-                   return;
-               }
-            }
-            case 1:{
-                curs_prev_loc = cursor.col;
-                return;
-            }
-        }
-    }
-
-    cursor.col = 0;
-    return;
-}
 
 
 void Buffer::buf_shift_curs_x(const int d){
@@ -140,7 +120,7 @@ void Buffer::buf_shift_curs_x(const int d){
 
     std::string s = buffer[cursor.row];
     const int string_ssize = s.size();
-    if(cursor.col + d >= 0 && cursor.col + d <= string_ssize){
+    if(cursor.col + d >= 0 && cursor.col + d < string_ssize){
         cursor.col += d;
     }
     curs_prev_loc = cursor.col;

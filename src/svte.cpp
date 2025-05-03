@@ -131,17 +131,17 @@ int main(int argc, char *argv[])
 
                 case SDLK_BACKSPACE:
                 {
-                //    editor.rm(&editor);
+                    ed.ed_str_op(RMV, NULLCHAR);
                 } break;
 
                 case SDLK_DELETE:
                 {
-                //    editor.del(&editor);
+                    ed.ed_str_op(DEL, NULLCHAR);
                 } break;
 
                 case SDLK_RETURN:
                 {
-                    ed.ed_str_op(INS_NEWLINE, NEWLINE);
+                    ed.ed_str_op(C_NEWLINE, NEWLINE);
                 } break;
 
                 case SDLK_h:
