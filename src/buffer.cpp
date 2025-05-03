@@ -51,7 +51,8 @@ int Buffer::buf_row_remove_char(void){
 //Append from row
 int Buffer::buf_row_append(void){
     if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
-        buffer.insert(buffer.begin() + cursor.row, std::string(""));
+        const int next = cursor.row + 1;
+        buffer.insert(buffer.begin() + next, std::string(""));
         cursor.row++;
         return ROW_OK;
     }
@@ -60,9 +61,11 @@ int Buffer::buf_row_append(void){
 
 //Insert at cursor
 int Buffer::buf_row_insert_char(const char c){
-    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+    const int buf_ssize = buffer.size();
+    if(cursor.row >= 0 && cursor.row < buf_ssize){
         std::string *str = &buffer.at(cursor.row);
-        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
+        const int str_ssize = str->size();
+        if(cursor.col >= 0 && cursor.col <= str_ssize){
             str->insert(str->begin() + cursor.col, c);
             cursor.col++;
             return INS_OK;
@@ -73,10 +76,18 @@ int Buffer::buf_row_insert_char(const char c){
 
 //Insert after cursor
 int Buffer::buf_row_append_char(const char c){
-    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+    const int buf_ssize = buffer.size();
+    if(cursor.row >= 0 && cursor.row < buf_ssize){
         std::string *str = &buffer.at(cursor.row);
-        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
-            str->insert(str->begin() + (cursor.col + 1), c);
+        const int str_ssize = str->size();
+        if(cursor.col >= 0 && cursor.col < str_ssize){
+            const int implicit_col = cursor.col + 1;
+            str->insert(str->begin() + implicit_col, c);
+            cursor.col++;
+            return INS_OK;
+        } else if (cursor.col - 1 >= -1 && cursor.col == str_ssize){
+            const int implicit_col = (cursor.col - 1) + 1;
+            str->insert(str->begin() + implicit_col , c);
             cursor.col++;
             return INS_OK;
         }
@@ -86,14 +97,25 @@ int Buffer::buf_row_append_char(const char c){
 
 //Delete at cursor
 int Buffer::buf_row_delete_char(void){
-    if(cursor.row >= 0 && buffer.begin() + cursor.row != buffer.end()){
+    const int buf_ssize = buffer.size();
+    if(cursor.row >= 0 && cursor.row < buf_ssize){
         std::string *str = &buffer.at(cursor.row);
-        if(cursor.col >= 0 && str->begin() + cursor.col != str->end()){
-            str->erase(str->begin() + cursor.col);
-        }
+        const int str_ssize = str->size();
 
-        if(str->begin() + cursor.col == str->end() && cursor.col - 1 >= 0){
-            cursor.col--;
+        if(cursor.col >= 0 && cursor.col < str_ssize){
+            str->erase(str->begin() + cursor.col);
+            if(cursor.col == str_ssize && cursor.col - 1 >= 0){
+                cursor.col--;
+            } 
+        } else if(cursor.col - 1 >= 0 && cursor.col == str_ssize){
+            const int implicit_col = cursor.col - 1;
+            str->erase(str->begin() + implicit_col);
+            if(cursor.col - 1 >= 0){
+                cursor.col--;
+            } 
+        } else if (cursor.col == 0 && buf_ssize - 1 >= 1 && str_ssize == 0){
+            buffer.erase(buffer.begin() + cursor.row);
+            cursor.row--;
         }
         return DEL_OK;
     }
@@ -120,7 +142,7 @@ void Buffer::buf_shift_curs_x(const int d){
 
     std::string s = buffer[cursor.row];
     const int string_ssize = s.size();
-    if(cursor.col + d >= 0 && cursor.col + d < string_ssize){
+    if(cursor.col + d >= 0 && cursor.col + d <= string_ssize){
         cursor.col += d;
     }
     curs_prev_loc = cursor.col;

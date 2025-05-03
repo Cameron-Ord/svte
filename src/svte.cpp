@@ -100,11 +100,17 @@ int main(int argc, char *argv[])
                 const char *t = e.text.text;
                 const size_t tlen = strlen(t);
                 for (size_t i = 0; i < tlen; i++) {
-                    //ignore
-                    if(t[i] == NEWLINE) {
-                        continue;
+                    switch(ed.ed_get_mode()){
+                        default: break;
+
+                        case INSERT:{
+                            ed.ed_str_op(INS, t[i]);
+                        }break;
+                        
+                        case APPEND:{
+                            ed.ed_str_op(APND, t[i]);
+                        }
                     }
-                   ed.ed_str_op(INS, t[i]);
                 }
             } break;
             case SDL_KEYDOWN:
@@ -118,10 +124,19 @@ int main(int argc, char *argv[])
                     SDL_StopTextInput();
                 }break;
 
+                case SDLK_a:{
+                    if(ed.ed_get_mode() == VISUAL){
+                        ed.ed_set_mode(APPEND);
+                        SDL_StartTextInput();
+                    }
+                }break;
+
                 //insert mode
                 case SDLK_i:{
-                    ed.ed_set_mode(INSERT);
-                    SDL_StartTextInput();
+                    if(ed.ed_get_mode() == VISUAL){
+                        ed.ed_set_mode(INSERT);
+                        SDL_StartTextInput();
+                    }
                 }break;
 
                 case SDLK_TAB:

@@ -66,7 +66,8 @@ typedef enum
 {
     VISUAL = 0,
     INSERT = 1,
-    REPLACE = 2
+    REPLACE = 2,
+    APPEND = 3
 } MODES;
 
 typedef enum
