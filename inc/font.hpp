@@ -6,8 +6,8 @@ typedef struct SDL_Texture SDL_Texture;
 struct SDL_Renderer;
 typedef struct SDL_Renderer SDL_Renderer;
 
-struct TTF_Font;
-typedef struct TTF_Font TTF_Font;
+struct _TTF_Font;
+typedef struct _TTF_Font TTF_Font;
 
 #define ASCII_TABLE_SIZE 128
 #define STRBUF_SIZE 2
@@ -42,7 +42,7 @@ class Chars
     const void* ch_set_font(TTF_Font *f);
     Char_Table *ch_get_tbls(void) {return chtbls; }
     Char_Table *ch_lookup(unsigned char c);
-    int ch_create_textures(SDL_Renderer *rend, const Fonts *f);
+    int ch_create_textures(SDL_Renderer *rend);
     const int *ch_max_height(void){return &max_height;}
     const int *ch_max_width(void){return &max_width;}
 

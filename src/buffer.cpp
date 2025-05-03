@@ -39,29 +39,43 @@ Buffer::Buffer(std::string fn, std::string sp, const int identifier){
     std::cout << "Buffer state: " << valid_buffer << std::endl;
 }
 
-
-int Buffer::buf_row_insert_char(const char c){
+int Buffer::buf_new_row_at_cursor(const char c){
     const size_t usize = buffer.size();
     if(usize == 0){
         return INS_BAD_SIZE;
     }
 
+    const size_t y = cursor.row + 1;
+    if(!(y <= usize)){
+        return INS_BAD_ROW;
+    }
+
+    buffer.insert(buffer.begin() + y, std::string(""));
+    cursor.row = static_cast<int>(y);
+    return INS_OK;
+}
+
+
+int Buffer::buf_row_insert_char(const char c){
+    const size_t usize = buffer.size();
+    if(usize == 0){
+        std::cerr << "Bad size" << std::endl;
+        return INS_BAD_SIZE;
+    }
+
     const size_t y = cursor.row;
     if(!(y < usize)){
+        std::cerr << "Bad row" << std::endl;
         return INS_BAD_ROW;
     }
 
     const size_t x = cursor.col;
-    std::string *strptr = &buffer[y];
-    if(!strptr){
-        return INS_BAD_PTR;
+    if(!(x <= buffer[y].size())){
+        return INS_BAD_COL;
     }
 
-    const int can_insert = (x == 0 && strptr->empty()) || (x >= 0 && x <= strptr->size());
-    if(can_insert){
-        strptr->insert(strptr->begin() + x, c);
-        cursor.col++;
-    }
+    buffer[y].insert(buffer[y].begin() + x, c);
+    cursor.col = static_cast<int>(x+1);
     return INS_OK;
 }
 

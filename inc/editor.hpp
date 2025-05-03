@@ -78,6 +78,8 @@ typedef enum
     RMV = 6,
     INS = 7,
 
+    INS_NEWLINE = 34,
+
     MV_RIGHT = 8,
     MV_LEFT = 9,
 
@@ -106,8 +108,9 @@ typedef enum {
 typedef enum {
     INS_BAD_SIZE = 30,
     INS_BAD_ROW = 31,
-    INS_BAD_PTR = 32,
-    INS_OK = 33
+    INS_BAD_COL = 32,
+    INS_OK = 33,
+    RMV_OK = 34
 } INS_RET;
 
 typedef enum { FILE_ID_BROKEN = -1, }FILE_ID_STATE;
@@ -122,8 +125,10 @@ class Buffer {
         int buf_open_file(void);
         int buf_concat_paths(void);
         int buf_row_first_char(std::string row, const int offset); 
-        void buf_cols_resize_to_row(void);
         int buf_row_insert_char(const char c);
+        int buf_row_remove_char(void);
+        int buf_new_row_at_cursor(const char c);
+        void buf_cols_resize_to_row(void);
         void buf_shift_curs_x(const int d);
         void buf_shift_curs_y(const int d);
          //int buf_resize(void);
@@ -161,8 +166,8 @@ class Editor {
         void ed_buffers_shift(void);
         void ed_rmv_char(void);
         void ed_del_char(void);
-        void ed_ins_char(const char c);
         void ed_mv_op(const int DIRECTION);
+        void ed_str_op(const int OPERATION, const char c);
         void ed_chng_buffer(void);
         void ed_name_find_buffer(void);
         void ed_chng_mode(void);
@@ -173,7 +178,7 @@ class Editor {
         
 
     private:
-        std::unordered_map<int32_t, Buffer> bufs;
+        std::unordered_map<int32_t, Buffer*> bufs;
         std::unordered_set<int32_t> ids;
         std::vector<int32_t> open_buffers;
         int32_t current_buffer;

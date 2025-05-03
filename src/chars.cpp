@@ -46,13 +46,13 @@ TTF_Font *Chars::ch_open_font(const char *fn, const int size)
 
 
 
-int Chars::ch_create_textures(SDL_Renderer *rend, const Fonts *f)
+int Chars::ch_create_textures(SDL_Renderer *rend)
 {
     SDL_Color col = {255, 255, 255, 255};
     for (int i = 32; i < ASCII_TABLE_SIZE; i++) {
         Char_Table *ct = &chtbls[i];
 
-        SDL_Surface *s = font_surface(f->base, ct->str, col);
+        SDL_Surface *s = font_surface(f.base, ct->str, col);
         if (!s) {
             std::cerr << "Failed to create surface!"
                       << " " << SDL_GetError()

@@ -10,9 +10,9 @@ Editor::Editor(void){
 }
 
 Buffer *Editor::ed_grab_buffer(void){
-    std::unordered_map<int32_t, Buffer>::iterator it = bufs.find(current_buffer);
+    std::unordered_map<int32_t, Buffer*>::iterator it = bufs.find(current_buffer);
     if(it != bufs.end()){
-        return &it->second;
+        return it->second;
     } else {
         return nullptr;
     }
@@ -24,6 +24,7 @@ int32_t Editor::ed_gen_id(void){
     std::unordered_set<int32_t>::iterator it;
 
     while(attempt < max_attempts){
+        //random n between 0 and int32 max
         const uint32_t generated = rand() % UINT32_MAX;
         it = ids.find(generated);
         if(it == ids.end()){
@@ -32,25 +33,49 @@ int32_t Editor::ed_gen_id(void){
         }
         attempt++;
     }
-
+    //return a negative id
     return FILE_ID_BROKEN;
 }
 
 void Editor::ed_append_buffer(std::string filename, std::string subpath){
     int32_t id = ed_gen_id();
-    bufs.insert({id, Buffer(filename, subpath, id)});
+    Buffer *buf = new (std::nothrow) Buffer(filename, subpath, id);
+    if(!buf){
+        std::cerr << "Failed to create buffer! (bad alloc)" << std::endl;
+        return;
+    }
+    bufs.insert({id, buf});
     current_buffer = id;
     open_buffers.push_back(id);
     std::cout << "external buffer ID: " << id << std::endl;
 }
 
-void Editor::ed_ins_char(const char c){
+void Editor::ed_str_op(const int OPERATION, const char c){
     Buffer *buf = nullptr;
     if(!(buf = ed_grab_buffer())){
         return;
     }
 
-    buf->buf_row_insert_char(c);
+    switch(OPERATION){
+        default:break;
+        case INS_NEWLINE:{
+            if(buf->buf_new_row_at_cursor(c) != INS_OK){
+                std::cerr << "Failed to insert newline!" << std::endl;
+                return;
+            }
+            buf->buf_cols_resize_to_row();
+        }break;
+        case DEL:{
+        }break;
+        case RMV:{
+        }break;
+        case INS:{
+            if(buf->buf_row_insert_char(c) != INS_OK){
+                std::cerr << "Failed to insert character!" << std::endl;
+                return;
+            }
+        }break;
+    }
 }
 
 void Editor::ed_mv_op(const int DIRECTION){

@@ -2,6 +2,7 @@
 #include "../inc/font.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
+#include "../inc/globaldef.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -34,16 +35,12 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    //This is going to have to be reworked to have like 12 different fonts but
-    //thats also when I have to write syntax highlighting so just keep it simple
-    //for now.
     Chars ch;
     if (!(ch.ch_set_font(ch.ch_open_font("dogicapixel.ttf", 16)))) {
         return 1;
     }
 
-    if (!ch.ch_create_textures(renderer.get_renderer(),
-                                              ch.ch_get_fonts())) {
+    if (!ch.ch_create_textures(renderer.get_renderer())) {
         return 1;
     }
 
@@ -55,13 +52,13 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    size_t arg_slen = 0;
+    std::string cpath = cwd.string();
+    std::string fn;
+
     if (argc > 1 && argc < 3) {
-        arg_slen = strlen(argv[1]);
+        fn = std::string(argv[1]);
     }
 
-    std::string cpath = cwd.string();
-    std::string fn(argv[1], arg_slen);
 
     std::cout << "CWD: " << cpath << std::endl;
     std::cout << "FN: " << fn << std::endl;
@@ -103,7 +100,11 @@ int main(int argc, char *argv[])
                 const char *t = e.text.text;
                 const size_t tlen = strlen(t);
                 for (size_t i = 0; i < tlen; i++) {
-                   ed.ed_ins_char(t[i]);
+                    //ignore
+                    if(t[i] == NEWLINE) {
+                        continue;
+                    }
+                   ed.ed_str_op(INS, t[i]);
                 }
             } break;
             case SDL_KEYDOWN:
@@ -140,7 +141,7 @@ int main(int argc, char *argv[])
 
                 case SDLK_RETURN:
                 {
-                //    editor.ins(&editor, NEWLINE);
+                    ed.ed_str_op(INS_NEWLINE, NEWLINE);
                 } break;
 
                 case SDLK_h:
