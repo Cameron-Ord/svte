@@ -1,13 +1,84 @@
 #include "../inc/editor.hpp"
+#include "../inc/defines.hpp"
 #include <iostream>
 
-Editor::Editor(void)
+Editor::Editor(std::string spath)
 {
     bufs.clear();
     ids.clear();
     open_buffers.clear();
+    cmd.clear();
     current_buffer = 0;
     editor_mode = VISUAL;
+    editor_subpath = spath;
+}
+
+std::vector<int32_t>::iterator Editor::ed_buffer_get_iter(void){
+    std::cout << "Buffer ID before: " << current_buffer << std::endl;
+    std::vector<int32_t>::iterator it;
+    for(it = open_buffers.begin(); it != open_buffers.end(); ++it){
+        if(*it == current_buffer){
+            return it;
+        }
+    }
+    // Not found.
+    return open_buffers.end();
+}
+
+int32_t Editor::ed_find_next_buffer(void){
+    std::vector<int32_t>::iterator it = ed_buffer_get_iter();
+
+    //Loop around to beginning if necessary
+    if(it == open_buffers.end() || it + 1 == open_buffers.end()){
+        it = open_buffers.begin();
+    }
+
+    for(; it != open_buffers.end(); ++it){
+        if(*it != current_buffer){
+            std::cout << "Returned: iterator value:  " << *it << std::endl;
+            return *it;
+        }
+    }
+    //Not found.
+    std::cout << "Returned: " << current_buffer << std::endl;
+    return current_buffer;
+}
+
+void Editor::ed_change_buffer(const int ARG){
+    std::cout << "Available buffers: " << open_buffers.size() << std::endl;
+    switch(ARG){
+        default: break;
+        case NEXT_BUFFER:{
+            ed_swap_buffer(ed_find_next_buffer());
+        }break;
+    }
+}
+
+void Editor::ed_swap_buffer(const uint32_t id){
+    current_buffer = id;
+}
+
+void Editor::ed_append_cmd(const char c){
+    cmd.push_back(c);
+}
+
+void Editor::ed_del_cmd(void){
+    cmd.clear();
+}
+
+void Editor::ed_enter_cmd(void){
+    std::string::iterator it;
+    for(it = cmd.begin(); it != cmd.end(); ++it){
+        if(*it == SPACECHAR){
+            cmd.erase(it);
+        }
+    }
+    if(cmd.substr(0, 3) == "new"){
+        std::string filename = cmd.substr(3, cmd.size());
+        std::cout << "Buffer: " << filename << " Added" << std::endl;
+        ed_append_buffer(filename);
+    }
+    ed_del_cmd();
 }
 
 int Editor::ed_save_buffer(void){
@@ -51,10 +122,10 @@ int32_t Editor::ed_gen_id(void)
     return FILE_ID_BROKEN;
 }
 
-void Editor::ed_append_buffer(std::string filename, std::string subpath)
+void Editor::ed_append_buffer(std::string filename)
 {
     int32_t id = ed_gen_id();
-    Buffer *buf = new (std::nothrow) Buffer(filename, subpath, id);
+    Buffer *buf = new (std::nothrow) Buffer(filename, editor_subpath, id);
     if (!buf) {
         std::cerr << "Failed to create buffer! (bad alloc)" << std::endl;
         return;

@@ -56,9 +56,9 @@ const int *Buffer::buf_get_col(void)
 {
     const int ssize = buffer.size();
     if (row >= 0 && row < ssize) {
-        return &buffer[row].col;
+        return &buffer.at(row).col;
     }
-    std::cerr << "Get col returned NULL: Row :" << row << std::endl;
+    std::cerr << "Get col returned NULL! Row :" << row << std::endl;
     return NULL;
 }
 

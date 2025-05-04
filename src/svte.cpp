@@ -61,8 +61,8 @@ int main(int argc, char *argv[])
     std::cout << "CWD: " << cpath << std::endl;
     std::cout << "FN: " << fn << std::endl;
 
-    Editor ed = Editor();
-    ed.ed_append_buffer(fn, cpath);
+    Editor ed = Editor(cpath);
+    ed.ed_append_buffer(fn);
 
     SDL_ShowWindow(window.get_window());
     SDL_StopTextInput();
@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
 
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
+        //Really need to find a nicer way to handle events cause this will get out of hand fast.
             switch (e.type) {
             default:
                 break;
@@ -113,7 +114,11 @@ int main(int argc, char *argv[])
                     case APPEND:
                     {
                         ed.ed_str_op(APND, t[i]);
-                    }
+                    } break;
+
+                    case CMD:{
+                        ed.ed_append_cmd(t[i]);
+                    }break;
                     }
                 }
             } break;
@@ -152,6 +157,13 @@ int main(int argc, char *argv[])
                     }
                 } break;
 
+                case SDLK_SPACE:{
+                    if(ed.ed_get_mode() == VISUAL && mod & KMOD_SHIFT){
+                        ed.ed_set_mode(CMD);
+                        SDL_StartTextInput();
+                    }
+                }break;
+
                 case SDLK_TAB:
                 {
                     //     editor.ins(&editor, SPACECHAR);
@@ -164,12 +176,29 @@ int main(int argc, char *argv[])
 
                 case SDLK_DELETE:
                 {
-                    ed.ed_str_op(DEL, NULLCHAR);
+                    switch(ed.ed_get_mode()){
+                        case CMD:{
+                            ed.ed_del_cmd();
+                        }break;
+
+                        default:{
+                            ed.ed_str_op(DEL, NULLCHAR);
+                        }break;
+                    }
                 } break;
 
                 case SDLK_RETURN:
                 {
-                    ed.ed_str_op(C_NEWLINE, NEWLINE);
+                    switch(ed.ed_get_mode()){
+                        case CMD:{
+                            ed.ed_enter_cmd();
+                            ed.ed_set_mode(VISUAL);
+                        }break;
+
+                        default: {
+                            ed.ed_str_op(C_NEWLINE, NEWLINE);
+                        }break;
+                    }
                 } break;
 
                 case SDLK_h:
@@ -180,14 +209,6 @@ int main(int argc, char *argv[])
                     case VISUAL:
                     {
                         ed.ed_mv_op(MV_LEFT);
-                    } break;
-                    case INSERT:
-                    {
-
-                    } break;
-                    case REPLACE:
-                    {
-
                     } break;
                     }
                 } break;
@@ -201,14 +222,6 @@ int main(int argc, char *argv[])
                     {
                         ed.ed_mv_op(NEXT_LINE);
                     } break;
-                    case INSERT:
-                    {
-
-                    } break;
-                    case REPLACE:
-                    {
-
-                    } break;
                     }
                 } break;
 
@@ -221,14 +234,6 @@ int main(int argc, char *argv[])
                     {
                         ed.ed_mv_op(PREV_LINE);
                     } break;
-                    case INSERT:
-                    {
-
-                    } break;
-                    case REPLACE:
-                    {
-
-                    } break;
                     }
                 } break;
 
@@ -239,15 +244,11 @@ int main(int argc, char *argv[])
                         break;
                     case VISUAL:
                     {
-                        ed.ed_mv_op(MV_RIGHT);
-                    } break;
-                    case INSERT:
-                    {
-
-                    } break;
-                    case REPLACE:
-                    {
-
+                        if(mod & KMOD_LCTRL){
+                            ed.ed_change_buffer(NEXT_BUFFER);
+                        } else {
+                            ed.ed_mv_op(MV_RIGHT);
+                        }
                     } break;
                     }
                 } break;

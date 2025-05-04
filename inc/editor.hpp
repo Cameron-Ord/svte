@@ -11,7 +11,8 @@ typedef enum
     VISUAL = 0,
     INSERT = 1,
     REPLACE = 2,
-    APPEND = 3
+    APPEND = 3,
+    CMD = 4
 } MODES;
 
 typedef enum
@@ -118,9 +119,12 @@ class Buffer
 class Editor
 {
   public:
-    Editor(void);
+    Editor(std::string spath);
 
-    void ed_append_buffer(std::string filename, std::string subpath);
+    void ed_append_cmd(const char c);
+    void ed_del_cmd(void);
+    void ed_enter_cmd(void);
+    void ed_append_buffer(std::string filename);
     //void ed_destroy_buffer(void);
     //void ed_buffers_resize(void);
     //void ed_buffers_shift(void);
@@ -136,8 +140,13 @@ class Editor
     int ed_save_buffer(void);
     int32_t ed_gen_id(void);
     Buffer *ed_grab_buffer(void);
+    std::vector<int32_t>::iterator  ed_buffer_get_iter(void);
+    void ed_swap_buffer(const uint32_t id);
+    int32_t ed_find_next_buffer(void);
+    void ed_change_buffer(const int ARG);
 
   private:
+    std::string cmd, editor_subpath;
     std::unordered_map<int32_t, Buffer *> bufs;
     std::unordered_set<int32_t> ids;
     std::vector<int32_t> open_buffers;
@@ -145,18 +154,4 @@ class Editor
     int editor_mode;
 };
 
-//struct Editor
-//{
-//int mode;
-//int current_buffer;
-//int open_buffers;
-//Buffers *buffers;
-//int (*del)(Editor *);
-//int (*rm)(Editor *);
-//int (*ins)(Editor *, const char);
-//void (*mv)(Editor *, const int);
-//void (*sb)(Editor *, const int);
-//};
-
-typedef struct Editor Editor;
 #endif

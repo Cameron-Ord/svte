@@ -11,17 +11,20 @@ typedef struct SDL_Texture SDL_Texture;
 struct SDL_Renderer;
 typedef struct SDL_Renderer SDL_Renderer;
 
-struct SDL_Rect;
-typedef struct SDL_Rect SDL_Rect;
-
-struct Vec2i;
-typedef struct Vec2i Vec2i;
-
 struct SDL_Window;
 typedef struct SDL_Window SDL_Window;
 
 class Chars;
 class Buffer;
+
+#include <SDL2/SDL_rect.h>
+
+struct Buffer_Viewport {
+  //ID of buffer, each buffer gets assigned its own viewport.
+  //This can be done later as I have yet to actually implement multiple buffers.. but the groundwork is laid out.
+  uint32_t id;
+  SDL_Rect viewport;
+};
 
 class Renderer
 {
