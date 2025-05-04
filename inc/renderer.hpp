@@ -20,12 +20,6 @@ typedef struct Vec2i Vec2i;
 struct SDL_Window;
 typedef struct SDL_Window SDL_Window;
 
-struct Buf;
-typedef struct Buf Buf;
-
-struct Cursor;
-typedef struct Cursor Cursor;
-
 class Chars;
 class Buffer;
 
@@ -40,8 +34,9 @@ class Renderer
     void renderer_clear(void);
     void renderer_present(void);
     int renderer_draw_char(const int x, const int y, const int w, const int h, SDL_Texture *tex);
-    int renderer_draw_cursor(const Cursor *c, const int *max_width, const int *max_height);
+    int renderer_draw_cursor(const int row, const int col, const int max_width, const int max_height);
     int renderer_draw_file(class Buffer *buf, class Chars *ch);
+
   private:
     SDL_Renderer *rend;
 };

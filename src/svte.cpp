@@ -1,16 +1,15 @@
 #include "../inc/editor.hpp"
 #include "../inc/font.hpp"
+#include "../inc/defines.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
-#include "../inc/globaldef.hpp"
 
-#include <iostream>
 #include <filesystem>
+#include <iostream>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
-#include <linux/limits.h>
-#include <unistd.h>
+
 #include <ctime>
 
 int main(int argc, char *argv[])
@@ -47,7 +46,7 @@ int main(int argc, char *argv[])
     srand(time(NULL));
     std::error_code err;
     std::filesystem::path cwd = std::filesystem::current_path(err);
-    if(err){
+    if (err) {
         std::cerr << "Failed to retrieve current path -> " << err.message() << std::endl;
         return 0;
     }
@@ -58,7 +57,6 @@ int main(int argc, char *argv[])
     if (argc > 1 && argc < 3) {
         fn = std::string(argv[1]);
     }
-
 
     std::cout << "CWD: " << cpath << std::endl;
     std::cout << "FN: " << fn << std::endl;
@@ -85,31 +83,37 @@ int main(int argc, char *argv[])
             default:
                 break;
 
-            case SDL_WINDOWEVENT:{
-                switch(e.window.event){
-                    case SDL_WINDOWEVENT_RESIZED:{
-                        window.win_update_dimensions();
-                    }break;
-                    case SDL_WINDOWEVENT_SIZE_CHANGED:{
-                        window.win_update_dimensions();
-                    }break;
+            case SDL_WINDOWEVENT:
+            {
+                switch (e.window.event) {
+                case SDL_WINDOWEVENT_RESIZED:
+                {
+                    window.win_update_dimensions();
+                } break;
+                case SDL_WINDOWEVENT_SIZE_CHANGED:
+                {
+                    window.win_update_dimensions();
+                } break;
                 }
-            }break;
+            } break;
             case SDL_TEXTINPUT:
             {
                 const char *t = e.text.text;
                 const size_t tlen = strlen(t);
                 for (size_t i = 0; i < tlen; i++) {
-                    switch(ed.ed_get_mode()){
-                        default: break;
+                    switch (ed.ed_get_mode()) {
+                    default:
+                        break;
 
-                        case INSERT:{
-                            ed.ed_str_op(INS, t[i]);
-                        }break;
-                        
-                        case APPEND:{
-                            ed.ed_str_op(APND, t[i]);
-                        }
+                    case INSERT:
+                    {
+                        ed.ed_str_op(INS, t[i]);
+                    } break;
+
+                    case APPEND:
+                    {
+                        ed.ed_str_op(APND, t[i]);
+                    }
                     }
                 }
             } break;
@@ -118,30 +122,33 @@ int main(int argc, char *argv[])
                 const int sym = e.key.keysym.sym;
                 const int mod = e.key.keysym.mod;
                 switch (sym) {
-                
-                case SDLK_ESCAPE:{
+
+                case SDLK_ESCAPE:
+                {
                     ed.ed_set_mode(VISUAL);
                     SDL_StopTextInput();
-                }break;
+                } break;
 
-                case SDLK_a:{
-                    if(ed.ed_get_mode() == VISUAL){
+                case SDLK_a:
+                {
+                    if (ed.ed_get_mode() == VISUAL) {
                         ed.ed_set_mode(APPEND);
                         SDL_StartTextInput();
                     }
-                }break;
+                } break;
 
                 //insert mode
-                case SDLK_i:{
-                    if(ed.ed_get_mode() == VISUAL){
+                case SDLK_i:
+                {
+                    if (ed.ed_get_mode() == VISUAL) {
                         ed.ed_set_mode(INSERT);
                         SDL_StartTextInput();
                     }
-                }break;
+                } break;
 
                 case SDLK_TAB:
                 {
-                //     editor.ins(&editor, SPACECHAR);
+                    //     editor.ins(&editor, SPACECHAR);
                 } break;
 
                 case SDLK_BACKSPACE:
@@ -161,65 +168,81 @@ int main(int argc, char *argv[])
 
                 case SDLK_h:
                 {
-                    switch(ed.ed_get_mode()){
-                        default: break;
-                        case VISUAL: {
-                            ed.ed_mv_op(MV_LEFT);
-                         }break;
-                        case INSERT: {
+                    switch (ed.ed_get_mode()) {
+                    default:
+                        break;
+                    case VISUAL:
+                    {
+                        ed.ed_mv_op(MV_LEFT);
+                    } break;
+                    case INSERT:
+                    {
 
-                        }break;
-                        case REPLACE: {
+                    } break;
+                    case REPLACE:
+                    {
 
-                        }break;
+                    } break;
                     }
                 } break;
 
                 case SDLK_j:
                 {
-                    switch(ed.ed_get_mode()){
-                        default: break;
-                        case VISUAL: {
-                            ed.ed_mv_op(NEXT_LINE);
-                         }break;
-                        case INSERT: {
+                    switch (ed.ed_get_mode()) {
+                    default:
+                        break;
+                    case VISUAL:
+                    {
+                        ed.ed_mv_op(NEXT_LINE);
+                    } break;
+                    case INSERT:
+                    {
 
-                        }break;
-                        case REPLACE: {
+                    } break;
+                    case REPLACE:
+                    {
 
-                        }break;
+                    } break;
                     }
                 } break;
 
                 case SDLK_k:
                 {
-                    switch(ed.ed_get_mode()){
-                        default: break;
-                        case VISUAL: {
-                            ed.ed_mv_op(PREV_LINE);
-                         }break;
-                        case INSERT: {
+                    switch (ed.ed_get_mode()) {
+                    default:
+                        break;
+                    case VISUAL:
+                    {
+                        ed.ed_mv_op(PREV_LINE);
+                    } break;
+                    case INSERT:
+                    {
 
-                        }break;
-                        case REPLACE: {
+                    } break;
+                    case REPLACE:
+                    {
 
-                        }break;
+                    } break;
                     }
                 } break;
 
                 case SDLK_l:
                 {
-                    switch(ed.ed_get_mode()){
-                        default: break;
-                        case VISUAL: {
-                            ed.ed_mv_op(MV_RIGHT);
-                         }break;
-                        case INSERT: {
+                    switch (ed.ed_get_mode()) {
+                    default:
+                        break;
+                    case VISUAL:
+                    {
+                        ed.ed_mv_op(MV_RIGHT);
+                    } break;
+                    case INSERT:
+                    {
 
-                        }break;
-                        case REPLACE: {
+                    } break;
+                    case REPLACE:
+                    {
 
-                        }break;
+                    } break;
                     }
                 } break;
                 }
@@ -234,7 +257,7 @@ int main(int argc, char *argv[])
             }
         }
         renderer.renderer_draw_file(ed.ed_grab_buffer(), &ch);
-        renderer.renderer_draw_cursor(ed.ed_grab_buffer()->buf_get_curs(), ch.ch_max_width(), ch.ch_max_height());
+        renderer.renderer_draw_cursor(*ed.ed_grab_buffer()->buf_get_row(), *ed.ed_grab_buffer()->buf_get_col(), *ch.ch_max_width(), *ch.ch_max_height());
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
             SDL_Delay(tpf - frame_time);

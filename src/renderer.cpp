@@ -1,8 +1,8 @@
 #include "../inc/renderer.hpp"
-#include "../inc/font.hpp"
-#include "../inc/window.hpp"
 #include "../inc/editor.hpp"
-#include "../inc/globaldef.hpp"
+#include "../inc/font.hpp"
+#include "../inc/defines.hpp"
+#include "../inc/window.hpp"
 
 #include <SDL2/SDL_render.h>
 
@@ -40,42 +40,45 @@ const void *Renderer::create_renderer(SDL_Window *w)
     return rend;
 }
 
-int Renderer::renderer_draw_cursor(const Cursor *c, const int *max_width, const int *max_height){
-    const int x = c->col * *max_width + padding;
-    const int y = c->row * *max_height + padding;
+int Renderer::renderer_draw_cursor(const int row, const int col, const int max_width, const int max_height)
+{
+    const int x = col * max_width + padding;
+    const int y = row * max_height + padding;
 
-    SDL_Rect cursor_rect = {x, y, *max_width, *max_height};
+    SDL_Rect cursor_rect = {x, y, max_width, max_height};
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 150);
     SDL_RenderFillRect(rend, &cursor_rect);
     return 1;
 }
 
-int Renderer::renderer_draw_char(const int x, const int y, const int w, const int h, SDL_Texture *tex){
+int Renderer::renderer_draw_char(const int x, const int y, const int w, const int h, SDL_Texture *tex)
+{
     SDL_Rect char_rect = {x, y, w, h};
     SDL_RenderCopy(rend, tex, NULL, &char_rect);
     return 1;
 }
 
-int Renderer::renderer_draw_file(class Buffer *buf, class Chars *ch){
+int Renderer::renderer_draw_file(class Buffer *buf, class Chars *ch)
+{
     int row = 0, row_height = *ch->ch_max_height(), col_width = *ch->ch_max_width();
 
-    std::vector<std::string> *buffer = buf->buf_get_buffer();
-    for(size_t i = 0; i < buffer->size(); i++){
-        std::string str = (*buffer)[i];
+    const std::vector<Line> *buffer = buf->buf_get_buffer();
+    for (size_t i = 0; i < buffer->size(); i++) {
+        std::string str = (*buffer)[i].str;
         int col = 0;
         const int y = row * row_height + padding;
-        
-        for(size_t t = 0; t < str.size(); t++){
+
+        for (size_t t = 0; t < str.size(); t++) {
             const char c = str[t];
-            const Char_Table * ct = ch->ch_lookup(c);
+            const Char_Table *ct = ch->ch_lookup(c);
             const int x = col * col_width + padding;
 
-            if(str[t] != SPACECHAR){
+            if (str[t] != SPACECHAR) {
                 renderer_draw_char(x, y, ct->base.width, ct->base.height, ct->base.t);
             }
             col += 1;
         }
         row += 1;
     }
-    return (row * row_height) + (row * padding);   
+    return (row * row_height) + (row * padding);
 }

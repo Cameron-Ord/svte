@@ -1,5 +1,5 @@
 #include "../inc/font.hpp"
-#include "../inc/globaldef.hpp"
+#include "../inc/defines.hpp"
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
@@ -25,12 +25,14 @@ static SDL_Texture *font_texture(SDL_Renderer *rend, SDL_Surface *s)
     return SDL_CreateTextureFromSurface(rend, s);
 }
 
-Chars::Chars(void) { 
+Chars::Chars(void)
+{
     max_height = 0, max_width = 0;
-    set_table(); 
+    set_table();
 }
 
-const void* Chars::ch_set_font(TTF_Font *fp){
+const void *Chars::ch_set_font(TTF_Font *fp)
+{
     f.base = fp;
     return f.base;
 }
@@ -43,8 +45,6 @@ TTF_Font *Chars::ch_open_font(const char *fn, const int size)
     }
     return f;
 }
-
-
 
 int Chars::ch_create_textures(SDL_Renderer *rend)
 {
@@ -80,7 +80,6 @@ int Chars::ch_create_textures(SDL_Renderer *rend)
     }
     return 1;
 }
-
 
 void Chars::set_table(void)
 {

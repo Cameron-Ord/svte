@@ -11,8 +11,8 @@ class Window
     ~Window(void);
     SDL_Window *get_window(void);
     const void *create_window(void);
-    const int *get_width(void);
-    const int *get_height(void);
+    const int *get_width(void) { return &s_width; }
+    const int *get_height(void) { return &s_height; }
     void win_update_dimensions(void);
 
   private:

@@ -39,13 +39,13 @@ class Chars
   public:
     Chars();
     TTF_Font *ch_open_font(const char *fn, const int size);
-    const Fonts *ch_get_fonts(void){return &f;}
-    const void* ch_set_font(TTF_Font *f);
-    Char_Table *ch_get_tbls(void) {return chtbls; }
+    const Fonts *ch_get_fonts(void) { return &f; }
+    const void *ch_set_font(TTF_Font *f);
+    Char_Table *ch_get_tbls(void) { return chtbls; }
     Char_Table *ch_lookup(unsigned char c);
     int ch_create_textures(SDL_Renderer *rend);
-    const int *ch_max_height(void){return &max_height;}
-    const int *ch_max_width(void){return &max_width;}
+    const int *ch_max_height(void) { return &max_height; }
+    const int *ch_max_width(void) { return &max_width; }
 
   private:
     Fonts f;
@@ -53,6 +53,5 @@ class Chars
     void set_table(void);
     int max_height, max_width;
 };
-
 
 #endif
