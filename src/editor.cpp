@@ -130,6 +130,14 @@ void Editor::ed_append_buffer(std::string filename)
         std::cerr << "Failed to create buffer! (bad alloc)" << std::endl;
         return;
     }
+    if(buf->buf_get_valid() == BUF_STATE_ERR){
+        std::cerr << "Buffer created with errors!" << std::endl;
+        if(buf->buf_get_id() != FILE_ID_BROKEN){
+            ids.erase(id);
+        }
+        delete buf;
+        return;
+    }
     bufs.insert({id, buf});
     current_buffer = id;
     open_buffers.push_back(id);

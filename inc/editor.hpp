@@ -90,7 +90,7 @@ class Buffer
     const std::vector<Line> *buf_get_buffer(void);
     const int *buf_get_row(void);
     const int *buf_get_col(void);
-
+    const int32_t buf_get_id(void){ return id; }
     int buf_save_file(void);
     int buf_open_file(void);
     int buf_concat_paths(void);
