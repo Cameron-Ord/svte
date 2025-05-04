@@ -58,6 +58,7 @@ const int *Buffer::buf_get_col(void)
     if (row >= 0 && row < ssize) {
         return &buffer[row].col;
     }
+    std::cerr << "Get col returned NULL: Row :" << row << std::endl;
     return NULL;
 }
 
@@ -139,7 +140,9 @@ int Buffer::buf_row_delete_char(void)
             }
         } else if (line->col == 0 && buf_ssize - 1 >= 1 && str_ssize == 0) {
             buffer.erase(buffer.begin() + row);
-            row--;
+            if(row - 1 >= 0){
+                row--;
+            }
         }
         return DEL_OK;
     }
@@ -179,10 +182,41 @@ void Buffer::buf_shift_curs_row(const int d)
     row += d;
 }
 
+int Buffer::buf_save_file(void){
+    if (fullpath.size() == 0 || filename.size() == 0) {
+        std::cout << "No provided filename or path" << std::endl;
+        return FILE_RET_NO_FN;
+    }
+
+    const std::string checkstr = subpath + path_delimiter + filename;
+    if (!(fullpath.size() > 0 && fullpath == checkstr)) {
+        std::cerr << "Path mismatch!" << std::endl;
+        return FILE_RET_ERR;
+    }
+
+    std::ofstream file(fullpath, std::ios::out);
+    if (!file.is_open()) {
+        std::cerr << "Error while opening in write mode" << std::endl;
+        return FILE_RET_ERR;
+    }
+
+    std::vector<Line>::iterator it;
+    size_t accumulator = 0;
+    for(it = buffer.begin(); it != buffer.end(); ++it){
+        std::string str = it->str;
+        accumulator += str.size() * sizeof(str[0]);
+        file << str << std::endl;
+    }
+
+    std::cout << accumulator << " Bytes written" << std::endl;
+    file.close();
+    return FILE_RET_OK;
+}
+
 int Buffer::buf_open_file(void)
 {
     if (fullpath.size() == 0 || filename.size() == 0) {
-        std::cout << "No provided filename" << std::endl;
+        std::cout << "No provided filename or path" << std::endl;
         return FILE_RET_NO_FN;
     }
 

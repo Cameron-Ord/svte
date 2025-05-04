@@ -123,6 +123,12 @@ int main(int argc, char *argv[])
                 const int mod = e.key.keysym.mod;
                 switch (sym) {
 
+                case SDLK_s:{
+                    if(ed.ed_get_mode() == VISUAL && mod & KMOD_LCTRL){
+                        ed.ed_save_buffer();
+                    }
+                }break;
+
                 case SDLK_ESCAPE:
                 {
                     ed.ed_set_mode(VISUAL);

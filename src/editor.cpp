@@ -10,6 +10,17 @@ Editor::Editor(void)
     editor_mode = VISUAL;
 }
 
+int Editor::ed_save_buffer(void){
+    Buffer *buf = nullptr;
+    if (!(buf = ed_grab_buffer())) {
+        return 0;
+    }
+    if(buf->buf_save_file() != FILE_RET_OK){
+        return 0;
+    }
+    return 1;
+}
+
 Buffer *Editor::ed_grab_buffer(void)
 {
     std::unordered_map<int32_t, Buffer *>::iterator it = bufs.find(current_buffer);

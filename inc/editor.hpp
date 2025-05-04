@@ -90,6 +90,7 @@ class Buffer
     const int *buf_get_row(void);
     const int *buf_get_col(void);
 
+    int buf_save_file(void);
     int buf_open_file(void);
     int buf_concat_paths(void);
     int buf_row_first_char(std::string row, const int offset);
@@ -120,18 +121,19 @@ class Editor
     Editor(void);
 
     void ed_append_buffer(std::string filename, std::string subpath);
-    void ed_destroy_buffer(void);
-    void ed_buffers_resize(void);
-    void ed_buffers_shift(void);
-    void ed_rmv_char(void);
-    void ed_del_char(void);
+    //void ed_destroy_buffer(void);
+    //void ed_buffers_resize(void);
+    //void ed_buffers_shift(void);
+    //void ed_rmv_char(void);
+    //void ed_del_char(void);
     void ed_mv_op(const int DIRECTION);
     void ed_str_op(const int OPERATION, const char c);
-    void ed_chng_buffer(void);
-    void ed_name_find_buffer(void);
-    void ed_chng_mode(void);
+    //void ed_chng_buffer(void);
+    //void ed_name_find_buffer(void);
+    //void ed_chng_mode(void);
     int ed_get_mode(void) { return editor_mode; }
     void ed_set_mode(const int mode) { editor_mode = mode; }
+    int ed_save_buffer(void);
     int32_t ed_gen_id(void);
     Buffer *ed_grab_buffer(void);
 
