@@ -65,7 +65,26 @@ const int *Buffer::buf_get_col(void)
 //Remove char from row
 int Buffer::buf_row_remove_char(void)
 {
-    return RMV_OK;
+    const int buf_ssize = buffer.size();
+    if(row >= 0 && row < buf_ssize){
+        Line *line = &buffer.at(row);
+        const int str_ssize = line->str.size();
+ 
+        if(line->col > 0 && line->col <= str_ssize){
+            const int implicit_col = line->col - 1;
+            line->str.erase(line->str.begin() + implicit_col); 
+            line->col--;
+            return RMV_OK;
+        
+        } else if(line->col == 0 && line->str.empty() && buf_ssize > 1){
+            buffer.erase(buffer.begin() + row);
+            if(row > 0){
+                row--;
+            }
+            return RMV_OK;
+        }
+    }
+    return BAD_DEL;
 }
 
 //Append from row
@@ -86,8 +105,10 @@ int Buffer::buf_row_insert_char(const char c)
 {
     const int buf_ssize = buffer.size();
     if (row >= 0 && row < buf_ssize) {
+
         Line *line = &buffer.at(row);
         const int str_ssize = line->str.size();
+        
         if (line->col >= 0 && line->col <= str_ssize) {
             line->str.insert(line->str.begin() + line->col, c);
             line->col++;
@@ -104,12 +125,14 @@ int Buffer::buf_row_append_char(const char c)
     if (row >= 0 && row < buf_ssize) {
         Line *line = &buffer.at(row);
         const int str_ssize = line->str.size();
+        
         if (line->col >= 0 && line->col < str_ssize) {
             const int implicit_col = line->col + 1;
             line->str.insert(line->str.begin() + implicit_col, c);
             line->col++;
             return INS_OK;
-        } else if (line->col - 1 >= -1 && line->col == str_ssize) {
+        
+        } else if (line->col - 1 >= -1 && line->str.empty()) {
             const int implicit_col = (line->col - 1) + 1;
             line->str.insert(line->str.begin() + implicit_col, c);
             line->col++;
@@ -127,24 +150,32 @@ int Buffer::buf_row_delete_char(void)
         Line *line = &buffer.at(row);
         const int str_ssize = line->str.size();
 
-        if (line->col >= 0 && line->col < str_ssize) {
+        if (line->col > 0 && line->col < str_ssize) {
             line->str.erase(line->str.begin() + line->col);
-            if (line->col == str_ssize && line->col - 1 >= 0) {
+            if(line->col == str_ssize){
                 line->col--;
-            }
-        } else if (line->col - 1 >= 0 && line->col == str_ssize) {
+            }   
+            return DEL_OK;
+
+        } else if (line->col > 0 && line->col == str_ssize) {
             const int implicit_col = line->col - 1;
             line->str.erase(line->str.begin() + implicit_col);
-            if (line->col - 1 >= 0) {
-                line->col--;
-            }
-        } else if (line->col == 0 && buf_ssize - 1 >= 1 && str_ssize == 0) {
-            buffer.erase(buffer.begin() + row);
-            if(row - 1 >= 0){
-                row--;
+            line->col--;
+            return DEL_OK;
+
+        } else if (line->col == 0) {
+            if(line->str.empty() && buf_ssize > 1){
+                buffer.erase(buffer.begin() + row);
+                if(row > 0){
+                    row--;
+                }
+                return DEL_OK;
+
+            } else if(!line->str.empty()) {
+                line->str.erase(line->str.begin() + 0);
+                return DEL_OK;
             }
         }
-        return DEL_OK;
     }
     return BAD_DEL;
 }
@@ -205,7 +236,8 @@ int Buffer::buf_save_file(void){
     for(it = buffer.begin(); it != buffer.end(); ++it){
         std::string str = it->str;
         accumulator += str.size() * sizeof(str[0]);
-        file << str << std::endl;
+        //Just needs a newline, so not using std::endl;
+        file << str << '\n';
     }
 
     std::cout << accumulator << " Bytes written" << std::endl;
