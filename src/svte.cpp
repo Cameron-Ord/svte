@@ -263,7 +263,10 @@ int main(int argc, char *argv[])
             } break;
             }
         }
-        renderer.renderer_draw_file(ed.ed_grab_buffer(), &ch);
+
+        Buffer *buf = ed.ed_grab_buffer();
+
+        renderer.renderer_draw_file(buf, &ch);
         renderer.renderer_draw_cursor(*ed.ed_grab_buffer()->buf_get_row(), *ed.ed_grab_buffer()->buf_get_col(), *ch.ch_max_width(), *ch.ch_max_height());
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

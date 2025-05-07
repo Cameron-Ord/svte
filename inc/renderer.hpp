@@ -24,6 +24,10 @@ struct Buffer_Viewport {
   //This can be done later as I have yet to actually implement multiple buffers.. but the groundwork is laid out.
   uint32_t id;
   SDL_Rect viewport;
+  //gets set once a condition is reached. Ex: reached end of row that is being drawn. either increments by one or gets set to a fixed value. Start y loop from this value.
+  int curs_row_start_position;
+  //For navigating lines that are larger than the window width. Follows the cursor. Start x loop from this value. 
+  int curs_col_start_position; 
 };
 
 class Renderer
@@ -33,6 +37,7 @@ class Renderer
     ~Renderer(void);
     SDL_Renderer *get_renderer(void);
     const void *create_renderer(SDL_Window *w);
+    void renderer_create_buffer_viewport(void);
     void renderer_fill_bg(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void renderer_clear(void);
     void renderer_present(void);
