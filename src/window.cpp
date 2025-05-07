@@ -2,7 +2,14 @@
 
 #include <SDL2/SDL.h>
 
-Window::Window(void) { s_width = 600, s_height = 400; }
+Window::Window(void) { 
+    s_width = 600, s_height = 400;
+    if(!create_window()){
+        STATE = WIN_STATE_BAD;
+    } else {
+        STATE = WIN_STATE_OK;
+    }
+}
 
 Window::~Window(void) {}
 

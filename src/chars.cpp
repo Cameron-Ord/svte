@@ -1,5 +1,5 @@
-#include "../inc/font.hpp"
 #include "../inc/defines.hpp"
+#include "../inc/renderer.hpp"
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>

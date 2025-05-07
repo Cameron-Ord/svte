@@ -1,6 +1,5 @@
 #include "../inc/renderer.hpp"
 #include "../inc/editor.hpp"
-#include "../inc/font.hpp"
 #include "../inc/defines.hpp"
 #include "../inc/window.hpp"
 
@@ -8,13 +7,27 @@
 
 const int padding = 2;
 
-Renderer::Renderer()
-    : rend(NULL)
+Renderer::Renderer(SDL_Window *w, const int *width, const int *height)
+    : rend(NULL), win_width(width), win_height(height), chars(Chars())
 {
     fprintf(stdout, "Renderer instance created\n");
+    if(!create_renderer(w)){
+        STATE = RDR_STATE_BAD;
+    } else {
+        STATE = RDR_STATE_OK;
+    }
 }
 
 Renderer::~Renderer(void) {}
+
+const Buffer_Viewport* Renderer::renderer_get_viewport(const int id){}
+const int Renderer::renderer_set_viewport_row_start(const int id, const int row){}
+const int Renderer::renderer_set_viewport_col_start(const int id, int col){}
+
+void Renderer::renderer_create_buffer_viewport(const int32_t id){
+    Buffer_Viewport b_viewport = {(SDL_Rect){0, 0, *win_width, *win_height}, 0, 0};
+    vps.insert({id, b_viewport});
+}
 
 void Renderer::renderer_fill_bg(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
@@ -40,7 +53,7 @@ const void *Renderer::create_renderer(SDL_Window *w)
     return rend;
 }
 
-int Renderer::renderer_draw_cursor(const int row, const int col, const int max_width, const int max_height)
+int Renderer::renderer_draw_cursor(const int row, const int col)
 {
     const int x = col * max_width + padding;
     const int y = row * max_height + padding;
@@ -58,7 +71,7 @@ int Renderer::renderer_draw_char(const int x, const int y, const int w, const in
     return 1;
 }
 
-int Renderer::renderer_draw_file(class Buffer *buf, class Chars *ch)
+int Renderer::renderer_draw_file(class Buffer *buf)
 {
     int row = 0, row_height = *ch->ch_max_height(), col_width = *ch->ch_max_width();
 

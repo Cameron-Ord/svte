@@ -1,5 +1,4 @@
 #include "../inc/editor.hpp"
-#include "../inc/font.hpp"
 #include "../inc/defines.hpp"
 #include "../inc/renderer.hpp"
 #include "../inc/window.hpp"
@@ -25,21 +24,21 @@ int main(int argc, char *argv[])
     }
 
     Window window;
-    if (!window.create_window()) {
+    if (!window.get_state() != WIN_STATE_OK) {
         return 1;
     }
 
-    Renderer renderer;
-    if (!renderer.create_renderer(window.get_window())) {
+    Renderer renderer(window.get_window(), window.get_width(), window.get_height());
+    if (!renderer.get_state() != RDR_STATE_OK) {
         return 1;
     }
 
-    Chars ch;
-    if (!(ch.ch_set_font(ch.ch_open_font("dogicapixel.ttf", 16)))) {
+    Chars *ch = renderer.renderer_get_chars();
+    if (!(ch->ch_set_font(ch->ch_open_font("dogicapixel.ttf", 16)))) {
         return 1;
     }
 
-    if (!ch.ch_create_textures(renderer.get_renderer())) {
+    if (!ch->ch_create_textures(renderer.get_renderer())) {
         return 1;
     }
 
@@ -191,7 +190,9 @@ int main(int argc, char *argv[])
                 {
                     switch(ed.ed_get_mode()){
                         case CMD:{
-                            ed.ed_enter_cmd();
+                            if(ed.ed_enter_cmd() == CMD_STATE_OK){
+                                renderer.renderer_create_buffer_viewport(ed.ed_get_curr_id());
+                            }
                             ed.ed_set_mode(VISUAL);
                         }break;
 
@@ -265,9 +266,8 @@ int main(int argc, char *argv[])
         }
 
         Buffer *buf = ed.ed_grab_buffer();
-
-        renderer.renderer_draw_file(buf, &ch);
-        renderer.renderer_draw_cursor(*ed.ed_grab_buffer()->buf_get_row(), *ed.ed_grab_buffer()->buf_get_col(), *ch.ch_max_width(), *ch.ch_max_height());
+        renderer.renderer_draw_file(buf);
+        renderer.renderer_draw_cursor(*buf->buf_get_row(), *buf->buf_get_col());
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
             SDL_Delay(tpf - frame_time);

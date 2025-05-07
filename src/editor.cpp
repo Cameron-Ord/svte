@@ -66,19 +66,24 @@ void Editor::ed_del_cmd(void){
     cmd.clear();
 }
 
-void Editor::ed_enter_cmd(void){
+int Editor::ed_enter_cmd(void){
     std::string::iterator it;
     for(it = cmd.begin(); it != cmd.end(); ++it){
         if(*it == SPACECHAR){
             cmd.erase(it);
         }
     }
-    if(cmd.substr(0, 3) == "new"){
-        std::string filename = cmd.substr(3, cmd.size());
-        std::cout << "Buffer: " << filename << " Added" << std::endl;
-        ed_append_buffer(filename);
+    if(cmd.substr(0, 3) != "new"){
+        return CMD_STATE_FAIL;
     }
+
+    std::string filename = cmd.substr(3, cmd.size());
+    if(ed_append_buffer(filename) != BUF_STATE_VALID){
+        return CMD_STATE_FAIL;
+    }
+    std::cout << "Buffer: " << filename << " Added" << std::endl;
     ed_del_cmd();
+    return CMD_STATE_OK;
 }
 
 int Editor::ed_save_buffer(void){
@@ -122,7 +127,7 @@ int32_t Editor::ed_gen_id(void)
     return FILE_ID_BROKEN;
 }
 
-void Editor::ed_append_buffer(std::string filename)
+int Editor::ed_append_buffer(std::string filename)
 {
     int32_t id = ed_gen_id();
     Buffer *buf = new (std::nothrow) Buffer(filename, editor_subpath, id);

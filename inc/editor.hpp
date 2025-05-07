@@ -73,7 +73,9 @@ typedef enum
 typedef enum
 {
     BUF_STATE_VALID = 25,
-    BUF_STATE_ERR = 26
+    BUF_STATE_ERR = 26,
+    CMD_STATE_FAIL = 33,
+    CMD_STATE_OK = 44,
 } BUFFER_STATE;
 
 struct Line
@@ -123,8 +125,8 @@ class Editor
 
     void ed_append_cmd(const char c);
     void ed_del_cmd(void);
-    void ed_enter_cmd(void);
-    void ed_append_buffer(std::string filename);
+    int ed_enter_cmd(void);
+    int ed_append_buffer(std::string filename);
     //void ed_destroy_buffer(void);
     //void ed_buffers_resize(void);
     //void ed_buffers_shift(void);
@@ -144,7 +146,8 @@ class Editor
     void ed_swap_buffer(const uint32_t id);
     int32_t ed_find_next_buffer(void);
     void ed_change_buffer(const int ARG);
-
+    int32_t ed_get_curr_id(void) { return current_buffer; }
+    
   private:
     std::string cmd, editor_subpath;
     std::unordered_map<int32_t, Buffer *> bufs;
