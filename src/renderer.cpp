@@ -12,20 +12,59 @@ Renderer::Renderer(SDL_Window *w, const int *width, const int *height)
 {
     fprintf(stdout, "Renderer instance created\n");
     if(!create_renderer(w)){
-        STATE = RDR_STATE_BAD;
+        STATE = RNDR_STATE_BAD;
     } else {
-        STATE = RDR_STATE_OK;
+        STATE = RNDR_STATE_OK;
     }
 }
 
 Renderer::~Renderer(void) {}
 
-const Buffer_Viewport* Renderer::renderer_get_viewport(const int id){}
+void Renderer::renderer_update_viewports(const std::vector<int32_t> *open){
+    std::vector<int32_t>::const_iterator it;
+    for(it = open->begin(); it != open->end(); ++it){
+        const int32_t id = *it;
+        std::unordered_map<int32_t, Buffer_Viewport>::iterator it = vps.find(id);
+        if(it != vps.end()){
+            const int reserve_space = (*chars.ch_max_height() * 2) + (padding * 2);
+
+            const int scaled_height = *win_height - reserve_space;
+            const int scaled_width = *win_width * 1.0f;
+
+            it->second.viewport.w = scaled_width;
+            it->second.viewport.h = scaled_height;
+        } else {
+            continue;
+        }
+    }
+}
+
+const Buffer_Viewport* Renderer::renderer_get_viewport(const int id){
+    std::unordered_map<int32_t, Buffer_Viewport>::iterator it = vps.find(id);
+    if(it != vps.end()){
+        return &it->second;
+    } else {
+        return nullptr;
+    }
+}
 const int Renderer::renderer_set_viewport_row_start(const int id, const int row){}
 const int Renderer::renderer_set_viewport_col_start(const int id, int col){}
 
+void Renderer::renderer_draw_status(void){
+    
+}
+
 void Renderer::renderer_create_buffer_viewport(const int32_t id){
-    Buffer_Viewport b_viewport = {(SDL_Rect){0, 0, *win_width, *win_height}, 0, 0};
+    //Reserve two rows for status panel.
+    const int reserve_space = (*chars.ch_max_height() * 2) + (padding * 2);
+
+    const int scaled_height = *win_height - reserve_space;
+    const int scaled_width = *win_width * 1.0f;
+
+    SDL_Rect main_viewport = {0, 0, scaled_width, scaled_height};
+    SDL_Rect status_viewport = {0, scaled_height, scaled_width, reserve_space};
+
+    Buffer_Viewport b_viewport = {main_viewport, status_viewport, 0, 0};
     vps.insert({id, b_viewport});
 }
 
@@ -55,10 +94,13 @@ const void *Renderer::create_renderer(SDL_Window *w)
 
 int Renderer::renderer_draw_cursor(const int row, const int col)
 {
-    const int x = col * max_width + padding;
-    const int y = row * max_height + padding;
+    const int width = *chars.ch_max_width();
+    const int height = *chars.ch_max_height();
 
-    SDL_Rect cursor_rect = {x, y, max_width, max_height};
+    const int x = col * width + padding;
+    const int y = row * height + padding;
+
+    SDL_Rect cursor_rect = {x, y, width, height};
     SDL_SetRenderDrawColor(rend, 255, 255, 255, 150);
     SDL_RenderFillRect(rend, &cursor_rect);
     return 1;
@@ -73,25 +115,39 @@ int Renderer::renderer_draw_char(const int x, const int y, const int w, const in
 
 int Renderer::renderer_draw_file(class Buffer *buf)
 {
-    int row = 0, row_height = *ch->ch_max_height(), col_width = *ch->ch_max_width();
-
+    const Buffer_Viewport *vp = renderer_get_viewport(buf->buf_get_id());
+    if(!vp){
+        return RNDR_NO_VP;
+    }
+    SDL_RenderSetViewport(rend, &vp->viewport);
+    
+    const int row_height = *chars.ch_max_height();
+    int row = 0;
     const std::vector<Line> *buffer = buf->buf_get_buffer();
-    for (size_t i = 0; i < buffer->size(); i++) {
-        std::string str = (*buffer)[i].str;
-        int col = 0;
+
+    std::vector<Line>::const_iterator buf_it = buffer->begin() + vp->curs_row_start_position;
+    for (; buf_it != buffer->end(); ++buf_it) {
         const int y = row * row_height + padding;
-
-        for (size_t t = 0; t < str.size(); t++) {
-            const char c = str[t];
-            const Char_Table *ct = ch->ch_lookup(c);
-            const int x = col * col_width + padding;
-
-            if (str[t] != SPACECHAR) {
-                renderer_draw_char(x, y, ct->base.width, ct->base.height, ct->base.t);
-            }
-            col += 1;
-        }
+        renderer_draw_row(&buf_it->str, vp->curs_col_start_position, y);
         row += 1;
     }
     return (row * row_height) + (row * padding);
 }
+
+void Renderer::renderer_draw_row(const std::string *str, const int start, const int y){
+    const int col_width = *chars.ch_max_width();
+    int col = 0;
+
+    std::string::const_iterator str_it = str->begin() + start;
+    for (; str_it != str->end(); ++str_it) {
+        const char c = *str_it;
+        const Char_Table *ct = chars.ch_lookup(c);
+        const int x = col * col_width + padding;
+
+        if (*str_it != SPACECHAR) {
+            renderer_draw_char(x, y, ct->base.width, ct->base.height, ct->base.t);
+        }
+        col += 1;
+    }
+}
+

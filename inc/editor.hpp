@@ -143,6 +143,7 @@ class Editor
     int32_t ed_gen_id(void);
     Buffer *ed_grab_buffer(void);
     std::vector<int32_t>::iterator  ed_buffer_get_iter(void);
+    const std::vector<int32_t> *ed_get_open(void) { return &open_buffers; };
     void ed_swap_buffer(const uint32_t id);
     int32_t ed_find_next_buffer(void);
     void ed_change_buffer(const int ARG);

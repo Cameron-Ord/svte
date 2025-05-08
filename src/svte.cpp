@@ -24,12 +24,12 @@ int main(int argc, char *argv[])
     }
 
     Window window;
-    if (!window.get_state() != WIN_STATE_OK) {
+    if (window.get_state() != WIN_STATE_OK) {
         return 1;
     }
 
     Renderer renderer(window.get_window(), window.get_width(), window.get_height());
-    if (!renderer.get_state() != RDR_STATE_OK) {
+    if (renderer.get_state() != RNDR_STATE_OK) {
         return 1;
     }
 
@@ -61,7 +61,9 @@ int main(int argc, char *argv[])
     std::cout << "FN: " << fn << std::endl;
 
     Editor ed = Editor(cpath);
-    ed.ed_append_buffer(fn);
+    if(ed.ed_append_buffer(fn) == BUF_STATE_VALID){
+        renderer.renderer_create_buffer_viewport(ed.ed_get_curr_id());
+    }
 
     SDL_ShowWindow(window.get_window());
     SDL_StopTextInput();
@@ -89,10 +91,12 @@ int main(int argc, char *argv[])
                 case SDL_WINDOWEVENT_RESIZED:
                 {
                     window.win_update_dimensions();
+                    renderer.renderer_update_viewports(ed.ed_get_open());
                 } break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
                 {
                     window.win_update_dimensions();
+                    renderer.renderer_update_viewports(ed.ed_get_open());
                 } break;
                 }
             } break;

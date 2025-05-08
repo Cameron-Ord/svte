@@ -2,6 +2,8 @@
 #define RENDERER_HPP
 
 #include <cstdint>
+#include <unordered_map>
+#include <vector>
 
 class Window;
 
@@ -19,21 +21,22 @@ class Buffer;
 
 #include <SDL2/SDL_rect.h>
 
-typedef enum { RDR_STATE_BAD = 0, RDR_STATE_OK = 1} RENDER_STATE;
+typedef enum { RNDR_STATE_BAD = 0, RNDR_STATE_OK = 1, RNDR_NO_VP} RENDER_STATE;
 
 
 struct Buffer_Viewport {
   //ID of buffer, each buffer gets assigned its own viewport.
   //This can be done later as I have yet to actually implement multiple buffers.. but the groundwork is laid out.
   SDL_Rect viewport;
+  SDL_Rect sviewport;
   //gets set once a condition is reached. Ex: reached end of row that is being drawn. either increments by one or gets set to a fixed value. Start y loop from this value.
   int curs_row_start_position;
   //For navigating lines that are larger than the window width. Follows the cursor. Start x loop from this value. 
   int curs_col_start_position; 
 };
 
-struct _TTF_Font;
-typedef struct _TTF_Font TTF_Font;
+struct TTF_Font;
+typedef struct TTF_Font TTF_Font;
 
 #define ASCII_TABLE_SIZE 128
 #define STRBUF_SIZE 2
@@ -94,21 +97,25 @@ class Renderer
     int renderer_draw_char(const int x, const int y, const int w, const int h, SDL_Texture *tex);
     int renderer_draw_cursor(const int row, const int col);
     int renderer_draw_file(class Buffer *buf);
+    void renderer_draw_row(const std::string *str, const int start, const int y);
     const Buffer_Viewport* renderer_get_viewport(const int id);
     const int renderer_set_viewport_row_start(const int id, const int row);
     const int renderer_set_viewport_col_start(const int id, int col);
+    void renderer_update_viewports(const std::vector<int32_t> *open);
     Chars* renderer_get_chars(void) { return &chars; }
+    void renderer_draw_status(void);
 
   private:
-    class Chars chars;
-    int STATE;
     SDL_Renderer *rend;
+    const int *win_width;
+    const int *win_height;
+    class Chars chars;
+    
+    int STATE;
     std::unordered_map<int32_t, Buffer_Viewport> vps;
 
     //Const pointers to the window dimension values.
     //Useful in that it points to the memory address of the values so if the values do change outside of this class, it will reflect.
-    const int *win_width;
-    const int *win_height;
   };
 
 #endif

@@ -132,7 +132,7 @@ int Buffer::buf_row_append_char(const char c)
             line->col++;
             return INS_OK;
         
-        } else if (line->col - 1 >= -1 && line->str.empty()) {
+        } else if (line->col - 1 >= -1 && line->col == str_ssize) {
             const int implicit_col = (line->col - 1) + 1;
             line->str.insert(line->str.begin() + implicit_col, c);
             line->col++;

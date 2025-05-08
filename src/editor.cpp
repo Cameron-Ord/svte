@@ -133,7 +133,7 @@ int Editor::ed_append_buffer(std::string filename)
     Buffer *buf = new (std::nothrow) Buffer(filename, editor_subpath, id);
     if (!buf) {
         std::cerr << "Failed to create buffer! (bad alloc)" << std::endl;
-        return;
+        return BUF_STATE_ERR;
     }
     if(buf->buf_get_valid() == BUF_STATE_ERR){
         std::cerr << "Buffer created with errors!" << std::endl;
@@ -141,12 +141,13 @@ int Editor::ed_append_buffer(std::string filename)
             ids.erase(id);
         }
         delete buf;
-        return;
+        return BUF_STATE_ERR;
     }
     bufs.insert({id, buf});
     current_buffer = id;
     open_buffers.push_back(id);
     std::cout << "external buffer ID: " << id << std::endl;
+    return BUF_STATE_VALID;
 }
 
 void Editor::ed_str_op(const int OPERATION, const char c)
