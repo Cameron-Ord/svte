@@ -119,7 +119,7 @@ int main(int argc, char *argv[])
                         ed.ed_str_op(APND, t[i]);
                     } break;
 
-                    case CMD:{
+                    case CMD_NEW_FILE:{
                         ed.ed_append_cmd(t[i]);
                     }break;
                     }
@@ -162,7 +162,7 @@ int main(int argc, char *argv[])
 
                 case SDLK_SPACE:{
                     if(ed.ed_get_mode() == VISUAL && mod & KMOD_SHIFT){
-                        ed.ed_set_mode(CMD);
+                        ed.ed_set_mode(CMD_NEW_FILE);
                         SDL_StartTextInput();
                     }
                 }break;
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
                 case SDLK_DELETE:
                 {
                     switch(ed.ed_get_mode()){
-                        case CMD:{
+                        case CMD_NEW_FILE:{
                             ed.ed_del_cmd();
                         }break;
 
@@ -193,7 +193,7 @@ int main(int argc, char *argv[])
                 case SDLK_RETURN:
                 {
                     switch(ed.ed_get_mode()){
-                        case CMD:{
+                        case CMD_NEW_FILE:{
                             if(ed.ed_enter_cmd() == CMD_STATE_OK){
                                 renderer.renderer_create_buffer_viewport(ed.ed_get_curr_id());
                             }
@@ -272,6 +272,7 @@ int main(int argc, char *argv[])
         Buffer *buf = ed.ed_grab_buffer();
         renderer.renderer_draw_file(buf);
         renderer.renderer_draw_cursor(*buf->buf_get_row(), *buf->buf_get_col());
+        renderer.renderer_draw_status(ed.ed_get_curr_id(), ed.ed_get_cmd_str());
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
             SDL_Delay(tpf - frame_time);

@@ -12,7 +12,7 @@ typedef enum
     INSERT = 1,
     REPLACE = 2,
     APPEND = 3,
-    CMD = 4
+    CMD_NEW_FILE = 4
 } MODES;
 
 typedef enum
@@ -148,6 +148,7 @@ class Editor
     int32_t ed_find_next_buffer(void);
     void ed_change_buffer(const int ARG);
     int32_t ed_get_curr_id(void) { return current_buffer; }
+    const std::string *ed_get_cmd_str(void){ return &cmd; }
     
   private:
     std::string cmd, editor_subpath;

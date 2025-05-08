@@ -33,6 +33,10 @@ void Renderer::renderer_update_viewports(const std::vector<int32_t> *open){
 
             it->second.viewport.w = scaled_width;
             it->second.viewport.h = scaled_height;
+
+            it->second.sviewport.y = scaled_height;
+            it->second.sviewport.h = reserve_space;
+            it->second.sviewport.w = scaled_width;
         } else {
             continue;
         }
@@ -50,8 +54,16 @@ const Buffer_Viewport* Renderer::renderer_get_viewport(const int id){
 const int Renderer::renderer_set_viewport_row_start(const int id, const int row){}
 const int Renderer::renderer_set_viewport_col_start(const int id, int col){}
 
-void Renderer::renderer_draw_status(void){
-    
+//This is just a drop in example, I dont have a dedicated method for commands yet.
+int Renderer::renderer_draw_status(const int32_t id, const std::string *cmd){
+    const Buffer_Viewport *vp = renderer_get_viewport(id);
+    if(!vp){
+        return RNDR_NO_VP;
+    }
+    SDL_RenderSetViewport(rend, &vp->sviewport);
+    const std::string cmd_construct = "SVTE:" + *cmd;
+    renderer_draw_row(&cmd_construct, 0, 0);
+    return 1;
 }
 
 void Renderer::renderer_create_buffer_viewport(const int32_t id){
@@ -128,6 +140,9 @@ int Renderer::renderer_draw_file(class Buffer *buf)
     std::vector<Line>::const_iterator buf_it = buffer->begin() + vp->curs_row_start_position;
     for (; buf_it != buffer->end(); ++buf_it) {
         const int y = row * row_height + padding;
+        if(y >= vp->viewport.h){
+            return (row * row_height) + (row * padding);
+        }
         renderer_draw_row(&buf_it->str, vp->curs_col_start_position, y);
         row += 1;
     }

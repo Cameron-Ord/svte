@@ -73,15 +73,12 @@ int Editor::ed_enter_cmd(void){
             cmd.erase(it);
         }
     }
-    if(cmd.substr(0, 3) != "new"){
-        return CMD_STATE_FAIL;
-    }
 
-    std::string filename = cmd.substr(3, cmd.size());
-    if(ed_append_buffer(filename) != BUF_STATE_VALID){
+    if(ed_append_buffer(cmd) != BUF_STATE_VALID){
         return CMD_STATE_FAIL;
     }
-    std::cout << "Buffer: " << filename << " Added" << std::endl;
+    
+    std::cout << "Buffer: " << cmd << " Added" << std::endl;
     ed_del_cmd();
     return CMD_STATE_OK;
 }

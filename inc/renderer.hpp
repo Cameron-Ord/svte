@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 class Window;
 
@@ -103,19 +104,18 @@ class Renderer
     const int renderer_set_viewport_col_start(const int id, int col);
     void renderer_update_viewports(const std::vector<int32_t> *open);
     Chars* renderer_get_chars(void) { return &chars; }
-    void renderer_draw_status(void);
+    int renderer_draw_status(const int32_t id, const std::string *cmd);
 
   private:
     SDL_Renderer *rend;
+    //Const pointers to the window dimension values.
+    //Useful in that it points to the memory address of the values so if the values do change outside of this class, it will reflect.
     const int *win_width;
     const int *win_height;
     class Chars chars;
     
     int STATE;
     std::unordered_map<int32_t, Buffer_Viewport> vps;
-
-    //Const pointers to the window dimension values.
-    //Useful in that it points to the memory address of the values so if the values do change outside of this class, it will reflect.
   };
 
 #endif
