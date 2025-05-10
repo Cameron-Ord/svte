@@ -1,5 +1,5 @@
-#include "../inc/editor.hpp"
-#include "../inc/defines.hpp"
+#include "editor.hpp"
+#include "defines.hpp"
 #include <fstream>
 #include <iostream>
 
@@ -83,6 +83,7 @@ int Buffer::buf_row_remove_char(void)
             }
             return RMV_OK;
         }
+        //Need a statement to join lines if its not empty
     }
     return BAD_DEL;
 }
@@ -175,6 +176,7 @@ int Buffer::buf_row_delete_char(void)
                 line->str.erase(line->str.begin() + 0);
                 return DEL_OK;
             }
+        //Need a statement to join lines if its not empty
         }
     }
     return BAD_DEL;

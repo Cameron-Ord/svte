@@ -1,7 +1,7 @@
-#include "../inc/renderer.hpp"
-#include "../inc/editor.hpp"
-#include "../inc/defines.hpp"
-#include "../inc/window.hpp"
+#include "renderer.hpp"
+#include "editor.hpp"
+#include "defines.hpp"
+#include "window.hpp"
 
 #include <SDL2/SDL_render.h>
 
@@ -62,7 +62,7 @@ int Renderer::renderer_draw_status(const int32_t id, const std::string *cmd){
     }
     SDL_RenderSetViewport(rend, &vp->sviewport);
     const std::string cmd_construct = "SVTE:" + *cmd;
-    renderer_draw_row(&cmd_construct, 0, 0);
+    renderer_draw_row(&cmd_construct, 0, 1 * *chars.ch_max_height() + padding);
     return 1;
 }
 
