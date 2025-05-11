@@ -1,0 +1,4 @@
+#ifndef NCURSES_TERMSPACE_HPP
+#define NCURSES_TERMSPACE_HPP
+
+#endif

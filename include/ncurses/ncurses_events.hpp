@@ -1,0 +1,4 @@
+#ifndef NCURSES_EVENTS_HPP
+#define NCURSES_EVENTS_HPP
+
+#endif
