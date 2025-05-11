@@ -31,6 +31,7 @@ int Editor::ed_append_buffer(void){
         return ED_BAD_APPEND;
     }
 
+    std::cout << "Appending: " << id << std::endl;
     class Buffer *buffer = new Buffer(id);
     if(!buffer){
         std::cerr << "Could not allocate buffer!" << std::endl;
@@ -42,7 +43,6 @@ int Editor::ed_append_buffer(void){
     bufs.insert(mapped);
     open.push_back(id);
     ed_set_current_id(id);
-    std::cout << "external buffer ID: " << id << std::endl;
     
     return CORE_NIL;
 }

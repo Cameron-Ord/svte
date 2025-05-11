@@ -6,8 +6,12 @@ src = [
         'frontend/SDL2/sdl2_renderer.cpp',
         'frontend/SDL2/sdl2_window.cpp',
         'frontend/SDL2/svte_sdl2_main.cpp',
+
         'core/editor/ed_sys.cpp',
         'core/editor/ed_constructor.cpp',
+        'core/editor/ed_buffers.cpp',
+        'core/buffer/buf_constructor.cpp',
+        'core/buffer/buf_remove.cpp',
 
 ]
 
