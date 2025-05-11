@@ -1,0 +1,6 @@
+#ifndef SDL2_ERROR_CODES_HPP
+#define SDL2_ERROR_CODES_HPP
+
+typedef enum { BAD_WINDOW = 0, BAD_RENDERER = 1 } SDL2_ERR_CODES;
+
+#endif
