@@ -1,14 +1,11 @@
-project('SVTE', 'cpp', default_options: ['bindir=bin'])
+project('svte', 'cpp')
+
 src = [
-        'src/svte.cpp',
-        #       'src/audio.cpp',
-        'src/editor.cpp',
-        'src/buffer.cpp',
-        #       'src/font.cpp',
-        #       'src/render_draw.cpp',
-        'src/chars.cpp',
-        'src/renderer.cpp',
-        'src/window.cpp',
+        'frontend/SDL2/sdl2_events.cpp',
+        'frontend/SDL2/sdl2_init.cpp',
+        'frontend/SDL2/sdl2_renderer.cpp',
+        'frontend/SDL2/sdl2_window.cpp',
+        'frontend/SDL2/svte_sdl2_main.cpp',
 ]
 
 sdl2_dep = dependency('SDL2')

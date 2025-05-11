@@ -1,0 +1,57 @@
+#include "../../include/SDL2/sdl2_window.hpp"
+#include "../../include/SDL2/sdl2_error_codes.hpp"
+
+
+
+Window::Window(void) : error(NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
+    win_set_err(win_create_window(SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE));
+}
+
+Window::~Window(void){
+
+}
+
+int Window::win_get_err(void){
+    return error;
+}
+
+void Window::win_set_err(const int err){ 
+    error = err;
+}
+
+SDL_Window *Window::win_get_window(void) { 
+    return win;
+}
+
+const int* const Window::win_height_ptr(void){
+    return &height;
+}
+
+const int* const Window::win_width_ptr(void){
+    return &width;
+}
+
+int Window::win_create_window(const int flags){
+    win = SDL_CreateWindow("svte", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
+    if(!win){
+        return BAD_WINDOW;
+    }
+    return NIL;
+}
+
+void Window::win_update_window_values(void){
+    SDL_GetWindowSize(win, &width, &height);
+}
+
+void Window::win_show_window(void){
+    SDL_ShowWindow(win);
+}
+
+void Window::win_hide_window(void){
+    SDL_HideWindow(win);
+}
+
+void Window::win_set_resizeable(const SDL_bool opt){
+    SDL_SetWindowResizable(win, opt);
+}
+
