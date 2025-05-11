@@ -3,7 +3,7 @@
 
 
 Renderer::Renderer(SDL_Window *w, const int* const width, const int* const height) 
-    : rend(nullptr), _width(width), _height(height), error(NIL) {
+    : rend(nullptr), _width(width), _height(height), error(SDL2_NIL) {
     rndr_set_err(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
 }
 
@@ -26,7 +26,7 @@ int Renderer::rndr_create_renderer(SDL_Window *w, const int flags){
     if(!rend){
         return BAD_RENDERER;
     }
-    return NIL;
+    return SDL2_NIL;
 }
 
 void Renderer::rndr_fill_bg(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){

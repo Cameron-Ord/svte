@@ -10,7 +10,7 @@ int KeyEvent::ev_mainloop_poll_event_type(SDL_Event* const e){
     while(SDL_PollEvent(e)){
         return e->type;
     }
-    return NIL;
+    return SDL2_NIL;
 }
 
 int KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod){}

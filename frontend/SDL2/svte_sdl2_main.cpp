@@ -8,26 +8,36 @@
 #include "../../include/SDL2/sdl2_events.hpp"
 #include "../../include/SDL2/sdl2_st_enums.hpp"
 
+
+#include "../../include/core/core_editor.hpp"
+#include "../../include/core/core_error_codes.hpp"
+
+
 int main(int argc, char **argv){
     SDL2_Context context;
-    if(context.sdl2_get_err() != NIL) {
+    if(context.sdl2_get_err() != SDL2_NIL) {
         std::cerr << "Failed to initialize SDL2 -> " << SDL_GetError() << std::endl;
         return 1;
     }
 
     Window window;
-    if(window.win_get_err() != NIL){
+    if(window.win_get_err() != SDL2_NIL){
         std::cerr << "Failed to create window -> " << SDL_GetError() << std::endl;
         return 1;
     }
     
     Renderer renderer(window.win_get_window(), window.win_width_ptr(), window.win_height_ptr());
-    if(renderer.rndr_get_err() != NIL){
+    if(renderer.rndr_get_err() != SDL2_NIL){
         std::cerr << "Failed to create renderer -> " << SDL_GetError() << std::endl;
         return 1;
     }
 
-    KeyEvent ev_handle;
+    Editor ed;
+    if(ed.ed_get_error() != CORE_NIL){
+        std::cerr << "Failed to initialize editor!" << std::endl;
+        return 1;
+    }
+    ed.ed_append_buffer();
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
@@ -36,6 +46,8 @@ int main(int argc, char **argv){
     context.sdl2_set_text_input(STOP);
     context.sdl2_set_run_state(RUN);
     window.win_show_window();
+
+    KeyEvent ev_handle;
 
     while(context.sdl2_get_run_state() != NO_RUN){
         frame_start = SDL_GetTicks64();

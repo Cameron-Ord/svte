@@ -2,7 +2,7 @@
 #define SDL2_ERROR_CODES_HPP
 
 typedef enum { 
-    NIL = -1,
+    SDL2_NIL = -1,
     BAD_WINDOW = 0, 
     BAD_RENDERER = 1, 
     BAD_INIT = 2,

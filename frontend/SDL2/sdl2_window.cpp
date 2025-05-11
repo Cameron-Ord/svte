@@ -3,7 +3,7 @@
 
 
 
-Window::Window(void) : error(NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
+Window::Window(void) : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
     win_set_err(win_create_window(SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE));
 }
 
@@ -36,7 +36,7 @@ int Window::win_create_window(const int flags){
     if(!win){
         return BAD_WINDOW;
     }
-    return NIL;
+    return SDL2_NIL;
 }
 
 void Window::win_update_window_values(void){

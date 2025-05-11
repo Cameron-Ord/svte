@@ -5,7 +5,7 @@
 #include "../../include/SDL2/sdl2_st_enums.hpp"
 
 
-SDL2_Context::SDL2_Context(void) : fps_target(60), error(NIL), running(NO_RUN) {
+SDL2_Context::SDL2_Context(void) : fps_target(60), error(SDL2_NIL), running(NO_RUN) {
     sdl2_set_err(sdl2_open_instance());
 }
 
@@ -34,7 +34,7 @@ int SDL2_Context::sdl2_open_instance(void){
     if(SDL_Init(SDL_INIT_EVENTS | SDL_INIT_VIDEO | SDL_INIT_TIMER) < 0){
         return BAD_INIT;
     }
-    return NIL;
+    return SDL2_NIL;
 }
 
 int SDL2_Context::sdl2_get_err(void){
