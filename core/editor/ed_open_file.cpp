@@ -28,9 +28,7 @@ int Editor::ed_open_file(const int32_t id){
 
         while (std::getline(file, line)) {
             buffer->buf_append_line(line);
-            if(line.size() > 0){
-                byte_accumulator += line.size() * sizeof(line[0]);
-            }
+            byte_accumulator += line.size() * sizeof(line[0]);
             line_count++;
         }
 
@@ -39,12 +37,12 @@ int Editor::ed_open_file(const int32_t id){
             case 1:{
                 std::cout << "Opened file with " << line_count << " lines and ";
                 std::cout << byte_accumulator << " bytes" << std::endl;
-            }
+            } break;
 
             case 0:{
                 std::cout << "Empty file!" << std::endl;
                 buffer->buf_append_line("");
-            }
+            } break;
         }
 
         file.close();

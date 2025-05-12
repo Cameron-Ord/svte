@@ -68,3 +68,12 @@ int Editor::ed_append_buffer(std::string fn){
     
     return CORE_NIL;
 }
+
+class Buffer *Editor::ed_fetch_buffer(const int32_t id){
+    std::unordered_map<int32_t, class Buffer *>::iterator it = bufs.find(id);
+    if(it != bufs.end()){
+        return it->second;
+    } else {
+        return nullptr;
+    }
+}

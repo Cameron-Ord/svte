@@ -29,6 +29,8 @@ class Editor {
         std::string ed_fs_cwd_string(void);
         const std::string& ed_get_cwd(void);
         std::string ed_delimiter(void);
+        class Buffer *ed_fetch_buffer(const int32_t id);
+
     private:
         int error;
         uint8_t mode;

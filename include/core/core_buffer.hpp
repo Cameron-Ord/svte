@@ -24,7 +24,9 @@ class Buffer {
         void buf_append_line(const std::string line);
         std::vector<std::string>::iterator buf_row_begin(void);
         std::vector<std::string>::iterator buf_row_end(void);
-        const size_t& buf_get_size(void);
+        std::vector<std::string>::const_iterator buf_row_begin_const(void);
+        std::vector<std::string>::const_iterator buf_row_end_const(void);
+        const size_t buf_get_size(void);
         const std::vector<std::string>* const buf_get_buffer(void);
 
         ~Buffer(void);

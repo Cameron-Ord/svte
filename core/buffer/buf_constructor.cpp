@@ -29,8 +29,16 @@ Buffer::~Buffer(void){
 
 }
 
-const size_t& Buffer::buf_get_size(void){
+const size_t Buffer::buf_get_size(void){
     return buffer.size();
+}
+
+std::vector<std::string>::const_iterator Buffer::buf_row_begin_const(void){
+    return buffer.begin();
+}
+
+std::vector<std::string>::const_iterator Buffer::buf_row_end_const(void){
+    return buffer.end();
 }
 
 std::vector<std::string>::iterator Buffer::buf_row_begin(void){

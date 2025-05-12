@@ -7,6 +7,16 @@
 #include <vector>
 
 #define ASCII_MAX 128
+#define ASCII_MIN 0
+#define ASCII_START 32
+#define ASCII_END 128
+
+typedef struct {
+    int w, h;
+    SDL_Texture *texture;
+    int bad;
+}CSprite;
+
 class Renderer {
     public:
         Renderer(SDL_Window *w, const int* const width, const int* const height);
@@ -23,16 +33,26 @@ class Renderer {
         void rndr_present(void);
         void rndr_set_char(void);
         SDL_Surface* rndr_create_char_surface(const char *str);
-        SDL_Texture* rndr_create_char_texture(SDL_Surface *surface);
+        void rndr_create_char_texture(CSprite& spr, SDL_Surface *surface);
         int rndr_create_textures(void);
+        void rndr_draw_buffer(std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end);
+        void rndr_draw_line(std::string::const_iterator it, std::string::const_iterator end, const int& y);
+        const CSprite& rndr_index_texture(const unsigned char c);
+        void rndr_set_horizontal_padding(const int val);
+        void rndr_set_vertical_padding(const int val);
+        void rndr_draw_char(const int& x, const int& y, const int& w, const int& h, SDL_Texture *texture);
 
     private:
         int error;
+        int vertical_padding;
+        int horizontal_padding;
+        int row_block;
+        int col_block;
         SDL_Renderer *rend;
         TTF_Font *rndr_font;
         const int* const _width;
         const int* const _height;
-        SDL_Texture* ch[ASCII_MAX];
-};
+        CSprite ch[ASCII_MAX];
+};      
 
 #endif

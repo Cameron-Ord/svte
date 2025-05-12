@@ -10,6 +10,7 @@
 
 
 #include "../../include/core/core_editor.hpp"
+#include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_error_codes.hpp"
 
 
@@ -90,6 +91,11 @@ int main(int argc, char **argv){
             }break;
         }
 
+        //At some point multiple buffers at once would be cool but lets just focus on other things first.
+        class Buffer *b = nullptr;
+        if((b = ed.ed_fetch_buffer(ed.ed_get_current_id())) != nullptr){
+            renderer.rndr_draw_buffer(b->buf_row_begin_const(), b->buf_row_end_const());
+        }
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
