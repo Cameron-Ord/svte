@@ -25,11 +25,16 @@ class Buffer {
         const int& buf_get_col(void);
         void buf_zero_line(std::string& str);
         void buf_zero_buffer(void);
+        void buf_append_line(const std::string line);
+        std::vector<std::string>::iterator buf_row_begin(void);
+        std::vector<std::string>::iterator buf_row_end(void);
+        const size_t& buf_get_size(void);
+        const std::vector<std::string>* const buf_get_buffer(void);
 
         ~Buffer(void);
     private:
         int error;
-        uint32_t buffer_id;
+        int32_t buffer_id;
         int row, col;
         std::string filename;
         std::vector<std::string> buffer;

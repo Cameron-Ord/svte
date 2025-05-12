@@ -16,6 +16,8 @@ class Editor {
         Editor(void);
         ~Editor(void);
         int32_t ed_gen_id(void);
+        int ed_open_file(const int32_t id);
+        int ed_save_file(const int32_t id);
         void ed_set_current_id(const int32_t id);
         const int32_t& ed_get_current_id(void);
         int ed_append_buffer(std::string fn);
@@ -26,6 +28,7 @@ class Editor {
         void ed_set_cwd(std::string str);
         std::string ed_fs_cwd_string(void);
         const std::string& ed_get_cwd(void);
+        std::string ed_delimiter(void);
     private:
         int error;
         uint8_t mode;

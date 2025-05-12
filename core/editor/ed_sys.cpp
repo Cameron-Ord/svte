@@ -33,3 +33,13 @@ std::string Editor::ed_fs_cwd_string(void){
         return std::string("");
     }
 }
+
+std::string Editor::ed_delimiter(void){
+#ifdef _WIN32
+    return std::string("\\");
+#elif __linux__
+    return std::string("/");
+#else 
+    return std::string("");
+#endif
+}

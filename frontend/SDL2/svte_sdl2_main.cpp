@@ -37,7 +37,24 @@ int main(int argc, char **argv){
         std::cerr << "Failed to initialize editor!" << std::endl;
         return 1;
     }
-    ed.ed_append_buffer();
+
+    std::string fn;
+    if (argc > 1 && argc < 3) {
+        fn = std::string(argv[1]);
+    }
+
+    const int cond = !fn.empty();
+    switch(cond){
+        case 1:{
+            if(ed.ed_append_buffer(fn) != ED_BAD_APPEND){
+                ed.ed_open_file(ed.ed_get_current_id());
+            }
+        }break;
+
+        case 0:{
+            ed.ed_append_buffer();
+        }break;
+    }
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;

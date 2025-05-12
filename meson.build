@@ -10,9 +10,12 @@ src = [
         'core/editor/ed_sys.cpp',
         'core/editor/ed_constructor.cpp',
         'core/editor/ed_buffers.cpp',
+        'core/editor/ed_save_file.cpp',
+        'core/editor/ed_open_file.cpp',
+
         'core/buffer/buf_constructor.cpp',
         'core/buffer/buf_remove.cpp',
-
+        'core/buffer/buf_insert.cpp',
 ]
 
 sdl2_dep = dependency('SDL2')
