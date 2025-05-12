@@ -75,7 +75,7 @@ int main(int argc, char **argv){
         SDL_Event e;
         switch(ev_handle.ev_mainloop_poll_event_type(&e)){
             case SDL_KEYDOWN:{
-
+                ev_handle.ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod);
             }break;
 
             case SDL_WINDOWEVENT:{

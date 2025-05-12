@@ -52,11 +52,8 @@ void Renderer::rndr_create_char_texture(CSprite& sprite, SDL_Surface *surface){
     sprite.w = surface->w;
     sprite.h = surface->h;
 
-    std::cout << surface->w << " " << col_block << std::endl;
-
     if(surface->w > col_block){
         col_block = surface->w;
-        std::cout << "greater"<< std::endl;
     }
 
     if(surface->h > row_block){
