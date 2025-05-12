@@ -4,13 +4,29 @@
 
 #include <iostream>
 
-Editor::Editor(void) : error(CORE_NIL), mode(NVISUAL), current_buffer_id(CORE_NIL)  {
+Editor::Editor(void) : error(CORE_NIL), mode(NVISUAL), is_editing(NO_EDIT), current_buffer_id(CORE_NIL)  {
     ed_set_error(ed_determine_cwd());
     std::cout << "Editor Path: " << ed_working_path << std::endl;
 }
 
 Editor::~Editor(void){
     
+}
+
+uint8_t Editor::ed_get_edit(void){
+    return is_editing;
+}
+
+void Editor::ed_set_edit(const uint8_t val){
+    is_editing = val;
+}
+
+uint8_t Editor::ed_get_mode(void){
+    return mode;
+}
+
+void Editor::ed_set_mode(const uint8_t val){
+    mode = val;
 }
 
 const int32_t&  Editor::ed_get_current_id(void){

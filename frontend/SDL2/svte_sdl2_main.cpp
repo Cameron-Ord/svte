@@ -61,7 +61,7 @@ int main(int argc, char **argv){
     uint64_t frame_start;
     int frame_time;
 
-    context.sdl2_set_text_input(STOP);
+    context.sdl2_set_text_input(STOP_INPUT);
     context.sdl2_set_run_state(RUN);
     window.win_show_window();
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv){
         SDL_Event e;
         switch(ev_handle.ev_mainloop_poll_event_type(&e)){
             case SDL_KEYDOWN:{
-                ev_handle.ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod);
+                context.sdl2_set_text_input(ev_handle.ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod, &ed));
             }break;
 
             case SDL_WINDOWEVENT:{
@@ -83,7 +83,7 @@ int main(int argc, char **argv){
             }break;
 
             case SDL_TEXTINPUT:{
-
+                ev_handle.ev_mainloop_text_input(e.text.text, &ed);
             }break;
 
             case SDL_QUIT:{

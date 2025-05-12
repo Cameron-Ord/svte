@@ -26,8 +26,11 @@ class Buffer {
         std::vector<std::string>::iterator buf_row_end(void);
         std::vector<std::string>::const_iterator buf_row_begin_const(void);
         std::vector<std::string>::const_iterator buf_row_end_const(void);
+        std::vector<std::string>::iterator buf_get_it_at_row(std::vector<std::string>::iterator it, std::vector<std::string>::iterator end);
+
         const size_t buf_get_size(void);
         const std::vector<std::string>* const buf_get_buffer(void);
+        void buf_ins_char(const unsigned char c);
 
         ~Buffer(void);
     private:

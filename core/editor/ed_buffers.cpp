@@ -77,3 +77,21 @@ class Buffer *Editor::ed_fetch_buffer(const int32_t id){
         return nullptr;
     }
 }
+
+void Editor::ed_ins_char(const unsigned char c){
+    class Buffer *b = ed_fetch_buffer(current_buffer_id);
+    if(!b){
+        return;
+    }
+
+    switch(mode){
+        default:break;
+        case APPEND:{
+
+        }break;
+
+        case INSERT:{
+            b->buf_ins_char(c);
+        }break;
+    }
+}

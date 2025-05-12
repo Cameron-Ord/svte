@@ -1,6 +1,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+#include <iostream>
+
 #include "../../include/SDL2/sdl2_context.hpp"
 #include "../../include/SDL2/sdl2_error_codes.hpp"
 #include "../../include/SDL2/sdl2_st_enums.hpp"
@@ -17,12 +19,15 @@ SDL2_Context::~SDL2_Context(void){
 
 void SDL2_Context::sdl2_set_text_input(const int opt){
     switch(opt){
-        case STOP:{
+        default: break;
+        case STOP_INPUT:{
             SDL_StopTextInput();
+            std::cout << "Input stopped!" << std::endl;
         }break;
     
-        case START:{
+        case START_INPUT:{
             SDL_StartTextInput();
+            std::cout << "Input started!" << std::endl;
         }break;
     }
 }

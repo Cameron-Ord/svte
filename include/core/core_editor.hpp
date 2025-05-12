@@ -9,7 +9,8 @@
 //Forward declare the buffer class, must be defined in SRC files.
 class Buffer;
 
-typedef enum { VISUAL = 0, INSERT = 1, CMD = 2, NVISUAL = 3 } MODES;
+typedef enum { EDIT = 0, NO_EDIT = 1} EDIT_STATE;
+typedef enum { VISUAL = 0, INSERT = 1, CMD = 2, NVISUAL = 3, APPEND = 4 } MODES;
 
 class Editor {
     public:
@@ -30,10 +31,18 @@ class Editor {
         const std::string& ed_get_cwd(void);
         std::string ed_delimiter(void);
         class Buffer *ed_fetch_buffer(const int32_t id);
+        void ed_ins_char(const unsigned char c);
+        uint8_t ed_get_mode(void);
+        void ed_set_mode(const uint8_t val);
+        void ed_set_edit(const uint8_t val);
+        uint8_t ed_get_edit(void);
+        void ed_disable_input(void);
+        void ed_enable_input(void);
 
     private:
         int error;
         uint8_t mode;
+        uint8_t is_editing;
         // current buffer ID is a signed type, for obvious purposes.
         // Othwerwise ID is ALWAYS unsigned when saved.
         int32_t current_buffer_id;
