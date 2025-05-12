@@ -5,6 +5,7 @@ src = [
         'frontend/SDL2/sdl2_init.cpp',
         'frontend/SDL2/sdl2_renderer.cpp',
         'frontend/SDL2/sdl2_window.cpp',
+        'frontend/SDL2/sdl2_font.cpp',
         'frontend/SDL2/svte_sdl2_main.cpp',
 
         'core/editor/ed_sys.cpp',

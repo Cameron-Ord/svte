@@ -3,11 +3,22 @@
 
 
 Renderer::Renderer(SDL_Window *w, const int* const width, const int* const height) 
-    : rend(nullptr), _width(width), _height(height), error(SDL2_NIL) {
+    : error(SDL2_NIL), rend(nullptr), rndr_font(nullptr), _width(width), _height(height) {
     rndr_set_err(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    rndr_set_err(rndr_open_font("dogicapixel.ttf", 16));
+    rndr_set_char();
+    rndr_set_err(rndr_create_textures());
 }
 
 Renderer::~Renderer(void){}
+
+TTF_Font *Renderer::rndr_get_font(void){
+    return rndr_font;
+}
+
+void Renderer::rndr_set_font(TTF_Font *f){
+    rndr_font = f;
+}
 
 SDL_Renderer *Renderer::rndr_get_renderer(void){
     return rend;

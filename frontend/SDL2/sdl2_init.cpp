@@ -1,4 +1,5 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 #include "../../include/SDL2/sdl2_context.hpp"
 #include "../../include/SDL2/sdl2_error_codes.hpp"
@@ -7,6 +8,7 @@
 
 SDL2_Context::SDL2_Context(void) : fps_target(60), error(SDL2_NIL), running(NO_RUN) {
     sdl2_set_err(sdl2_open_instance());
+    sdl2_set_err(sdl2_open_ttf());
 }
 
 SDL2_Context::~SDL2_Context(void){
@@ -28,6 +30,13 @@ void SDL2_Context::sdl2_set_text_input(const int opt){
 
 int SDL2_Context::sdl2_get_fps(void){
     return fps_target;
+}
+
+int SDL2_Context::sdl2_open_ttf(void){
+    if(TTF_Init() < 0){
+        return BAD_INIT;
+    }
+    return SDL2_NIL;
 }
 
 int SDL2_Context::sdl2_open_instance(void){

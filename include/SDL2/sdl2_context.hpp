@@ -13,6 +13,7 @@ class SDL2_Context{
         void sdl2_set_run_state(int running);
         int sdl2_get_run_state(void);
         void sdl2_quit_instance(void);
+        int sdl2_open_ttf(void);
 
     private:
         int fps_target;

@@ -22,13 +22,13 @@ int main(int argc, char **argv){
 
     Window window;
     if(window.win_get_err() != SDL2_NIL){
-        std::cerr << "Failed to create window -> " << SDL_GetError() << std::endl;
+        std::cerr << "Failed to construct window -> " << SDL_GetError() << std::endl;
         return 1;
     }
     
     Renderer renderer(window.win_get_window(), window.win_width_ptr(), window.win_height_ptr());
     if(renderer.rndr_get_err() != SDL2_NIL){
-        std::cerr << "Failed to create renderer -> " << SDL_GetError() << std::endl;
+        std::cerr << "Failed to construct renderer -> " << SDL_GetError() << std::endl;
         return 1;
     }
 
