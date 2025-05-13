@@ -6,11 +6,6 @@
 #include <string>
 #include <vector>
 
-#define ASCII_MAX 128
-#define ASCII_MIN 0
-#define ASCII_START 32
-#define ASCII_END 128
-
 typedef struct {
     int w, h;
     SDL_Texture *texture;
@@ -41,7 +36,8 @@ class Renderer {
         void rndr_set_horizontal_padding(const int val);
         void rndr_set_vertical_padding(const int val);
         void rndr_draw_char(const int& x, const int& y, const int& w, const int& h, SDL_Texture *texture);
-
+        int rndr_alloc_sprite_array(const size_t size);
+        void rndr_dealloc_sprite_array(void);
     private:
         int error;
         int vertical_padding;
@@ -52,7 +48,7 @@ class Renderer {
         TTF_Font *rndr_font;
         const int* const _width;
         const int* const _height;
-        CSprite ch[ASCII_MAX];
+        CSprite *ch;
 };      
 
 #endif

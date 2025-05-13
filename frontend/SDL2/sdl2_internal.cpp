@@ -4,8 +4,8 @@
 #include <iostream>
 
 #include "../../include/SDL2/sdl2_context.hpp"
-#include "../../include/SDL2/sdl2_error_codes.hpp"
-#include "../../include/SDL2/sdl2_st_enums.hpp"
+#include "../../include/SDL2/sdl2_enums.hpp"
+#include "../../include/SDL2/sdl2_macdef.hpp"
 
 
 SDL2_Context::SDL2_Context(void) : fps_target(60), error(SDL2_NIL), running(NO_RUN) {

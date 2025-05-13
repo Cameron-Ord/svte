@@ -2,8 +2,8 @@
 #include <iostream>
 
 #include "../../include/SDL2/sdl2_events.hpp"
-#include "../../include/SDL2/sdl2_error_codes.hpp"
-#include "../../include/SDL2/sdl2_st_enums.hpp"
+#include "../../include/SDL2/sdl2_enums.hpp"
+#include "../../include/SDL2/sdl2_macdef.hpp"
 
 
 #include "../../include/core/core_editor.hpp"

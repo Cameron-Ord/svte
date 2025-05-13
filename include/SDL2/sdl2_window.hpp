@@ -1,9 +1,6 @@
 #ifndef SDL2_WINDOW_HPP
 #define SDL2_WINDOW_HPP
 
-#define BASE_WIDTH 400
-#define BASE_HEIGHT 300
-
 #include <SDL2/SDL_video.h>
 
 class Window {

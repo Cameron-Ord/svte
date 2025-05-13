@@ -1,18 +1,34 @@
 #include "../../include/SDL2/sdl2_renderer.hpp"
-#include "../../include/SDL2/sdl2_error_codes.hpp"
+#include "../../include/SDL2/sdl2_enums.hpp"
+#include "../../include/SDL2/sdl2_macdef.hpp"
 
 #include <iostream>
 
 
 Renderer::Renderer(SDL_Window *w, const int* const width, const int* const height) 
-    : error(SDL2_NIL), vertical_padding(2), horizontal_padding(2), row_block(0), col_block(0), rend(nullptr), rndr_font(nullptr), _width(width), _height(height) {
+    : error(SDL2_NIL), vertical_padding(2), horizontal_padding(2), row_block(0), col_block(0), rend(nullptr), rndr_font(nullptr), _width(width), _height(height), ch(nullptr) {
     rndr_set_err(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+    rndr_set_err(rndr_alloc_sprite_array(ASCII_MAX));
     rndr_set_err(rndr_open_font("dogicapixel.ttf", 16));
     rndr_set_char();
     rndr_set_err(rndr_create_textures());
 }
 
 Renderer::~Renderer(void){}
+
+int Renderer::rndr_alloc_sprite_array(const size_t size){
+    ch = new CSprite[size];
+    if(!ch){
+        return BAD_ALLOC;
+    }
+    return SDL2_NIL;
+}
+
+void Renderer::rndr_dealloc_sprite_array(void){
+    if(ch){
+        delete[] ch;
+    }
+}
 
 void Renderer::rndr_set_vertical_padding(const int val){
     vertical_padding = val;

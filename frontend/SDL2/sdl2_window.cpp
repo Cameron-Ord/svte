@@ -1,5 +1,6 @@
+#include "../../include/SDL2/sdl2_enums.hpp"
+#include "../../include/SDL2/sdl2_macdef.hpp"
 #include "../../include/SDL2/sdl2_window.hpp"
-#include "../../include/SDL2/sdl2_error_codes.hpp"
 
 
 
