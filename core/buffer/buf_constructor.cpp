@@ -29,8 +29,25 @@ Buffer::~Buffer(void){
 
 }
 
-const size_t Buffer::buf_get_size(void){
-    return buffer.size();
+std::string::const_iterator Buffer::buf_str_it_begin(const std::string& str){
+    return str.begin();
+}
+std::string::const_iterator Buffer::buf_str_it_end(const std::string& str){
+    return str.end();
+}
+
+// This can theoretically fail;
+// so it needs to return a signed value so it can be 
+// negative if so.
+const int Buffer::buf_get_line_size(const int access){
+    if(buf_valid_row(access)){
+        return static_cast<int>(buffer[access].size());
+    }
+    return -1;
+}
+
+const int Buffer::buf_get_size(void){
+    return static_cast<int>(buffer.size());
 }
 
 std::vector<std::string>::const_iterator Buffer::buf_row_begin_const(void){
@@ -85,10 +102,10 @@ void Buffer::buf_set_col(const int val){
     col = val;
 }
 
-const int& Buffer::buf_get_row(void){
+const int Buffer::buf_get_row(void){
     return row;
 }
 
-const int& Buffer::buf_get_col(void){
+const int Buffer::buf_get_col(void){
     return col;
 }

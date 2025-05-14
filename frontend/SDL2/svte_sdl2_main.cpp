@@ -46,13 +46,19 @@ int main(int argc, char **argv){
     const int cond = !fn.empty();
     switch(cond){
         case 1:{
-            if(ed.ed_append_buffer(fn) != ED_BAD_APPEND){
-                ed.ed_open_file(ed.ed_get_current_id());
+            const int id = ed.ed_append_buffer(fn);
+            if(id != ED_BAD_APPEND && renderer.rndr_insert_pos(id)){
+                ed.ed_open_file(id);
+            } else {
+                std::cerr << "Buffer was not properly created!" << std::endl;
             }
         }break;
 
         case 0:{
-            ed.ed_append_buffer();
+            const int id = ed.ed_append_buffer();
+            if(!(id != ED_BAD_APPEND && renderer.rndr_insert_pos(id))){
+                std::cerr << "Buffer was not properly created!" << std::endl;
+            }
         }break;
     }
 
@@ -74,15 +80,17 @@ int main(int argc, char **argv){
         SDL_Event e;
         switch(ev_handle.ev_mainloop_poll_event_type(&e)){
             case SDL_KEYDOWN:{
-                context.sdl2_set_text_input(ev_handle.ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod, &ed));
+                const EventRet ret = ev_handle.ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod, &ed, ed.ed_get_current_id());
+                renderer.rndr_eval_pos(ret.id, ret.reported_cursor_loc, ret.reported_row_loc);
+                context.sdl2_set_text_input(ret.input_opt);
             }break;
 
             case SDL_WINDOWEVENT:{
-
+                    window.win_check_size_update(ev_handle.ev_mainloop_window_event_type(e.window.event));
             }break;
 
             case SDL_TEXTINPUT:{
-                ev_handle.ev_mainloop_text_input(e.text.text, &ed);
+                ev_handle.ev_mainloop_text_input(e.text.text, &ed, ed.ed_get_current_id());
             }break;
 
             case SDL_QUIT:{
@@ -93,8 +101,14 @@ int main(int argc, char **argv){
         //At some point multiple buffers at once would be cool but lets just focus on other things first.
         class Buffer *b = nullptr;
         if((b = ed.ed_fetch_buffer(ed.ed_get_current_id())) != nullptr){
-            renderer.rndr_draw_buffer(b->buf_row_begin_const(), b->buf_row_end_const());
+            renderer.rndr_do_pipeline(
+                b->buf_row_begin_const(),
+                b->buf_row_end_const(),
+                b->buf_get_row(), 
+                b->buf_get_col()
+            );
         }
+
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

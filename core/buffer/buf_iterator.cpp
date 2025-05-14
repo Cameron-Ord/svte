@@ -1,12 +1,15 @@
+
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_error_codes.hpp"
+#include "../../include/core/core_defines.hpp"
 
 
-std::vector<std::string>::iterator Buffer::buf_get_it_at_row(std::vector<std::string>::iterator it, std::vector<std::string>::iterator end){
+const int Buffer::buf_index_of_first_char(std::string::const_iterator it, std::string::const_iterator end){
     for(int i = 0; it != end; ++it, ++i){
-        if(i == row){
-            return it;
+        const unsigned char c = *it;
+        if(c != SPACECHAR){
+            return i;
         }
     }
-    return end;
+    return -1;
 }

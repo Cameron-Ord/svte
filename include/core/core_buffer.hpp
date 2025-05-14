@@ -17,18 +17,25 @@ class Buffer {
         const int& buf_get_error(void);
         void buf_set_row(const int val);
         void buf_set_col(const int val);
-        const int& buf_get_row(void);
-        const int& buf_get_col(void);
+        const int buf_get_row(void);
+        const int buf_get_col(void);
         void buf_zero_line(std::string& str);
         void buf_zero_buffer(void);
+        const int buf_index_of_first_char(std::string::const_iterator it, std::string::const_iterator end);
         void buf_append_line(const std::string line);
+        int buf_mv_row(const int amount);
+        void buf_mv_col(const int amount);
+        void buf_update_col(const int updated_row);
+        const int buf_get_line_size(const int access);
+        const int buf_valid_row(const int row);
+        const int buf_valid_col(const int col);
         std::vector<std::string>::iterator buf_row_begin(void);
         std::vector<std::string>::iterator buf_row_end(void);
         std::vector<std::string>::const_iterator buf_row_begin_const(void);
         std::vector<std::string>::const_iterator buf_row_end_const(void);
-        std::vector<std::string>::iterator buf_get_it_at_row(std::vector<std::string>::iterator it, std::vector<std::string>::iterator end);
-
-        const size_t buf_get_size(void);
+        std::string::const_iterator buf_str_it_begin(const std::string& str);
+        std::string::const_iterator buf_str_it_end(const std::string& str);
+        const int buf_get_size(void);
         const std::vector<std::string>* const buf_get_buffer(void);
         void buf_ins_char(const unsigned char c);
 

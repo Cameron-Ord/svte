@@ -8,9 +8,8 @@ void Buffer::buf_append_line(const std::string line){
 }
 
 void Buffer::buf_ins_char(const unsigned char c){
-    std::vector<std::string>::iterator it = buf_get_it_at_row(buffer.begin(), buffer.end());
-    if(it != buffer.end() && col <= (int)it->size() && col >= 0){
-        it->insert(it->begin() + col, c);
+    if(buf_valid_row(row) && buf_valid_col(col)){
+        buffer[row].insert(buffer[row].begin() + col, c);
         col++;
     }
 }

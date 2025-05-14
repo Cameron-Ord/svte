@@ -5,12 +5,27 @@
 #include <SDL2/SDL_ttf.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 
 typedef struct {
     int w, h;
     SDL_Texture *texture;
     int bad;
 }CSprite;
+
+// These represent offsets for the cursors.
+// Incremeneted or decremented respectively to "scroll" up or down
+// Each struct is created in a map and the renderer exclusively controls these values
+// Basically the renderer checks if the cursor reaches a certain threshold relative to the current
+// Window height and changes this value respectively which will render the buffer from the pos + offset on 
+// both axixes to the end.
+
+// That is the idea anyway.
+typedef struct {
+    int x;
+    int y;
+} StartPos;
 
 class Renderer {
     public:
@@ -30,6 +45,7 @@ class Renderer {
         SDL_Surface* rndr_create_char_surface(const char *str);
         void rndr_create_char_texture(CSprite& spr, SDL_Surface *surface);
         int rndr_create_textures(void);
+        void rndr_draw_cursor(const int& row, const int& col);
         void rndr_draw_buffer(std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end);
         void rndr_draw_line(std::string::const_iterator it, std::string::const_iterator end, const int& y);
         const CSprite& rndr_index_texture(const unsigned char c);
@@ -38,6 +54,9 @@ class Renderer {
         void rndr_draw_char(const int& x, const int& y, const int& w, const int& h, SDL_Texture *texture);
         int rndr_alloc_sprite_array(const size_t size);
         void rndr_dealloc_sprite_array(void);
+        int rndr_do_pipeline(std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end, const int row, const int col);
+        int rndr_insert_pos(const int id);
+        int rndr_eval_pos(const int id, const int rrow, const int rcol);
     private:
         int error;
         int vertical_padding;
@@ -49,6 +68,8 @@ class Renderer {
         const int* const _width;
         const int* const _height;
         CSprite *ch;
+        std::unordered_set<int32_t> used;
+        std::unordered_map<int32_t, StartPos> offsets;
 };      
 
 #endif

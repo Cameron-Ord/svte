@@ -20,9 +20,15 @@ class Editor {
         int ed_open_file(const int32_t id);
         int ed_save_file(const int32_t id);
         void ed_set_current_id(const int32_t id);
+        void ed_mv_cursor_row(const int id, const int amount);
+        void ed_mv_cursor_col(const int id, const int amount);
         const int32_t& ed_get_current_id(void);
+
+        //append returns the id of the created buffer or a negative 
+        //value on error
         int ed_append_buffer(std::string fn);
         int ed_append_buffer(void);
+
         void ed_set_error(const int err);
         const int& ed_get_error(void);
         int ed_determine_cwd(void);
@@ -31,13 +37,13 @@ class Editor {
         const std::string& ed_get_cwd(void);
         std::string ed_delimiter(void);
         class Buffer *ed_fetch_buffer(const int32_t id);
-        void ed_ins_char(const unsigned char c);
+        void ed_ins_char(const int id, const unsigned char c);
         uint8_t ed_get_mode(void);
         void ed_set_mode(const uint8_t val);
         void ed_set_edit(const uint8_t val);
         uint8_t ed_get_edit(void);
-        void ed_disable_input(void);
-        void ed_enable_input(void);
+        const int ed_get_col(const int id);
+        const int ed_get_row(const int id);
 
     private:
         int error;

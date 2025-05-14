@@ -11,6 +11,7 @@ class Window {
         int win_get_err(void);
         int win_create_window(const int flags);
         void win_update_window_values(void);
+        void win_check_size_update(const int cond);
         void win_show_window(void);
         void win_hide_window(void);
         SDL_Window *win_get_window(void);

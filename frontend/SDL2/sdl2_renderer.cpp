@@ -66,6 +66,19 @@ int Renderer::rndr_create_renderer(SDL_Window *w, const int flags){
     return SDL2_NIL;
 }
 
+int Renderer::rndr_insert_pos(const int id){
+    std::unordered_set<int32_t>::iterator it = used.find(id);
+    if(it != used.end()){
+        std::cout << "ID Already exists.. {rndr offset map}" << std::endl;
+        return 0;
+    }
+
+    used.insert(id);
+    StartPos init = {0, 0};
+    offsets.insert({id, init});
+    return 1; 
+}
+
 void Renderer::rndr_fill_bg(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a){
     SDL_SetRenderDrawColor(rend, r, g, b, a);
 }
@@ -77,6 +90,26 @@ void Renderer::rndr_clear(void){
 void Renderer::rndr_present(void){
     SDL_RenderPresent(rend);
 }
+
+int Renderer::rndr_eval_pos(const int id, const int rrow, const int rcol){
+    return 1;
+}
+
+
+int Renderer::rndr_do_pipeline(std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end, const int row, const int col){
+    rndr_draw_buffer(it, end);
+    rndr_draw_cursor(row, col);
+    return 1;
+}
+
+void Renderer::rndr_draw_cursor(const int& row, const int& col){
+    SDL_SetRenderDrawColor(rend, 255, 255, 255, 255);
+    const int y = row * row_block + vertical_padding;
+    const int x = col * col_block + horizontal_padding;
+    SDL_Rect crect = {x, y, row_block, col_block};
+    SDL_RenderFillRect(rend, &crect);
+}
+
 
 void Renderer::rndr_draw_buffer(std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end){
     SDL_RenderSetViewport(rend, NULL);

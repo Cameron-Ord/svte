@@ -21,12 +21,12 @@ int32_t Editor::ed_gen_id(void)
         attempt++;
     }
     //return a negative id
-    return CORE_NIL;
+    return BAD_ID;
 }
 
 int Editor::ed_append_buffer(void){
     const int32_t id = ed_gen_id();
-    if(id == CORE_NIL){
+    if(id == BAD_ID){
         std::cerr << "Could not create a valid ID" << std::endl;
         return ED_BAD_APPEND;
     }
@@ -43,13 +43,13 @@ int Editor::ed_append_buffer(void){
     bufs.insert(mapped);
     open.push_back(id);
     ed_set_current_id(id);
-    
-    return CORE_NIL;
+
+    return id;
 }
 
 int Editor::ed_append_buffer(std::string fn){
     const int32_t id = ed_gen_id();
-    if(id == CORE_NIL){
+    if(id == BAD_ID){
         std::cerr << "Could not create a valid ID" << std::endl;
         return ED_BAD_APPEND;
     }
@@ -66,7 +66,7 @@ int Editor::ed_append_buffer(std::string fn){
     open.push_back(id);
     ed_set_current_id(id);
     
-    return CORE_NIL;
+    return id;
 }
 
 class Buffer *Editor::ed_fetch_buffer(const int32_t id){
@@ -78,8 +78,8 @@ class Buffer *Editor::ed_fetch_buffer(const int32_t id){
     }
 }
 
-void Editor::ed_ins_char(const unsigned char c){
-    class Buffer *b = ed_fetch_buffer(current_buffer_id);
+void Editor::ed_ins_char(const int id, const unsigned char c){
+    class Buffer *b = ed_fetch_buffer(id);
     if(!b){
         return;
     }
@@ -94,4 +94,37 @@ void Editor::ed_ins_char(const unsigned char c){
             b->buf_ins_char(c);
         }break;
     }
+}
+
+
+void Editor::ed_mv_cursor_row(const int id, const int amount){
+    class Buffer *b = ed_fetch_buffer(id);
+    if(!b){
+        return;
+    }
+   b->buf_update_col(b->buf_mv_row(amount));
+}
+
+void Editor::ed_mv_cursor_col(const int id, const int amount){
+    class Buffer *b = ed_fetch_buffer(id);
+    if(!b){
+        return;
+    }
+    b->buf_mv_col(amount);
+}
+
+const int Editor::ed_get_col(const int id){
+    class Buffer *b = ed_fetch_buffer(id);
+    if(!b){
+        return -1;
+    }
+    return b->buf_get_col();
+}
+
+const int Editor::ed_get_row(const int id){
+    class Buffer *b = ed_fetch_buffer(id);
+    if(!b){
+        return -1;
+    }  
+    return b->buf_get_row();
 }

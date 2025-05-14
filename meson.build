@@ -17,8 +17,8 @@ src = [
         'core/buffer/buf_constructor.cpp',
         'core/buffer/buf_remove.cpp',
         'core/buffer/buf_insert.cpp',
+        'core/buffer/buf_cursor.cpp',
         'core/buffer/buf_iterator.cpp',
-
 ]
 
 sdl2_dep = dependency('SDL2')
