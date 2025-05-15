@@ -3,6 +3,8 @@
 #include "../../include/core/core_error_codes.hpp"
 
 #include <iostream>
+#include <random>
+
 
 const std::vector<int32_t>& Editor::ed_get_open(void){
     return open;
@@ -11,13 +13,19 @@ const std::vector<int32_t>& Editor::ed_get_open(void){
 
 int32_t Editor::ed_gen_id(void)
 {
+
+    std::random_device d;
+    //mersenne twister engine - check this out later.
+    std::mt19937 rng(d());
+    std::uniform_int_distribution<int32_t> dist(0, INT32_MAX);
+
     int attempt = 0;
     const int max_attempts = 1000;
     std::unordered_set<int32_t>::iterator it;
 
     while (attempt < max_attempts) {
         //random n between 0 and int32 max
-        const int32_t generated = rand() % INT32_MAX;
+        const int32_t generated = dist(rng);
         it = used_ids.find(generated);
         if (it == used_ids.end()) {
             used_ids.insert(generated);
@@ -44,11 +52,9 @@ int Editor::ed_append_buffer(void){
         return ED_BAD_APPEND;
     }
 
-    std::pair<int32_t, class Buffer*> mapped = { id, buffer };
-    bufs.insert(mapped);
+    bufs.insert({id, buffer});
     open.push_back(id);
     ed_set_current_id(id);
-
     return id;
 }
 
@@ -66,12 +72,20 @@ int Editor::ed_append_buffer(std::string fn){
         return ED_BAD_APPEND;
     }
 
-    std::pair<int32_t, class Buffer*> mapped = { id, buffer };
-    bufs.insert(mapped);
+    bufs.insert({id, buffer});
     open.push_back(id);
     ed_set_current_id(id);
     
     return id;
+}
+
+const class Buffer *Editor::ed_fetch_buffer_const(const int32_t id){
+    std::unordered_map<int32_t, class Buffer *>::const_iterator it = bufs.find(id);
+    if(it != bufs.end()){
+        return it->second;
+    } else {
+        return nullptr;
+    }
 }
 
 class Buffer *Editor::ed_fetch_buffer(const int32_t id){

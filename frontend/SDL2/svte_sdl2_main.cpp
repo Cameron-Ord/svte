@@ -1,12 +1,10 @@
 #include <iostream>
 #include <SDL2/SDL.h>
+#include <ctime>
+#include <cstdlib>
 
 #include "../../include/SDL2/sdl2_context.hpp"
-#include "../../include/SDL2/sdl2_window.hpp"
-#include "../../include/SDL2/sdl2_renderer.hpp"
-#include "../../include/SDL2/sdl2_events.hpp"
 #include "../../include/SDL2/sdl2_enums.hpp"
-
 
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_buffer.hpp"
@@ -46,7 +44,9 @@ int main(int argc, char **argv){
     switch(cond){
         case 1:{
             const int id = ed.ed_append_buffer(fn);
-            if(id != ED_BAD_APPEND/* && renderer.rndr_commit_buffer(id)*/){
+            if(id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
+                id, ed.ed_fetch_buffer_const(id)
+            )){
                 ed.ed_open_file(id);
             } else {
                 std::cerr << "Buffer was not properly created!" << std::endl;
@@ -55,7 +55,9 @@ int main(int argc, char **argv){
 
         case 0:{
             const int id = ed.ed_append_buffer();
-            if(!(id != ED_BAD_APPEND /*&& renderer.rndr_commit_buffer(id)*/)){
+            if(!(id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
+                id, ed.ed_fetch_buffer_const(id)
+            ))){
                 std::cerr << "Buffer was not properly created!" << std::endl;
             }
         }break;
@@ -77,16 +79,26 @@ int main(int argc, char **argv){
         SDL_Event e;
         switch(ev_handle->ev_mainloop_poll_event_type(&e)){
             case SDL_KEYDOWN:{
-                const EventRet ret = ev_handle->ev_mainloop_keydown(e.key.keysym.sym, e.key.keysym.mod, &ed, ed.ed_get_current_id());
+                const EventRet ret = ev_handle->ev_mainloop_keydown(
+                    e.key.keysym.sym, 
+                    e.key.keysym.mod, 
+                    &ed, 
+                    ed.ed_get_current_id()
+                );
                 context.sdl2_set_text_input(ret.input_opt);
             }break;
 
             case SDL_WINDOWEVENT:{
-                //window.win_check_size_update(ev_handle.ev_mainloop_window_event_type(e.window.event));
+                window->win_check_size_update(
+                    ev_handle->ev_mainloop_window_event_type(e.window.event)
+                );
             }break;
 
             case SDL_TEXTINPUT:{
-                //ev_handle.ev_mainloop_text_input(e.text.text, &ed, ed.ed_get_current_id());
+                ev_handle->ev_mainloop_text_input(
+                    e.text.text, &ed, 
+                    ed.ed_get_current_id()
+                );
             }break;
 
             case SDL_QUIT:{

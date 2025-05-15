@@ -48,16 +48,26 @@ class Renderer {
         void rndr_clear(void);
         void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
         void rndr_present(void);
+        int rndr_commit_buffer(const int32_t id, const class Buffer *cbuf);
 
     private:
         int error;
         SDL_Renderer *rend;
-
+        std::unordered_set<int32_t> used;
+        std::unordered_map<int32_t, class BufRenderer> renderers;
 };
+
+class Buffer;
 
 class BufRenderer {
     public:
+        BufRenderer(const class Buffer *cbuf);
+        int brndr_get_err(void);
+        void brndr_set_err(const int errval);
+        int brndr_set_buf(const class Buffer *cbuf);
     private:
+        int error;
+        const class Buffer *constbuf;
 
 };
 #endif

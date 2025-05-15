@@ -26,7 +26,6 @@ class SDL2_Context{
         void sdl2_set_err(const int err);
         void sdl2_set_run_state(int running);
         int sdl2_get_run_state(void);
-
         class Window* sdl2_get_win(void);
         class Renderer* sdl2_get_rend(void);
         class VectorFont* sdl2_get_vfont(void);
@@ -40,8 +39,6 @@ class SDL2_Context{
         class Renderer rend;
         class VectorFont vfont;
         class KeyEvent events;
-        std::unordered_map<int32_t, class BufRenderer*> renderers;
-
 };
 
 #endif

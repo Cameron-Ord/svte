@@ -51,7 +51,6 @@ SDL2_Context::~SDL2_Context(void){
 
 }
 
-
 class Window* SDL2_Context::sdl2_get_win(void){
     return &win;
 }
