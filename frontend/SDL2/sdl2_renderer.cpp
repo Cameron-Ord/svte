@@ -98,6 +98,11 @@ void Renderer::rndr_draw_id(const int32_t id, const class VectorFont* vfont){
     }
 }
 
+void Renderer::rndr_id_update_offsets(const int32_t id){
+
+}
+
+
 class BufRenderer *Renderer::rndr_grab_bufrenderer(const int32_t id){
     std::unordered_map<int32_t, class BufRenderer>::iterator it = renderers.find(id);
     if(it != renderers.end()){
@@ -110,7 +115,7 @@ class BufRenderer *Renderer::rndr_grab_bufrenderer(const int32_t id){
 // BUFRENDERER
 
 BufRenderer::BufRenderer(const class Buffer *cbuf, const int width, const int height) :
-error(SDL2_NIL), vertical_padding(2), horizontal_padding(2), constbuf(nullptr) {
+error(SDL2_NIL), vertical_padding(2), horizontal_padding(2), col_offset(0), row_offset(0), constbuf(nullptr) {
     br_set_err(br_set_buf(cbuf));
     br_set_viewport_dims(width, height);
     br_set_viewport_pos(0, 0);
@@ -185,9 +190,16 @@ void BufRenderer::br_draw_line(
         col+=1;
     }
 }
+
 void BufRenderer::br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t){
     SDL_Rect rect = {x, y, w, h};
     SDL_RenderCopy(rend, t, NULL, &rect);  
+}
+
+void BufRenderer::br_put_cursor(SDL_Renderer *rend){
+    const int icol =  constbuf->buf_get_col();
+
+    const int x = constbuf->buf_get_col()
 }
 
 

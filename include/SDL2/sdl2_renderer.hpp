@@ -55,6 +55,7 @@ class Renderer {
         void rndr_draw_id(const int32_t id, const class VectorFont* vfont);
         class BufRenderer *rndr_grab_bufrenderer(const int32_t id);
         void rndr_update_viewports(const std::vector<int32_t>& open, const int width, const int height);
+        void rndr_id_update_offsets(const int32_t id);
 
     private:
         int error;
@@ -77,6 +78,7 @@ class BufRenderer {
         void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont, std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end);
         void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, std::string::const_iterator it, std::string::const_iterator end, const int y);
         void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
+        void br_put_cursor(SDL_Renderer *rend);
         std::vector<std::string>::const_iterator br_get_row_start(void);
         std::vector<std::string>::const_iterator br_get_row_end(void);
 
@@ -85,6 +87,7 @@ class BufRenderer {
         int error;
         int vertical_padding;
         int horizontal_padding;
+        int col_offset, row_offset;
         const class Buffer *constbuf;
         SDL_Rect viewport;
 };
