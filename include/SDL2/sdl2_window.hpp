@@ -7,13 +7,14 @@ class Window {
     public:
         Window(void);
         ~Window(void);
-        void win_set_err(const int err);
+        void win_set_err(const int errval);
         int win_get_err(void);
         int win_create_window(const int flags);
         void win_update_window_values(void);
         void win_check_size_update(const int cond);
         void win_show_window(void);
         void win_hide_window(void);
+        void win_set_window(SDL_Window *w);
         SDL_Window *win_get_window(void);
         void win_set_resizeable(const SDL_bool opt);
         const int* const win_width_ptr(void);

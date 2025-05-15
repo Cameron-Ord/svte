@@ -4,8 +4,14 @@
 
 
 
-Window::Window(void) : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
-    win_set_err(win_create_window(SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE));
+Window::Window(void) 
+: error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
+    win_set_err(
+        win_create_window(
+            SDL_WINDOW_HIDDEN | 
+            SDL_WINDOW_RESIZABLE
+        )
+    );
 }
 
 Window::~Window(void){
@@ -18,6 +24,10 @@ int Window::win_get_err(void){
 
 void Window::win_set_err(const int err){ 
     error = err;
+}
+
+void Window::win_set_window(SDL_Window *w){
+    win = w;
 }
 
 SDL_Window *Window::win_get_window(void) { 
@@ -33,9 +43,18 @@ const int* const Window::win_width_ptr(void){
 }
 
 int Window::win_create_window(const int flags){
-    win = SDL_CreateWindow("svte", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, flags);
-    if(!win){
-        return BAD_WINDOW;
+    win_set_window(
+        SDL_CreateWindow(
+            "svte", 
+            SDL_WINDOWPOS_CENTERED, 
+            SDL_WINDOWPOS_CENTERED, 
+            width, 
+            height, 
+            flags
+        )
+    );
+    if(!win_get_window()){
+        return SDL2_ERR;
     }
     return SDL2_NIL;
 }

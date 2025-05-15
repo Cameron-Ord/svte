@@ -4,29 +4,66 @@
 
 #include <iostream>
 
-int Renderer::rndr_open_font(const std::string path, const int ptsize){
-    rndr_set_font(TTF_OpenFont(path.c_str(), ptsize));
-    if(!rndr_get_font()){
-        std::cerr << "Could not open vector font -> " << SDL_GetError() << std::endl;
-        return BAD_FONT;
+VectorFont::VectorFont(SDL_Renderer *rend) 
+: error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr) {
+    vec_set_err(vec_alloc_texture_array());
+    vec_set_err(vec_open_font("dogicapixel.ttf", 16));
+    vec_set_char();
+    vec_set_err(vec_create_textures(rend));
+}
+
+int VectorFont::vec_get_err(void){
+    return error;
+}
+
+void VectorFont::vec_set_err(const int errval){
+    error = errval;
+}
+
+void VectorFont::vec_set_font(TTF_Font *f){
+    font = f;
+}
+
+TTF_Font *VectorFont::vec_get_font(void){
+    return font;
+}
+
+int VectorFont::vec_alloc_texture_array(void){
+    ch = new CSprite[ASCII_MAX];
+    if(!ch){
+        return SDL2_ERR;
     }
     return SDL2_NIL;
 }
 
-void Renderer::rndr_set_char(void){
+int VectorFont::vec_open_font(const std::string path, const int ptsize){
+    vec_set_font(TTF_OpenFont(path.c_str(), ptsize));
+    if(!vec_get_font()){
+        std::cerr << "Could not open vector font -> " << SDL_GetError() << std::endl;
+        return SDL2_ERR;
+    }
+    return SDL2_NIL;
+}
+
+void VectorFont::vec_set_char(void){
     for(unsigned int i = ASCII_MIN; i < ASCII_END; i++){
         ch[i].w = 0;
         ch[i].h = 0;
         ch[i].texture = nullptr;
-        ch[i].bad = BAD_TEXTURE;
+        ch[i].bad = SDL2_ERR;
     }
 }
 
-int Renderer::rndr_create_textures(void){
+int VectorFont::vec_create_textures(SDL_Renderer *rend){
+    if(!rend){
+        std::cerr << "Passed a NULL pointer using SDL_Renderer" << std::endl;
+        return SDL2_ERR;
+    }
+
     for(unsigned int i = ASCII_START; i < ASCII_END; i++){
         char c = (char)i;
         const char str[2] = { c, '\0' };
-        rndr_create_char_texture(ch[i], rndr_create_char_surface(str));
+        vec_create_char_texture(rend, ch[i], vec_create_char_surface(str));
         if(ch[i].bad != SDL2_NIL){
             return ch[i].bad;
         }
@@ -34,9 +71,9 @@ int Renderer::rndr_create_textures(void){
     return SDL2_NIL;
 }
 
-SDL_Surface* Renderer::rndr_create_char_surface(const char *str){
+SDL_Surface* VectorFont::vec_create_char_surface(const char *str){
     SDL_Color col = {255, 255, 255, 255};
-    SDL_Surface *surf = TTF_RenderText_Solid(rndr_font, str, col);
+    SDL_Surface *surf = TTF_RenderText_Solid(font, str, col);
     if(!surf){
         std::cerr << "Failed to create surface -> " << SDL_GetError() << std::endl;
         return nullptr;
@@ -44,7 +81,7 @@ SDL_Surface* Renderer::rndr_create_char_surface(const char *str){
     return surf;
 }
 
-void Renderer::rndr_create_char_texture(CSprite& sprite, SDL_Surface *surface){
+void VectorFont::vec_create_char_texture(SDL_Renderer *rend, CSprite& sprite, SDL_Surface *surface){
     if(!surface){
         std::cerr << "No workable surface" << std::endl;
         return;
@@ -72,10 +109,9 @@ void Renderer::rndr_create_char_texture(CSprite& sprite, SDL_Surface *surface){
     sprite.bad = SDL2_NIL;
 }
 
-const CSprite& Renderer::rndr_index_texture(const unsigned char c){
-    const unsigned char access = c % ASCII_MAX;
-    if(access >= ASCII_START && access < ASCII_MAX){
-        return ch[access];
+const CSprite& VectorFont::vec_index_texture(const unsigned char c){
+    if(c >= ASCII_START && c < ASCII_MAX){
+        return ch[c];
     } else {
         return ch['?'];
     }

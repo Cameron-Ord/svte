@@ -4,6 +4,11 @@
 
 #include <iostream>
 
+const std::vector<int32_t>& Editor::ed_get_open(void){
+    return open;
+}
+
+
 int32_t Editor::ed_gen_id(void)
 {
     int attempt = 0;

@@ -44,6 +44,7 @@ class Editor {
         uint8_t ed_get_edit(void);
         const int ed_get_col(const int id);
         const int ed_get_row(const int id);
+        const std::vector<int32_t>& ed_get_open(void);
 
     private:
         int error;

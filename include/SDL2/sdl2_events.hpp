@@ -1,7 +1,6 @@
 #ifndef SDL2_EVENTS_HPP
 #define SDL2_EVENTS_HPP
 
-#include <SDL2/SDL_events.h>
 #include <functional>
 #include <unordered_map>
 
@@ -32,7 +31,7 @@ typedef struct {
     // Id the event belongs to.
     int id;
     int input_opt;
-    int reported_cursor_loc;
+    int reported_col_loc;
     int reported_row_loc;
 } EventRet;
 
