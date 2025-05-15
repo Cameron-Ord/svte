@@ -8,8 +8,14 @@ void Buffer::buf_append_line(const std::string line){
 }
 
 void Buffer::buf_ins_char(const unsigned char c){
+    std::cout << "Trying to insert: " << c;
+    std::cout << " ...";
+
     if(buf_valid_row(row) && buf_valid_col(col)){
         buffer[row].insert(buffer[row].begin() + col, c);
         col++;
+        std::cout << " Success ";
     }
+    std::cout << "col: " << col << " row: " << row << " size: " << buffer.size(); 
+    std::cout << std::endl;
 }

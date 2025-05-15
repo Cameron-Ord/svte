@@ -17,8 +17,8 @@ class Window {
         void win_set_window(SDL_Window *w);
         SDL_Window *win_get_window(void);
         void win_set_resizeable(const SDL_bool opt);
-        const int* const win_width_ptr(void);
-        const int* const win_height_ptr(void);
+        const int win_width(void);
+        const int win_height(void);
     private:
         int error;
         SDL_Window *win;

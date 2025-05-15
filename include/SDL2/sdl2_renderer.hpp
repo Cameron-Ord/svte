@@ -27,7 +27,10 @@ class VectorFont {
         int vec_create_textures(SDL_Renderer *rend);
         void vec_create_char_texture(SDL_Renderer *rend, CSprite& sprite, SDL_Surface *surface);
         SDL_Surface *vec_create_char_surface(const char *str);
-        const CSprite& vec_index_texture(const unsigned char c);
+        const CSprite& vec_index_texture(const unsigned char c) const;
+        const int& vec_col_block(void) const;
+        const int& vec_row_block(void) const;
+
     private:
         int error;
         TTF_Font *font;
@@ -48,7 +51,10 @@ class Renderer {
         void rndr_clear(void);
         void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
         void rndr_present(void);
-        int rndr_commit_buffer(const int32_t id, const class Buffer *cbuf);
+        int rndr_commit_buffer(const int32_t id, const class Buffer *cbuf, const int width, const int height);
+        void rndr_draw_id(const int32_t id, const class VectorFont* vfont);
+        class BufRenderer *rndr_grab_bufrenderer(const int32_t id);
+        void rndr_update_viewports(const std::vector<int32_t>& open, const int width, const int height);
 
     private:
         int error;
@@ -61,13 +67,25 @@ class Buffer;
 
 class BufRenderer {
     public:
-        BufRenderer(const class Buffer *cbuf);
-        int brndr_get_err(void);
-        void brndr_set_err(const int errval);
-        int brndr_set_buf(const class Buffer *cbuf);
+        BufRenderer(const class Buffer *cbuf, const int width, const int height);
+        void br_set_viewport_dims(const int width, const int height);
+        void br_set_viewport_pos(const int x, const int y);
+        int br_get_err(void);
+        void br_set_err(const int errval);
+        int br_set_buf(const class Buffer *cbuf);
+        int br_valid_ptr(void);
+        void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont, std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end);
+        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, std::string::const_iterator it, std::string::const_iterator end, const int y);
+        void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
+        std::vector<std::string>::const_iterator br_get_row_start(void);
+        std::vector<std::string>::const_iterator br_get_row_end(void);
+
+
     private:
         int error;
+        int vertical_padding;
+        int horizontal_padding;
         const class Buffer *constbuf;
-
+        SDL_Rect viewport;
 };
 #endif

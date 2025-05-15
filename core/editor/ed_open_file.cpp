@@ -5,6 +5,17 @@
 #include <iostream>
 #include <fstream>
 
+
+int Editor::ed_no_file(const int32_t id){
+    class Buffer *b = ed_fetch_buffer(id);
+    if(!b){
+        return 0;
+    }
+    
+    b->buf_append_line("");
+    return 1;
+}
+
 int Editor::ed_open_file(const int32_t id){
     std::unordered_map<int32_t, class Buffer *>::iterator it;
     it = bufs.find(id);

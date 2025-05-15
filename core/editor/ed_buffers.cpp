@@ -13,7 +13,6 @@ const std::vector<int32_t>& Editor::ed_get_open(void){
 
 int32_t Editor::ed_gen_id(void)
 {
-
     std::random_device d;
     //mersenne twister engine - check this out later.
     std::mt19937 rng(d());

@@ -18,6 +18,7 @@ class Editor {
         ~Editor(void);
         
         int32_t ed_gen_id(void);
+        int ed_no_file(const int32_t id);
         int ed_open_file(const int32_t id);
         int ed_save_file(const int32_t id);
         void ed_set_current_id(const int32_t id);

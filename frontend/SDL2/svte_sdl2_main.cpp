@@ -45,7 +45,8 @@ int main(int argc, char **argv){
         case 1:{
             const int id = ed.ed_append_buffer(fn);
             if(id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
-                id, ed.ed_fetch_buffer_const(id)
+                id, ed.ed_fetch_buffer_const(id), 
+                window->win_width(), window->win_height()
             )){
                 ed.ed_open_file(id);
             } else {
@@ -55,9 +56,12 @@ int main(int argc, char **argv){
 
         case 0:{
             const int id = ed.ed_append_buffer();
-            if(!(id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
-                id, ed.ed_fetch_buffer_const(id)
-            ))){
+            if(id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
+                id, ed.ed_fetch_buffer_const(id),
+                window->win_width(), window->win_height()
+            )){
+                ed.ed_no_file(id);
+            } else {
                 std::cerr << "Buffer was not properly created!" << std::endl;
             }
         }break;
@@ -92,6 +96,11 @@ int main(int argc, char **argv){
                 window->win_check_size_update(
                     ev_handle->ev_mainloop_window_event_type(e.window.event)
                 );
+                renderer->rndr_update_viewports(
+                    ed.ed_get_open(), 
+                    window->win_width(), 
+                    window->win_height()
+                );
             }break;
 
             case SDL_TEXTINPUT:{
@@ -106,6 +115,7 @@ int main(int argc, char **argv){
             }break;
         }
 
+        renderer->rndr_draw_id(ed.ed_get_current_id(), vfont);
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

@@ -12,6 +12,15 @@ VectorFont::VectorFont(SDL_Renderer *rend)
     vec_set_err(vec_create_textures(rend));
 }
 
+
+const int& VectorFont::vec_col_block(void) const {
+    return col_block;
+}
+
+const int& VectorFont::vec_row_block(void) const {
+    return row_block;
+}
+
 int VectorFont::vec_get_err(void){
     return error;
 }
@@ -109,7 +118,7 @@ void VectorFont::vec_create_char_texture(SDL_Renderer *rend, CSprite& sprite, SD
     sprite.bad = SDL2_NIL;
 }
 
-const CSprite& VectorFont::vec_index_texture(const unsigned char c){
+const CSprite& VectorFont::vec_index_texture(const unsigned char c) const {
     if(c >= ASCII_START && c < ASCII_MAX){
         return ch[c];
     } else {

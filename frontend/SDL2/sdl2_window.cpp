@@ -34,12 +34,12 @@ SDL_Window *Window::win_get_window(void) {
     return win;
 }
 
-const int* const Window::win_height_ptr(void){
-    return &height;
+const int Window::win_height(void){
+    return height;
 }
 
-const int* const Window::win_width_ptr(void){
-    return &width;
+const int Window::win_width(void){
+    return width;
 }
 
 int Window::win_create_window(const int flags){
