@@ -4,56 +4,59 @@
 #include <vector>
 #include <string>
 
+// Just defining structs for encapsulating iterators.
+// Defined in core include, can be safely included anywhere.
+
 struct ConstRangeStr{
-    std::string::const_iterator begin;
     std::string::const_iterator end;
+    std::string::const_iterator begin;
 
     ConstRangeStr(
-        std::string::const_iterator b, 
-        std::string::const_iterator e
-    ) : begin(b), end(e){} 
+        std::string::const_iterator e,
+        std::string::const_iterator b 
+    ) : end(e), begin(b >= e ? e : b) {} 
     
-    std::string::const_iterator begin(){ return begin; }
-    std::string::const_iterator end() { return end; }
+    std::string::const_iterator _begin(){ return begin; }
+    std::string::const_iterator _end() { return end; }
 };
 
 struct ConstRangeVecStr{
-    std::vector<std::string>::const_iterator begin;
     std::vector<std::string>::const_iterator end;
+    std::vector<std::string>::const_iterator begin;
 
     ConstRangeVecStr(
-        std::vector<std::string>::const_iterator b, 
-        std::vector<std::string>::const_iterator e
-    ) : begin(b), end(e){} 
+        std::vector<std::string>::const_iterator e,
+        std::vector<std::string>::const_iterator b 
+    ) : end(e), begin(b >= e ? e : b) {} 
     
-    std::vector<std::string>::const_iterator begin(){ return begin; }
-    std::vector<std::string>::const_iterator end() { return end; }
+    std::vector<std::string>::const_iterator _begin(){ return begin; }
+    std::vector<std::string>::const_iterator _end() { return end; }
 };
 
 struct MutRangeStr{
-    std::string::iterator begin;
     std::string::iterator end;
+    std::string::iterator begin;
 
     MutRangeStr(
-        std::string::iterator b, 
-        std::string::iterator e
-    ) : begin(b), end(e){} 
+        std::string::iterator e,
+        std::string::iterator b 
+    ) : end(e), begin(b >= e ? e : b) {} 
     
-    std::string::iterator begin(){ return begin; }
-    std::string::iterator end() { return end; }
+    std::string::iterator _begin(){ return begin; }
+    std::string::iterator _end() { return end; }
 };
 
 struct MutRangeVecStr{
-    std::vector<std::string>::iterator begin;
     std::vector<std::string>::iterator end;
+    std::vector<std::string>::iterator begin;
 
     MutRangeVecStr(
-        std::vector<std::string>::iterator b, 
-        std::vector<std::string>::iterator e
-    ) : begin(b), end(e){} 
+        std::vector<std::string>::iterator e,
+        std::vector<std::string>::iterator b 
+    ) : end(e), begin(b >= e ? e : b){} 
     
-    std::vector<std::string>::iterator begin(){ return begin; }
-    std::vector<std::string>::iterator end() { return end; }
+    std::vector<std::string>::iterator _begin(){ return begin; }
+    std::vector<std::string>::iterator _end() { return end; }
 };
 
 

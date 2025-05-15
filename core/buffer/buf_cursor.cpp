@@ -4,7 +4,7 @@
 #include "../../include/core/core_defines.hpp"
 
 
-const int Buffer::buf_valid_row(const int srow){
+const int Buffer::buf_valid_row(const int srow) const {
     const int ssize = buf_get_size();
     if(srow >= 0 && srow < ssize){
         return 1;
@@ -12,7 +12,7 @@ const int Buffer::buf_valid_row(const int srow){
     return 0;
 }
 
-const int Buffer::buf_valid_col(const int scol){
+const int Buffer::buf_valid_col(const int scol) const {
     const int ssize = buf_get_line_size(row);
     if(ssize >= 0 && scol >= 0 && scol <= ssize){
         return 1;

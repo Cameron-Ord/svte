@@ -31,9 +31,9 @@ class Buffer {
         const int buf_get_size(void) const;
         const std::vector<std::string>* const buf_get_buffer(void) const;
         const int buf_index_of_first_char(std::string::const_iterator it, std::string::const_iterator end);
-        const int buf_get_line_size(const int access);
-        const int buf_valid_row(const int row);
-        const int buf_valid_col(const int col);
+        const int buf_get_line_size(const int access) const ;
+        const int buf_valid_row(const int row) const;
+        const int buf_valid_col(const int col) const;
         const int buf_get_row(void) const;
         const int buf_get_col(void) const;
         const int& buf_get_error(void);

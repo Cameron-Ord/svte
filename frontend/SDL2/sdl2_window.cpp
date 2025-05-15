@@ -1,86 +1,94 @@
+#include "../../include/SDL2/sdl2_window.hpp"
 #include "../../include/SDL2/sdl2_enums.hpp"
 #include "../../include/SDL2/sdl2_macdef.hpp"
-#include "../../include/SDL2/sdl2_window.hpp"
 
-
-
-Window::Window(void) 
-: error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT){
+Window::Window(void)
+    : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT)
+{
     win_set_err(
         win_create_window(
-            SDL_WINDOW_HIDDEN | 
-            SDL_WINDOW_RESIZABLE
-        )
-    );
+            SDL_WINDOW_HIDDEN |
+            SDL_WINDOW_RESIZABLE));
 }
 
-Window::~Window(void){
-
+Window::~Window(void)
+{
 }
 
-int Window::win_get_err(void){
+int Window::win_get_err(void)
+{
     return error;
 }
 
-void Window::win_set_err(const int err){ 
+void Window::win_set_err(const int err)
+{
     error = err;
 }
 
-void Window::win_set_window(SDL_Window *w){
+void Window::win_set_window(SDL_Window *w)
+{
     win = w;
 }
 
-SDL_Window *Window::win_get_window(void) { 
+SDL_Window *Window::win_get_window(void)
+{
     return win;
 }
 
-const int Window::win_height(void){
+const int Window::win_height(void)
+{
     return height;
 }
 
-const int Window::win_width(void){
+const int Window::win_width(void)
+{
     return width;
 }
 
-int Window::win_create_window(const int flags){
+int Window::win_create_window(const int flags)
+{
     win_set_window(
         SDL_CreateWindow(
-            "svte", 
-            SDL_WINDOWPOS_CENTERED, 
-            SDL_WINDOWPOS_CENTERED, 
-            width, 
-            height, 
-            flags
-        )
-    );
-    if(!win_get_window()){
+            "svte",
+            SDL_WINDOWPOS_CENTERED,
+            SDL_WINDOWPOS_CENTERED,
+            width,
+            height,
+            flags));
+    if (!win_get_window()) {
         return SDL2_ERR;
     }
     return SDL2_NIL;
 }
 
-void Window::win_update_window_values(void){
+void Window::win_update_window_values(void)
+{
     SDL_GetWindowSize(win, &width, &height);
 }
 
-void Window::win_show_window(void){
+void Window::win_show_window(void)
+{
     SDL_ShowWindow(win);
 }
 
-void Window::win_hide_window(void){
+void Window::win_hide_window(void)
+{
     SDL_HideWindow(win);
 }
 
-void Window::win_set_resizeable(const SDL_bool opt){
+void Window::win_set_resizeable(const SDL_bool opt)
+{
     SDL_SetWindowResizable(win, opt);
 }
 
-void Window::win_check_size_update(const int cond){
-    switch(cond){
-        default: break;
-        case 1:{
-            win_update_window_values();
-        }break;
+void Window::win_check_size_update(const int cond)
+{
+    switch (cond) {
+    default:
+        break;
+    case 1:
+    {
+        win_update_window_values();
+    } break;
     }
 }
-

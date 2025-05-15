@@ -4,6 +4,7 @@ src = [
         'frontend/SDL2/sdl2_events.cpp',
         'frontend/SDL2/sdl2_internal.cpp',
         'frontend/SDL2/sdl2_renderer.cpp',
+        'frontend/SDL2/sdl2_bufrenderer.cpp',
         'frontend/SDL2/sdl2_window.cpp',
         'frontend/SDL2/sdl2_font.cpp',
         'frontend/SDL2/svte_sdl2_main.cpp',

@@ -36,7 +36,7 @@ std::string::const_iterator Buffer::buf_str_it_end(const std::string& str) const
     return str.end();
 }
 
-const int Buffer::buf_get_line_size(const int access){
+const int Buffer::buf_get_line_size(const int access) const {
     if(buf_valid_row(access)){
         return static_cast<int>(buffer[access].size());
     }

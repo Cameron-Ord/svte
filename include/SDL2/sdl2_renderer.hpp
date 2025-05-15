@@ -3,16 +3,33 @@
 
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
-#include <string>
-#include <vector>
+
+#include "../core/core_iterator.hpp"
+
 #include <unordered_map>
 #include <unordered_set>
+
 
 typedef struct {
     int w, h;
     SDL_Texture *texture;
     int bad;
 }CSprite;
+
+struct Thresholds {
+    int h_th_min;
+    int h_th_max;
+    int w_th_min;
+    int w_th_max;
+
+    Thresholds(
+        const int w, const int h, 
+        const float wmin, const float wmax, 
+        const float hmin, const float hmax
+    ) : h_th_min(h * hmin), h_th_max(h * hmax),
+        w_th_min(w * wmin), w_th_max(w * wmax){}
+};
+typedef struct Thresholds Thresholds;
 
 class VectorFont {
     public:
@@ -55,7 +72,8 @@ class Renderer {
         void rndr_draw_id(const int32_t id, const class VectorFont* vfont);
         class BufRenderer *rndr_grab_bufrenderer(const int32_t id);
         void rndr_update_viewports(const std::vector<int32_t>& open, const int width, const int height);
-        void rndr_id_update_offsets(const int32_t id);
+        void rndr_id_update_offsets(const int32_t id, const int row_block, const int col_block);
+        void rndr_set_viewport(const SDL_Rect *vp_rect);
 
     private:
         int error;
@@ -71,17 +89,23 @@ class BufRenderer {
         BufRenderer(const class Buffer *cbuf, const int width, const int height);
         void br_set_viewport_dims(const int width, const int height);
         void br_set_viewport_pos(const int x, const int y);
+        const SDL_Rect *br_get_viewport(void);
         int br_get_err(void);
         void br_set_err(const int errval);
         int br_set_buf(const class Buffer *cbuf);
         int br_valid_ptr(void);
-        void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont, std::vector<std::string>::const_iterator it, std::vector<std::string>::const_iterator end);
-        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, std::string::const_iterator it, std::string::const_iterator end, const int y);
+        void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont);
+        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstRangeStr row, const int y);
         void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
-        void br_put_cursor(SDL_Renderer *rend);
+        void br_put_cursor(SDL_Renderer *rend, const int width, const int height);
         std::vector<std::string>::const_iterator br_get_row_start(void);
         std::vector<std::string>::const_iterator br_get_row_end(void);
-
+        int br_row_offset(void);
+        int br_col_offset(void);
+        void br_set_col_offset(const int val);
+        void br_set_row_offset(const int val);
+        void br_set_thresholds(Thresholds th);
+        void br_update_offsets(const int row_block, const int col_block);
 
     private:
         int error;
@@ -90,5 +114,6 @@ class BufRenderer {
         int col_offset, row_offset;
         const class Buffer *constbuf;
         SDL_Rect viewport;
+        Thresholds thresholds;
 };
 #endif
