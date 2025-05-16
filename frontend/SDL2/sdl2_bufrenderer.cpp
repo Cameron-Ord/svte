@@ -58,6 +58,11 @@ void BufRenderer::br_draw_buffer(
     int row = 0;
     for (; rows.begin != rows.end; ++rows.begin) {
         const int y = row * vfont->vec_row_block() + vertical_padding;
+
+        if(y > viewport.h){
+            return;
+        }
+
         br_draw_line(
             rend,
             vfont,
