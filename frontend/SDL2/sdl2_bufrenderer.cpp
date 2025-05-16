@@ -17,30 +17,28 @@ thresholds(Thresholds(width, height, 0.1, 0.9, 0.1, 0.9))
 }
 
 void BufRenderer::br_update_offsets(const int row_block, const int col_block){
-    //actual <> interpreted
     const int arow = constbuf->buf_get_row();
     const int acol = constbuf->buf_get_col();
+    const int line_size = constbuf->buf_get_line_size(arow);
+    const int buf_size = constbuf->buf_get_size();
 
-    const int irow = arow - row_offset;
-    const int icol = acol - col_offset;
+    auto gety = [&] { return (arow - row_offset) * row_block + vertical_padding; };
+    auto getx = [&] { return (acol - col_offset) * col_block + horizontal_padding; };
 
-    const int y = irow * row_block + vertical_padding;
-    const int x = icol * col_block + horizontal_padding;
-
-    if(y < thresholds.h_th_min && row_offset > 0){
-        row_offset -= 1;
-    } else if (y > thresholds.h_th_max && row_offset < constbuf->buf_get_size()){
-        row_offset += 1;
+    while(gety() < thresholds.h_th_min && row_offset > 0){
+        row_offset--;
     }
 
+    while(gety() > thresholds.h_th_max && row_offset < buf_size){
+        row_offset++;
+    }
 
-    if(x < thresholds.w_th_min && col_offset > 0){
-        col_offset -= 1;
-    } else if(x > thresholds.h_th_max){
-        const int strsize = constbuf->buf_get_line_size(arow);
-        if(strsize > 0 && col_offset < strsize){
-            col_offset += 1;
-        }
+    while(getx() < thresholds.w_th_min && col_offset > 0){
+        col_offset--;
+    }
+
+    while(getx() > thresholds.w_th_max && line_size > 0 && col_offset < line_size){
+        col_offset++;
     }
 }
 
