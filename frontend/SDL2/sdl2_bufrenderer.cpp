@@ -90,6 +90,10 @@ void BufRenderer::br_draw_line(
         const CSprite &spr = vfont->vec_index_texture(c);
         const int x = col * vfont->vec_col_block() + horizontal_padding;
 
+        if(x > viewport.w){
+            return;
+        }
+
         if (c != skipchar) {
             br_put_char(rend, x, y, spr.w, spr.h, spr.texture);
         }
