@@ -22,8 +22,8 @@ void BufRenderer::br_update_offsets(const int row_block, const int col_block){
     const int line_size = constbuf->buf_get_line_size(arow);
     const int buf_size = constbuf->buf_get_size();
 
-    auto gety = [&] { return (arow - row_offset) * row_block + vertical_padding; };
-    auto getx = [&] { return (acol - col_offset) * col_block + horizontal_padding; };
+    auto gety = [&] { return (arow - row_offset) * (row_block + vertical_padding); };
+    auto getx = [&] { return (acol - col_offset) * (col_block + horizontal_padding); };
 
     while(gety() < thresholds.h_th_min && row_offset > 0){
         row_offset--;
@@ -55,7 +55,7 @@ void BufRenderer::br_draw_buffer(
 
     int row = 0;
     for (; rows.begin != rows.end; ++rows.begin) {
-        const int y = row * vfont->vec_row_block() + vertical_padding;
+        const int y = row * (vfont->vec_row_block() + vertical_padding);
 
         if(y > viewport.h){
             return;
@@ -86,7 +86,7 @@ void BufRenderer::br_draw_line(
     for (; row.begin != row.end; ++row.begin) {
         const unsigned char c = *row.begin;
         const CSprite &spr = vfont->vec_index_texture(c);
-        const int x = col * vfont->vec_col_block() + horizontal_padding;
+        const int x = col * (vfont->vec_col_block() + horizontal_padding);
 
         if(x > viewport.w){
             return;
@@ -109,8 +109,8 @@ void BufRenderer::br_put_cursor(SDL_Renderer *rend, const int width, const int h
 {
     const int icol = constbuf->buf_get_col() - col_offset;
     const int irow = constbuf->buf_get_row() - row_offset;
-    const int x = icol * width + horizontal_padding;
-    const int y = irow * height + vertical_padding;
+    const int x = icol * (width + horizontal_padding);
+    const int y = irow * (height + vertical_padding);
 
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderFillRect(rend, &rect);
