@@ -19,7 +19,7 @@ Buffer::Buffer(const int32_t id, std::string fn) : error(CORE_NIL) {
     buf_set_id(id);
     buf_set_filename(fn);
     buf_zero_buffer();
-    row = 0, col = 0;
+    row = 0, col = 0, saved_col = 0;
 
     std::cout << "Buffer created with ID: " << id << " ";
     std::cout << "- Filename: " << fn << std::endl;

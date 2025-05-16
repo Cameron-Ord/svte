@@ -16,6 +16,14 @@ thresholds(Thresholds(width, height, 0.1, 0.9, 0.1, 0.9))
     br_set_viewport_pos(0, 0);
 }
 
+int BufRenderer::br_getx(const int col, const int block){
+    return col * (block + horizontal_padding);
+}
+
+int BufRenderer::br_gety(const int row, const int block){
+    return row * (block + vertical_padding);
+}
+
 void BufRenderer::br_update_offsets(const int row_block, const int col_block){
     const int arow = constbuf->buf_get_row();
     const int acol = constbuf->buf_get_col();
@@ -55,7 +63,7 @@ void BufRenderer::br_draw_buffer(
 
     int row = 0;
     for (; rows.begin != rows.end; ++rows.begin) {
-        const int y = row * (vfont->vec_row_block() + vertical_padding);
+        const int y = br_gety(row, vfont->vec_row_block());
 
         if(y > viewport.h){
             return;
@@ -86,7 +94,7 @@ void BufRenderer::br_draw_line(
     for (; row.begin != row.end; ++row.begin) {
         const unsigned char c = *row.begin;
         const CSprite &spr = vfont->vec_index_texture(c);
-        const int x = col * (vfont->vec_col_block() + horizontal_padding);
+        const int x = br_getx(col, vfont->vec_col_block());
 
         if(x > viewport.w){
             return;
@@ -107,11 +115,8 @@ void BufRenderer::br_put_char(SDL_Renderer *rend, const int x, const int y, cons
 
 void BufRenderer::br_put_cursor(SDL_Renderer *rend, const int width, const int height)
 {
-    const int icol = constbuf->buf_get_col() - col_offset;
-    const int irow = constbuf->buf_get_row() - row_offset;
-    const int x = icol * (width + horizontal_padding);
-    const int y = irow * (height + vertical_padding);
-
+    const int x = br_getx(constbuf->buf_get_col() - col_offset, width);
+    const int y = br_gety(constbuf->buf_get_row() - row_offset, height);
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderFillRect(rend, &rect);
 }

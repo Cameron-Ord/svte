@@ -106,6 +106,8 @@ class BufRenderer {
         void br_set_row_offset(const int val);
         void br_set_thresholds(Thresholds th);
         void br_update_offsets(const int row_block, const int col_block);
+        int br_getx(const int col, const int block);
+        int br_gety(const int row, const int block);
 
     private:
         int error;
