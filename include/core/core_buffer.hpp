@@ -44,7 +44,7 @@ class Buffer {
     private:
         int error;
         int32_t buffer_id;
-        int row, col;
+        int row, col, saved_col;
         std::string filename;
         std::vector<std::string> buffer;
 };

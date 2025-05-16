@@ -10,7 +10,7 @@
 Buffer::Buffer(const int32_t id) : error(CORE_NIL) {
     buf_set_id(id);
     buf_zero_buffer();
-    row = 0, col = 0;
+    row = 0, col = 0, saved_col = 0;
 
     std::cout << "Buffer created with ID: " << id << std::endl;
 }

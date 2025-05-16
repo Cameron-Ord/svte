@@ -3,6 +3,7 @@
 #include "../../include/core/core_error_codes.hpp"
 #include "../../include/core/core_defines.hpp"
 
+#include <iostream>
 
 const int Buffer::buf_valid_row(const int srow) const {
     const int ssize = buf_get_size();
@@ -24,6 +25,7 @@ void Buffer::buf_mv_col(const int amount){
     if(buf_valid_col(col + amount)){
         col += amount;
     }
+    saved_col = col;
 }
 
 
@@ -41,11 +43,6 @@ void Buffer::buf_update_col(const int updated_row){
             col = ssize;
             return;
         }
-
-        const int i = buf_index_of_first_char(buf_str_it_begin(buffer[row]), buf_str_it_end(buffer[row]));
-        if(i >= 0 && col < i){
-            col = i;
-            return;
-        }
+        col = (saved_col <= ssize) ? saved_col : ssize;
     }
 }
