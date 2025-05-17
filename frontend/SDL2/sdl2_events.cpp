@@ -48,7 +48,7 @@ void KeyEvent::ev_init_keybinds(void)
 
 class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_mv_cursor_col(id, -1);
     }
     return EventResult("move", "noopt", id);
@@ -56,7 +56,7 @@ class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const in
 
 class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_mv_cursor_row(id, -1);
     }
     return EventResult("move", "noopt", id);
@@ -64,7 +64,7 @@ class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int3
 
 class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_mv_cursor_row(id, 1);
     }
     return EventResult("move", "noopt", id);
@@ -72,7 +72,7 @@ class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const in
 
 class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_mv_cursor_col(id, 1);
     }
     return EventResult("move", "noopt", id);
@@ -80,7 +80,7 @@ class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const i
 
 class EventResult KeyEvent::ev_visual(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_set_mode(VISUAL);
     }
     return EventResult("notbound", "noopt", id);
@@ -88,29 +88,29 @@ class EventResult KeyEvent::ev_visual(const int &keymod, class Editor *e, const 
 
 class EventResult KeyEvent::ev_append(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_set_mode(APPEND);
-        e->ed_set_edit(EDIT);
         return EventResult("chsdl2textinput", "start", id);
     }
-    return EventResult("chsdl2textinput", "noopt", id);
+    return EventResult("notbound", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_insert(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && e->ed_get_edit() == NO_EDIT) {
+    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
         e->ed_set_mode(INSERT);
-        e->ed_set_edit(EDIT);
         return EventResult("chsdl2textinput", "start", id);
     }
-    return EventResult("chsdl2textinput", "noopt", id);
+    return EventResult("notbound", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_escape(const int &keymod, class Editor *e, const int32_t id)
 {
     e->ed_set_mode(NVISUAL);
-    e->ed_set_edit(NO_EDIT);
-    return EventResult("chsdl2textinput", "stop", id);
+    if(SDL_IsTextInputActive()){
+        return EventResult("chsdl2textinput", "stop", id);
+    }
+    return EventResult("notbound", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, class Editor *e)

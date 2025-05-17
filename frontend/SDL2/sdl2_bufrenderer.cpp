@@ -45,7 +45,7 @@ void BufRenderer::br_update_offsets(const int row_block, const int col_block){
         col_offset--;
     }
 
-    while(getx() > thresholds.w_th_max && line_size > 0 && col_offset < line_size){
+    while(getx() > thresholds.w_th_max && line_size > 0 && col_offset <= line_size){
         col_offset++;
     }
 }

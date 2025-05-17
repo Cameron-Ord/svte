@@ -11,7 +11,6 @@
 //Forward declare the buffer class, must be defined in SRC files.
 class Buffer;
 
-typedef enum { EDIT = 0, NO_EDIT = 1} EDIT_STATE;
 typedef enum { VISUAL = 0, INSERT = 1, CMD = 2, NVISUAL = 3, APPEND = 4 } MODES;
 
 class Editor {
@@ -37,8 +36,6 @@ class Editor {
         void ed_ins_char(const int id, const unsigned char c);
         uint8_t ed_get_mode(void);
         void ed_set_mode(const uint8_t val);
-        void ed_set_edit(const uint8_t val);
-        uint8_t ed_get_edit(void);
 
         const int ed_get_col(const int id);
         const int ed_get_row(const int id);
