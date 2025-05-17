@@ -61,6 +61,7 @@ class VectorFont {
 class Renderer {
     public:
         Renderer(SDL_Window *w);
+        void rndr_set_blendmode(const SDL_BlendMode mode);
         void rndr_set_err(const int errval);
         int rndr_get_err(void);
         int rndr_create_renderer(SDL_Window *w, const int flags);
@@ -98,7 +99,7 @@ class BufRenderer {
         int br_set_buf(const class Buffer *cbuf);
         int br_valid_ptr(void);
         void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont);
-        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstRangeStr row, const int y);
+        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstRangeStr& row, const int y);
         void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
         void br_put_cursor(SDL_Renderer *rend, const int width, const int height);
         int br_row_offset(void);
@@ -107,8 +108,8 @@ class BufRenderer {
         void br_set_row_offset(const int val);
         void br_set_thresholds(Thresholds th);
         void br_update_offsets(const int row_block, const int col_block);
-        int br_getx(const int col, const int block);
-        int br_gety(const int row, const int block);
+        int br_getx(const int col, const int blocksize);
+        int br_gety(const int row, const int blocksize);
 
     private:
         int error;

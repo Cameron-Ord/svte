@@ -62,7 +62,7 @@ class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, con
     
     if(e->ed_get_mode() == INSERT && SDL_IsTextInputActive()){
         buf->buf_rmv_before();
-        return EventResult("textrmv", "noopt", id);
+        return EventResult("textinsert", "noopt", id);
 
     } else if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()){
         buf->buf_mv_col(-1);
@@ -96,7 +96,13 @@ class EventResult KeyEvent::ev_delete(const int& keymod, class Editor *e, const 
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
-    return EventResult("nobuffer", "noopt", id);
+
+    if(e->ed_get_mode() == INSERT || e->ed_get_mode() == NVISUAL){
+        buf->buf_rmv_at();
+        return EventResult("textinsert", "noopt", id);
+    }
+
+    return EventResult("notbound", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const int32_t id)

@@ -30,22 +30,20 @@ void BufRenderer::br_update_offsets(const int row_block, const int col_block){
     const int line_size = constbuf->buf_get_line_size(arow);
     const int buf_size = constbuf->buf_get_size();
 
-    auto gety = [&] { return (arow - row_offset) * (row_block + vertical_padding); };
-    auto getx = [&] { return (acol - col_offset) * (col_block + horizontal_padding); };
 
-    while(gety() < thresholds.h_th_min && row_offset > 0){
+    while(br_gety(arow - row_offset, row_block) < thresholds.h_th_min && row_offset > 0){
         row_offset--;
     }
 
-    while(gety() > thresholds.h_th_max && row_offset < buf_size){
+    while(br_gety(arow - row_offset, row_block) > thresholds.h_th_max && row_offset < buf_size){
         row_offset++;
     }
 
-    while(getx() < thresholds.w_th_min && col_offset > 0){
+    while(br_getx(acol - col_offset, col_block) < thresholds.w_th_min && col_offset > 0){
         col_offset--;
     }
 
-    while(getx() > thresholds.w_th_max && line_size > 0 && col_offset <= line_size){
+    while(br_getx(acol - col_offset, col_block) > thresholds.w_th_max && line_size > 0 && col_offset <= line_size){
         col_offset++;
     }
 }
@@ -69,13 +67,15 @@ void BufRenderer::br_draw_buffer(
             return;
         }
 
+        ConstRangeStr line(
+            rows.begin->end(),
+            rows.begin->begin() + col_offset
+        );
+
         br_draw_line(
             rend,
             vfont,
-            ConstRangeStr(
-                rows.begin->end(),
-                rows.begin->begin() + col_offset
-            ),
+            line,
             y
         );
         row += 1;
@@ -85,13 +85,13 @@ void BufRenderer::br_draw_buffer(
 void BufRenderer::br_draw_line(
     SDL_Renderer *rend,
     const class VectorFont *vfont,
-    ConstRangeStr row,
+    ConstRangeStr& row,
     const int y)
 {
     int col = 0;
     const unsigned char skipchar = ' ';
 
-    for (; row.begin != row.end; ++row.begin) {
+    for (; row.begin != row.end; row.increm_begin()) {
         const unsigned char c = *row.begin;
         const CSprite &spr = vfont->vec_index_texture(c);
         const int x = br_getx(col, vfont->vec_col_block());

@@ -57,6 +57,8 @@ int main(int argc, char **argv)
     uint64_t frame_start;
     int frame_time;
 
+    renderer->rndr_set_blendmode(SDL_BLENDMODE_BLEND);
+
     window->win_show_window();
     context.sdl2_input_chmode(EventResult("chsdl2textinput", "stop", SDL2_NIL));
     context.sdl2_set_run_state(RUN);

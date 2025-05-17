@@ -47,12 +47,14 @@ class Buffer {
         const int32_t& buf_get_id(void) const;
         void buf_ins_row(const int next, const std::string substr);
 
-        std::string buf_get_substr_after_col_pos(ConstRangeStr str);
-        std::string buf_get_substr_before_col_pos(ConstRangeStr str);
-        void buf_erase_substr(std::string& line, MutRangeStr str);
-        void buf_erase_char(std::string& line, MutRangeStr str);
+        std::string buf_get_substr_after_col_pos(ConstRangeStr& str);
+        std::string buf_get_substr_before_col_pos(ConstRangeStr& str);
+        void buf_erase_substr(MutRangeStr& str);
+        void buf_erase_char(MutRangeStr& str);
         void buf_rmv_before(void);
         void buf_rmv_at(void);
+        void buf_rmv_line(MutRangeVecStr& vec);
+        void buf_ins_substr(MutRangeStr& str, const std::string substr);
 
         ~Buffer(void);
     private:

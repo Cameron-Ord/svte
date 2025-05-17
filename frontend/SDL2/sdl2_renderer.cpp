@@ -15,6 +15,10 @@ Renderer::Renderer(SDL_Window *w)
                 SDL_RENDERER_PRESENTVSYNC));
 }
 
+void Renderer::rndr_set_blendmode(SDL_BlendMode mode){
+    SDL_SetRenderDrawBlendMode(rend, mode);
+}
+
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
 void Renderer::rndr_update_viewports(
@@ -121,7 +125,7 @@ void Renderer::rndr_draw_id(const int32_t id, const class VectorFont *vfont)
     if (br && br->br_valid_ptr()) {
         rndr_set_viewport(br->br_get_viewport());
         br->br_draw_buffer(rend, vfont);
-        rndr_set_colour(255, 255, 255, 255);
+        rndr_set_colour(255, 255, 255, 125);
         br->br_put_cursor(rend, vfont->vec_col_block(), vfont->vec_row_block());
     }
 }
