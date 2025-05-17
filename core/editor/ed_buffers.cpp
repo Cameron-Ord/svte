@@ -5,7 +5,6 @@
 #include <iostream>
 #include <random>
 
-
 const std::vector<int32_t>& Editor::ed_get_open(void){
     return open;
 }
@@ -119,55 +118,4 @@ class Buffer *Editor::ed_fetch_buffer(const int32_t id){
     } else {
         return nullptr;
     }
-}
-
-void Editor::ed_ins_char(const int id, const unsigned char c){
-    class Buffer *b = ed_fetch_buffer(id);
-    if(!b){
-        return;
-    }
-
-    switch(mode){
-        default:break;
-        case APPEND:{
-
-        }break;
-
-        case INSERT:{
-            b->buf_ins_char(c);
-        }break;
-    }
-}
-
-
-void Editor::ed_mv_cursor_row(const int id, const int amount){
-    class Buffer *b = ed_fetch_buffer(id);
-    if(!b){
-        return;
-    }
-   b->buf_update_col(b->buf_mv_row(amount));
-}
-
-void Editor::ed_mv_cursor_col(const int id, const int amount){
-    class Buffer *b = ed_fetch_buffer(id);
-    if(!b){
-        return;
-    }
-    b->buf_mv_col(amount);
-}
-
-const int Editor::ed_get_col(const int id){
-    class Buffer *b = ed_fetch_buffer(id);
-    if(!b){
-        return -1;
-    }
-    return b->buf_get_col();
-}
-
-const int Editor::ed_get_row(const int id){
-    class Buffer *b = ed_fetch_buffer(id);
-    if(!b){
-        return -1;
-    }  
-    return b->buf_get_row();
 }

@@ -179,13 +179,3 @@ int BufRenderer::br_set_buf(const class Buffer *cbuf)
 {
     return ((constbuf = cbuf) != NULL);
 }
-
-std::vector<std::string>::const_iterator BufRenderer::br_get_row_start(void)
-{
-    return constbuf->buf_row_begin_const();
-}
-
-std::vector<std::string>::const_iterator BufRenderer::br_get_row_end(void)
-{
-    return constbuf->buf_row_end_const();
-}

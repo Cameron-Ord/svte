@@ -12,6 +12,9 @@ typedef struct {
     int RIGHT;
     int UP;
     int DOWN;
+    int RETURN;
+    int BACKSPACE;
+    int DELETE;
 
     int INSERT_MODE;
     int APPEND_MODE;
@@ -50,7 +53,7 @@ class KeyEvent{
         int ev_mainloop_poll_event_type(SDL_Event* const e);
         int ev_mainloop_die(void);
         class EventResult ev_mainloop_window_event_type(const int windowevent);
-        class EventResult ev_mainloop_text_input(const char *text, class Editor *e);
+        class EventResult ev_mainloop_text_input(const char *text, class Editor *e, const int32_t id);
         class EventResult ev_mainloop_keydown(const int keysym, const int keymod, class Editor *e);
         class EventResult ev_left(const int& keymod, class Editor *e, const int32_t id);
         class EventResult ev_right(const int& keymod, class Editor *e, const int32_t id);
@@ -60,6 +63,9 @@ class KeyEvent{
         class EventResult ev_append(const int& keymod, class Editor *e, const int32_t id);
         class EventResult ev_insert(const int& keymod, class Editor *e, const int32_t id);
         class EventResult ev_escape(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_backspace(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_return(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_delete(const int& keymod, class Editor *e, const int32_t id);
         Controls ev_init_controls(void);
         void ev_init_keybinds(void);
     private:

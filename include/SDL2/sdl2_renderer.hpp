@@ -101,8 +101,6 @@ class BufRenderer {
         void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstRangeStr row, const int y);
         void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
         void br_put_cursor(SDL_Renderer *rend, const int width, const int height);
-        std::vector<std::string>::const_iterator br_get_row_start(void);
-        std::vector<std::string>::const_iterator br_get_row_end(void);
         int br_row_offset(void);
         int br_col_offset(void);
         void br_set_col_offset(const int val);

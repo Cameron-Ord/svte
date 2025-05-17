@@ -21,7 +21,10 @@ Controls KeyEvent::ev_init_controls(void)
         controls.RIGHT = SDLK_l,
         controls.UP = SDLK_k,
         controls.DOWN = SDLK_j,
-
+        controls.RETURN = SDLK_RETURN,
+        controls.BACKSPACE = SDLK_BACKSPACE,
+        controls.DELETE = SDLK_DELETE,
+        
         controls.INSERT_MODE = SDLK_i,
         controls.APPEND_MODE = SDLK_a,
         controls.VISUAL_MODE = SDLK_v,
@@ -40,40 +43,99 @@ void KeyEvent::ev_init_keybinds(void)
     binds.insert({controls.RIGHT, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_right(mod, e, id); }});
     binds.insert({controls.UP, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_up(mod, e, id); }});
     binds.insert({controls.DOWN, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_down(mod, e, id); }});
+    
+    binds.insert({controls.RETURN, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_return(mod, e, id); }});
+    binds.insert({controls.BACKSPACE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_backspace(mod, e, id); }});
+    binds.insert({controls.DELETE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_delete(mod, e, id); }});
+    
     binds.insert({controls.INSERT_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_insert(mod, e, id); }});
     binds.insert({controls.APPEND_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_append(mod, e, id); }});
     binds.insert({controls.ESCAPE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_escape(mod, e, id); }});
     binds.insert({controls.VISUAL_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_visual(mod, e, id); }});
 }
 
+class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, const int32_t id){
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+    return EventResult("nobuffer", "noopt", id);
+}
+
+class EventResult KeyEvent::ev_return(const int& keymod, class Editor *e, const int32_t id){
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+    
+    if(e->ed_get_mode() == INSERT && SDL_IsTextInputActive()){
+        buf->buf_new_line();
+        return EventResult("textinsert", "noopt", id);
+
+    } else if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()){
+        buf->buf_mv_row(1);
+        return EventResult("move", "noopt", id);
+    }
+
+    return EventResult("notbound", "noopt", id);
+}
+
+class EventResult KeyEvent::ev_delete(const int& keymod, class Editor *e, const int32_t id){
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+    return EventResult("nobuffer", "noopt", id);
+}
+
 class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const int32_t id)
 {
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        e->ed_mv_cursor_col(id, -1);
+        buf->buf_mv_col(-1);
     }
     return EventResult("move", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int32_t id)
 {
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        e->ed_mv_cursor_row(id, -1);
+        buf->buf_mv_row(-1);
     }
     return EventResult("move", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const int32_t id)
 {
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+    
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        e->ed_mv_cursor_row(id, 1);
+        buf->buf_mv_row(1);
     }
     return EventResult("move", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const int32_t id)
-{
+{    
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        e->ed_mv_cursor_col(id, 1);
+        buf->buf_mv_col(1);
     }
     return EventResult("move", "noopt", id);
 }
@@ -151,12 +213,16 @@ class EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
     }
 }
 
-class EventResult KeyEvent::ev_mainloop_text_input(const char *text, class Editor *e)
+class EventResult KeyEvent::ev_mainloop_text_input(const char *text, class Editor *e, const int32_t id)
 {
-    const int32_t id = e->ed_get_current_id();
     const size_t len = strlen(text);
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+
     for (size_t i = 0; i < len; i++) {
-        e->ed_ins_char(id, text[i]);
+        buf->buf_ins_char(text[i]);
     }
     return EventResult("textinsert", "noopt", id);
 }

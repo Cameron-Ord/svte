@@ -106,3 +106,11 @@ const int Buffer::buf_get_row(void) const {
 const int Buffer::buf_get_col(void) const {
     return col;
 }
+
+std::string::reverse_iterator Buffer::buf_str_it_rbegin(const std::string& str) const{
+    return str.rbegin();
+}
+
+std::string::reverse_iterator Buffer::buf_str_it_rend(const std::string& str) const{
+    return str.rend();
+}

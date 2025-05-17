@@ -74,11 +74,11 @@ class KeyEvent *SDL2_Context::sdl2_get_keyevent(void)
 }
 
 void SDL2_Context::sdl2_init_proxy_fncs(void){
-    branches.insert({"chsdl2textinput", [this](const class EventResult& er) -> void { sdl2_input_chmode(er); }});
-    branches.insert({"move", [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
-    branches.insert({"textinsert", [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
-    branches.insert({"resized", [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
-    branches.insert({"sizechanged", [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({std::string("chsdl2textinput"), [this](const class EventResult& er) -> void { sdl2_input_chmode(er); }});
+    branches.insert({std::string("move"), [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
+    branches.insert({std::string("textinsert"), [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
+    branches.insert({std::string("resized"), [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({std::string("sizechanged"), [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
 }
 
 

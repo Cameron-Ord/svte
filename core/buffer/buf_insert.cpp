@@ -13,3 +13,9 @@ void Buffer::buf_ins_char(const unsigned char c){
         buf_mv_col(1);
     }
 }
+
+void Buffer::buf_new_line(void){
+    if(buf_valid_row(row) && buf_valid_col(col)){
+        
+    }
+}

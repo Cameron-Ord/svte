@@ -83,7 +83,7 @@ int main(int argc, char **argv)
         case SDL_TEXTINPUT:
         {
             const char *t = e.text.text;
-            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_text_input(t, &ed));
+            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_text_input(t, &ed, ed.ed_get_current_id()));
         } break;
 
         case SDL_QUIT:

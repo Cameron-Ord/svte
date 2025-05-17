@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 
+#include "core_iterator.hpp"
+
 class Buffer {
     public:
         Buffer(const int32_t id);
@@ -23,11 +25,15 @@ class Buffer {
         void buf_ins_char(const unsigned char c);
         std::vector<std::string>::iterator buf_row_begin(void);
         std::vector<std::string>::iterator buf_row_end(void);
+        void buf_new_line(void);
 
+        
         std::vector<std::string>::const_iterator buf_row_begin_const(void) const;
         std::vector<std::string>::const_iterator buf_row_end_const(void) const;
         std::string::const_iterator buf_str_it_begin(const std::string& str) const;
         std::string::const_iterator buf_str_it_end(const std::string& str) const;
+        std::string::reverse_iterator buf_str_it_rbegin(const std::string& str) const;
+        std::string::reverse_iterator buf_str_it_rend(const std::string& str) const;
         const int buf_get_size(void) const;
         const std::vector<std::string>* const buf_get_buffer(void) const;
         const int buf_index_of_first_char(std::string::const_iterator it, std::string::const_iterator end);
@@ -39,6 +45,9 @@ class Buffer {
         const int& buf_get_error(void);
         const std::string& buf_get_filename(void) const;
         const int32_t& buf_get_id(void) const;
+
+        std::string buf_get_substr_after_col_pos(ConstRangeStr str);
+        std::string buf_get_substr_before_col_pos(ConstRangeStr str);
 
         ~Buffer(void);
     private:
