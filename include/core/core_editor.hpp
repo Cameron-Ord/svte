@@ -6,6 +6,8 @@
 #include <string>
 #include <cstdint>
 
+#include "core_structs.hpp"
+
 //Forward declare the buffer class, must be defined in SRC files.
 class Buffer;
 
@@ -45,6 +47,7 @@ class Editor {
         const std::vector<int32_t>& ed_get_open(void);
         const int32_t& ed_get_current_id(void);
         const int& ed_get_error(void);
+        BCommit ed_commit_buffer(std::string fn);
 
     private:
         int error;

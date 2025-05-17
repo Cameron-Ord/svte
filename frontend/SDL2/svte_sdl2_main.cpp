@@ -40,39 +40,18 @@ int main(int argc, char **argv)
         fn = std::string(argv[1]);
     }
 
-    const int cond = !fn.empty();
-    switch (cond) {
-    case 1:
-    {
-        const int id = ed.ed_append_buffer(fn);
-        if (id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
-                                       id, ed.ed_fetch_buffer_const(id),
-                                       window->win_width(), window->win_height())) {
-            ed.ed_open_file(id);
-        } else {
-            std::cerr << "Buffer was not properly created!" << std::endl;
-        }
-    } break;
-
-    case 0:
-    {
-        const int id = ed.ed_append_buffer();
-        if (id != ED_BAD_APPEND && renderer->rndr_commit_buffer(
-                                       id, ed.ed_fetch_buffer_const(id),
-                                       window->win_width(), window->win_height())) {
-            ed.ed_no_file(id);
-        } else {
-            std::cerr << "Buffer was not properly created!" << std::endl;
-        }
-    } break;
-    }
+    renderer->rndr_commit_buffer(
+        ed.ed_commit_buffer(fn), 
+        window->win_width(), 
+        window->win_height()
+    );
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
     int frame_time;
 
     window->win_show_window();
-    context.sdl2_set_text_input(STOP_INPUT);
+    context.sdl2_input_chmode(EventResult("chsdl2textinput", "stop", SDL2_NIL));
     context.sdl2_set_run_state(RUN);
 
     while (context.sdl2_get_run_state() != NO_RUN) {
@@ -84,30 +63,20 @@ int main(int argc, char **argv)
         switch (ev_handle->ev_mainloop_poll_event_type(&e)) {
         case SDL_KEYDOWN:
         {
-            const EventRet ret = ev_handle->ev_mainloop_keydown(
-                e.key.keysym.sym,
-                e.key.keysym.mod,
-                &ed,
-                ed.ed_get_current_id());
-            context.sdl2_set_text_input(ret.input_opt);
-            renderer->rndr_id_update_offsets(ret.id, vfont->vec_row_block(), vfont->vec_col_block());
+            const int keysym = e.key.keysym.sym;
+            const int keymod = e.key.keysym.mod;
+            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_keydown(keysym, keymod, &ed));
         } break;
 
         case SDL_WINDOWEVENT:
         {
-            window->win_check_size_update(
-                ev_handle->ev_mainloop_window_event_type(e.window.event));
-            renderer->rndr_update_viewports(
-                ed.ed_get_open(),
-                window->win_width(),
-                window->win_height());
+            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_window_event_type(e.window.event));
         } break;
 
         case SDL_TEXTINPUT:
         {
-            ev_handle->ev_mainloop_text_input(
-                e.text.text, &ed,
-                ed.ed_get_current_id());
+            const char *t = e.text.text;
+            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_text_input(t, &ed));
         } break;
 
         case SDL_QUIT:

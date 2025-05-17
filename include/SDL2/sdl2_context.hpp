@@ -20,7 +20,6 @@ class SDL2_Context{
     public:
         SDL2_Context(void);
         ~SDL2_Context(void);
-        void sdl2_set_text_input(const int opt);
         int sdl2_get_fps(void);
         int sdl2_get_err(void);
         void sdl2_set_err(const int err);
@@ -30,6 +29,11 @@ class SDL2_Context{
         class Renderer* sdl2_get_rend(void);
         class VectorFont* sdl2_get_vfont(void);
         class KeyEvent* sdl2_get_keyevent(void);
+        void sdl2_mainloop_event_branch(const class EventResult& er);
+        void sdl2_window_size_update(const class EventResult& er);
+        void sdl2_rndr_cursor_update(const class EventResult& er);
+        void sdl2_input_chmode(const class EventResult& er);
+        void sdl2_init_proxy_fncs(void);
 
     private:
         int fps_target;
@@ -39,6 +43,7 @@ class SDL2_Context{
         class Renderer rend;
         class VectorFont vfont;
         class KeyEvent events;
+        std::unordered_map<std::string, std::function<void(const class EventResult&)>> branches;
 };
 
 #endif

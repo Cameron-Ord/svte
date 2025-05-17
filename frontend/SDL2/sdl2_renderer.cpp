@@ -18,11 +18,10 @@ Renderer::Renderer(SDL_Window *w)
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
 void Renderer::rndr_update_viewports(
-    const std::vector<int32_t> &open,
     const int width, const int height)
 {
-    for (size_t i = 0; i < open.size(); i++) {
-        const int32_t id = open[i];
+    for (size_t i = 0; i < commited_ids.size(); i++) {
+        const int32_t id = commited_ids[i];
         class BufRenderer *br = rndr_grab_bufrenderer(id);
         if (br) {
             br->br_set_viewport_dims(width, height);
@@ -31,22 +30,28 @@ void Renderer::rndr_update_viewports(
     }
 }
 
-int Renderer::rndr_commit_buffer(const int32_t id, const class Buffer *cbuf, const int width, const int height)
+int Renderer::rndr_commit_buffer(BCommit commit, const int width, const int height)
 {
-    std::unordered_set<int32_t>::iterator it = used.find(id);
+    if(commit.id < 0 || !commit.cbuf){
+        std::cerr << "Bad ID or NULL pointer" << std::endl;
+        return 0;
+    }
+
+    std::unordered_set<int32_t>::iterator it = used.find(commit.id);
     if (it != used.end()) {
         std::cout << "ID already exists" << std::endl;
         return 0;
     }
 
-    class BufRenderer brend(cbuf, width, height);
+    class BufRenderer brend(commit.cbuf, width, height);
     if (!brend.br_get_err()) {
         std::cerr << "Passed a NULL pointer using class Buffer" << std::endl;
         return 0;
     }
 
-    used.insert(id);
-    renderers.insert({id, brend});
+    used.insert(commit.id);
+    renderers.insert({commit.id, brend});
+    commited_ids.push_back(commit.id);
     return 1;
 }
 

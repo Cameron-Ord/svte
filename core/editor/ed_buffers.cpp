@@ -10,6 +10,31 @@ const std::vector<int32_t>& Editor::ed_get_open(void){
     return open;
 }
 
+BCommit Editor::ed_commit_buffer(std::string fn){
+    const int cond = !fn.empty();
+    switch(cond){
+        default:{
+            return BCommit(CORE_NIL, nullptr);
+        }
+
+        case 1:{
+            const int32_t id = ed_append_buffer(fn);
+            if(ed_open_file(id) == NO_BUFFER){
+                return BCommit(CORE_NIL, nullptr);
+            }
+            return BCommit(id, ed_fetch_buffer_const(id));
+        }break;
+
+        case 0:{
+            const int32_t id = ed_append_buffer();
+            if(ed_no_file(id) == NO_BUFFER){
+                return BCommit(CORE_NIL, nullptr);
+            }
+            return BCommit(id, ed_fetch_buffer_const(id));
+        }break;
+    }
+}
+
 
 int32_t Editor::ed_gen_id(void)
 {

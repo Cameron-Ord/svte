@@ -5,6 +5,7 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "../core/core_iterator.hpp"
+#include "../core/core_structs.hpp"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -68,10 +69,10 @@ class Renderer {
         void rndr_clear(void);
         void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a);
         void rndr_present(void);
-        int rndr_commit_buffer(const int32_t id, const class Buffer *cbuf, const int width, const int height);
+        int rndr_commit_buffer(BCommit commit, const int width, const int height);
         void rndr_draw_id(const int32_t id, const class VectorFont* vfont);
         class BufRenderer *rndr_grab_bufrenderer(const int32_t id);
-        void rndr_update_viewports(const std::vector<int32_t>& open, const int width, const int height);
+        void rndr_update_viewports(const int width, const int height);
         void rndr_id_update_offsets(const int32_t id, const int row_block, const int col_block);
         void rndr_set_viewport(const SDL_Rect *vp_rect);
 
@@ -80,6 +81,7 @@ class Renderer {
         SDL_Renderer *rend;
         std::unordered_set<int32_t> used;
         std::unordered_map<int32_t, class BufRenderer> renderers;
+        std::vector<int32_t> commited_ids;
 };
 
 class Buffer;

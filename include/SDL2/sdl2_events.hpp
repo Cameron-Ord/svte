@@ -27,38 +27,47 @@ typedef struct {
     int keymod;
 } KeyC;
 
-typedef struct {
-    // Id the event belongs to.
-    int id;
-    int input_opt;
-    int reported_col_loc;
-    int reported_row_loc;
-} EventRet;
+class EventResult{
+    public:
+        EventResult(
+            const std::string type, 
+            const std::string iopt, 
+            const int id
+        ) : ev_type(type), input_opt(iopt), request_id(id) {}
+
+        const int get_event_id(void) const { return request_id; }
+        const std::string& get_opt(void) const { return input_opt; }
+        const std::string& get_type(void) const {return ev_type; }
+    private:
+        std::string ev_type;
+        std::string input_opt;
+        int request_id;
+};
 
 class KeyEvent{
     public:
         KeyEvent(void);
         int ev_mainloop_poll_event_type(SDL_Event* const e);
-        EventRet ev_mainloop_keydown(const int keysym, const int keymod, class Editor *e, const int id);
-        int ev_mainloop_window_event_type(const int windowevent);
-        void ev_mainloop_text_input(const char *text, class Editor *e, const int id);
         int ev_mainloop_die(void);
-
-        EventRet ev_left(const int& keymod, class Editor *e, const int id);
-        EventRet ev_right(const int& keymod, class Editor *e, const int id);
-        EventRet ev_up(const int& keymod, class Editor *e, const int id);
-        EventRet ev_down(const int& keymod, class Editor *e, const int id);
-
-        EventRet ev_visual(const int& keymod, class Editor *e, const int id);
-        EventRet ev_append(const int& keymod, class Editor *e, const int id);
-        EventRet ev_insert(const int& keymod, class Editor *e, const int id);
-        EventRet ev_escape(const int& keymod, class Editor *e, const int id);
-
+        class EventResult ev_mainloop_window_event_type(const int windowevent);
+        class EventResult ev_mainloop_text_input(const char *text, class Editor *e);
+        class EventResult ev_mainloop_keydown(const int keysym, const int keymod, class Editor *e);
+        class EventResult ev_left(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_right(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_up(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_down(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_visual(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_append(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_insert(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_escape(const int& keymod, class Editor *e, const int32_t id);
         Controls ev_init_controls(void);
         void ev_init_keybinds(void);
     private:
         Controls controls;
-        std::unordered_map<int, std::function<EventRet(int, class Editor *e, int)>> binds;
+        std::unordered_map<int, std::function<class EventResult(int, class Editor *e, int32_t)>> binds;
+        // Stores meta data from the last input event.
+        // IE. the buffer ID of the related input, values/returns of functions, etc
+        
 };
 
 #endif

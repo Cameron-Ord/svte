@@ -80,15 +80,3 @@ void Window::win_set_resizeable(const SDL_bool opt)
 {
     SDL_SetWindowResizable(win, opt);
 }
-
-void Window::win_check_size_update(const int cond)
-{
-    switch (cond) {
-    default:
-        break;
-    case 1:
-    {
-        win_update_window_values();
-    } break;
-    }
-}

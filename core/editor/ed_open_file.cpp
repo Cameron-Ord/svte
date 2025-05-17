@@ -9,11 +9,11 @@
 int Editor::ed_no_file(const int32_t id){
     class Buffer *b = ed_fetch_buffer(id);
     if(!b){
-        return 0;
+        return NO_BUFFER;
     }
     
     b->buf_append_line("");
-    return 1;
+    return CORE_NIL;
 }
 
 int Editor::ed_open_file(const int32_t id){
