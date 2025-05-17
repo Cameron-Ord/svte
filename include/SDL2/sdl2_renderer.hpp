@@ -73,7 +73,8 @@ class Renderer {
         void rndr_draw_id(const int32_t id, const class VectorFont* vfont);
         class BufRenderer *rndr_grab_bufrenderer(const int32_t id);
         void rndr_update_viewports(const int width, const int height);
-        void rndr_id_update_offsets(const int32_t id, const int row_block, const int col_block);
+        void rndr_update_offsets_by_id(const int32_t id, const int row_block, const int col_block);
+        void rndr_update_offsets(const int row_block, const int col_block);
         void rndr_set_viewport(const SDL_Rect *vp_rect);
 
     private:

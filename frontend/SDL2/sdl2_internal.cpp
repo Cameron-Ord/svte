@@ -85,6 +85,7 @@ void SDL2_Context::sdl2_init_proxy_fncs(void){
 void SDL2_Context::sdl2_window_size_update(const class EventResult& er){
     win.win_update_window_values();
     rend.rndr_update_viewports(win.win_width(), win.win_height());
+    rend.rndr_update_offsets(vfont.vec_row_block(), vfont.vec_col_block());
 }
 
 void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
@@ -93,7 +94,7 @@ void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
         return;
     }
 
-    rend.rndr_id_update_offsets(
+    rend.rndr_update_offsets_by_id(
         er.get_event_id(), 
         vfont.vec_row_block(), 
         vfont.vec_col_block()

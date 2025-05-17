@@ -18,7 +18,8 @@ Renderer::Renderer(SDL_Window *w)
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
 void Renderer::rndr_update_viewports(
-    const int width, const int height)
+    const int width, const int height
+)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
         const int32_t id = commited_ids[i];
@@ -125,13 +126,23 @@ void Renderer::rndr_draw_id(const int32_t id, const class VectorFont *vfont)
     }
 }
 
-void Renderer::rndr_id_update_offsets(const int32_t id, const int row_block, const int col_block)
+void Renderer::rndr_update_offsets_by_id(const int32_t id, const int row_block, const int col_block)
 {
     BufRenderer *br = rndr_grab_bufrenderer(id);
     if(!br){
         return;
     }
     br->br_update_offsets(row_block, col_block);
+}
+
+void Renderer::rndr_update_offsets(const int row_block, const int col_block){
+    for (size_t i = 0; i < commited_ids.size(); i++) {
+        const int32_t id = commited_ids[i];
+        class BufRenderer *br = rndr_grab_bufrenderer(id);
+        if (br) {
+            br->br_update_offsets(row_block, col_block);
+        }
+    }
 }
 
 class BufRenderer *Renderer::rndr_grab_bufrenderer(const int32_t id)
