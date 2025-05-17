@@ -15,13 +15,19 @@ const int Buffer::buf_index_of_first_char(std::string::const_iterator it, std::s
 }
 
 std::string Buffer::buf_get_substr_after_col_pos(ConstRangeStr str){
+    std::string substr;
     for(; str.begin != str.end; str.begin++){
-
+        const unsigned char c = *str.begin;
+        substr += c;
     }
+    return substr;
 }
 
 std::string Buffer::buf_get_substr_before_col_pos(ConstRangeStr str){
+    std::string substr;
     for(; str.begin != str.end; str.begin++){
-        
+        const unsigned char c = *str.begin;
+        substr += c; 
     }
+    return substr;
 }

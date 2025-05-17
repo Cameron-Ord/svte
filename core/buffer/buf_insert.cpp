@@ -16,6 +16,25 @@ void Buffer::buf_ins_char(const unsigned char c){
 
 void Buffer::buf_new_line(void){
     if(buf_valid_row(row) && buf_valid_col(col)){
-        
+        const std::string substr = buf_get_substr_after_col_pos(
+            ConstRangeStr(buf_str_it_end_const(buffer[row]), buf_str_it_begin_const(buffer[row]) + col)
+        );
+
+        if(!substr.empty()){
+            buf_erase_substr(
+                buffer[row],
+                MutRangeStr(buf_str_it_end(buffer[row]), buf_str_it_begin(buffer[row]) + col)
+            );
+        }
+
+        buf_ins_row(row + 1, substr);
+    }
+}
+
+void Buffer::buf_ins_row(const int next, const std::string substr){
+    if(buf_valid_row(row)){
+        buffer.insert(buf_row_begin() + next, substr);
+        buf_set_col(0);
+        buf_mv_row(1);
     }
 }

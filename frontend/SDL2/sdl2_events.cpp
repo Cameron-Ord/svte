@@ -59,7 +59,18 @@ class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, con
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
-    return EventResult("nobuffer", "noopt", id);
+    
+    if(e->ed_get_mode() == INSERT && SDL_IsTextInputActive()){
+        buf->buf_rmv_before();
+        return EventResult("textrmv", "noopt", id);
+
+    } else if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()){
+        buf->buf_mv_col(-1);
+        return EventResult("move", "noopt", id);
+    }
+
+    return EventResult("notbound", "noopt", id);
+
 }
 
 class EventResult KeyEvent::ev_return(const int& keymod, class Editor *e, const int32_t id){
@@ -109,7 +120,7 @@ class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int3
     }
 
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        buf->buf_mv_row(-1);
+        buf->buf_update_col(buf->buf_mv_row(-1));
     }
     return EventResult("move", "noopt", id);
 }
@@ -122,7 +133,7 @@ class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const in
     }
     
     if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        buf->buf_mv_row(1);
+        buf->buf_update_col(buf->buf_mv_row(1));
     }
     return EventResult("move", "noopt", id);
 }

@@ -7,6 +7,19 @@
 // Just defining structs for encapsulating iterators.
 // Defined in core include, can be safely included anywhere.
 
+struct RConstRangeStr{
+    std::string::const_reverse_iterator rend;
+    std::string::const_reverse_iterator rbegin;
+
+    RConstRangeStr(
+        std::string::const_reverse_iterator e,
+        std::string::const_reverse_iterator b 
+    ) : rend(e), rbegin(b >= e ? e : b) {} 
+    
+    std::string::const_reverse_iterator _begin(){ return rbegin; }
+    std::string::const_reverse_iterator _end() { return rend; }
+};
+
 struct ConstRangeStr{
     std::string::const_iterator end;
     std::string::const_iterator begin;

@@ -25,16 +25,16 @@ class Buffer {
         void buf_ins_char(const unsigned char c);
         std::vector<std::string>::iterator buf_row_begin(void);
         std::vector<std::string>::iterator buf_row_end(void);
-        void buf_new_line(void);
-
-        
         std::vector<std::string>::const_iterator buf_row_begin_const(void) const;
         std::vector<std::string>::const_iterator buf_row_end_const(void) const;
-        std::string::const_iterator buf_str_it_begin(const std::string& str) const;
-        std::string::const_iterator buf_str_it_end(const std::string& str) const;
-        std::string::reverse_iterator buf_str_it_rbegin(const std::string& str) const;
-        std::string::reverse_iterator buf_str_it_rend(const std::string& str) const;
+        std::string::iterator buf_str_it_begin(std::string& str) const;
+        std::string::iterator buf_str_it_end(std::string& str) const;
+        std::string::const_iterator buf_str_it_end_const(const std::string& str) const;
+        std::string::const_iterator buf_str_it_begin_const(const std::string& str) const;
+        std::string::const_reverse_iterator buf_str_it_rbegin(const std::string& str) const;
+        std::string::const_reverse_iterator buf_str_it_rend(const std::string& str) const;
         const int buf_get_size(void) const;
+        void buf_new_line(void);
         const std::vector<std::string>* const buf_get_buffer(void) const;
         const int buf_index_of_first_char(std::string::const_iterator it, std::string::const_iterator end);
         const int buf_get_line_size(const int access) const ;
@@ -45,9 +45,14 @@ class Buffer {
         const int& buf_get_error(void);
         const std::string& buf_get_filename(void) const;
         const int32_t& buf_get_id(void) const;
+        void buf_ins_row(const int next, const std::string substr);
 
         std::string buf_get_substr_after_col_pos(ConstRangeStr str);
         std::string buf_get_substr_before_col_pos(ConstRangeStr str);
+        void buf_erase_substr(std::string& line, MutRangeStr str);
+        void buf_erase_char(std::string& line, MutRangeStr str);
+        void buf_rmv_before(void);
+        void buf_rmv_at(void);
 
         ~Buffer(void);
     private:

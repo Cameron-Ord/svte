@@ -29,10 +29,17 @@ Buffer::~Buffer(void){
 
 }
 
-std::string::const_iterator Buffer::buf_str_it_begin(const std::string& str) const {
+std::string::iterator Buffer::buf_str_it_begin(std::string& str) const {
     return str.begin();
 }
-std::string::const_iterator Buffer::buf_str_it_end(const std::string& str) const {
+std::string::iterator Buffer::buf_str_it_end(std::string& str) const {
+    return str.end();
+}
+
+std::string::const_iterator Buffer::buf_str_it_begin_const(const std::string& str) const {
+    return str.begin();
+}
+std::string::const_iterator Buffer::buf_str_it_end_const(const std::string& str) const {
     return str.end();
 }
 
@@ -107,10 +114,10 @@ const int Buffer::buf_get_col(void) const {
     return col;
 }
 
-std::string::reverse_iterator Buffer::buf_str_it_rbegin(const std::string& str) const{
+std::string::const_reverse_iterator Buffer::buf_str_it_rbegin(const std::string& str) const{
     return str.rbegin();
 }
 
-std::string::reverse_iterator Buffer::buf_str_it_rend(const std::string& str) const{
+std::string::const_reverse_iterator Buffer::buf_str_it_rend(const std::string& str) const{
     return str.rend();
 }
