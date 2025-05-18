@@ -111,3 +111,11 @@ void BufRenderer::br_put_cursor(SDL_Renderer *rend, const int width, const int h
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderFillRect(rend, &rect);
 }
+
+void BufRenderer::br_draw_selection(SDL_Renderer *rend, const int rblock, const int cblock){
+    ConstBufRowIt(*constbuf->buf_get_buffer());
+}
+
+void BufRenderer::br_selection_line(SDL_Renderer* rend, const int rblock, const int cblock){
+
+}

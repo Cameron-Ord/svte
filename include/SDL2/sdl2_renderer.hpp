@@ -98,6 +98,8 @@ class BufRenderer {
         void br_update_offsets(const int row_block, const int col_block);
         int br_getx(const int col, const int blocksize);
         int br_gety(const int row, const int blocksize);
+        void br_draw_selection(SDL_Renderer *rend, const int rblock, const int cblock);
+        void br_selection_line(SDL_Renderer* rend, const int rblock, const int cblock);
 
         int br_row_offset(void) { return row_offset; }
         int br_col_offset(void) { return col_offset; }
