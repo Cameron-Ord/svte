@@ -4,6 +4,8 @@
 
 #include "../../include/core/core_buffer.hpp"
 
+#include <iostream>
+
 // BUFRENDERER
 
 BufRenderer::BufRenderer(const class Buffer *cbuf, const int width, const int height) : 
@@ -48,53 +50,42 @@ void BufRenderer::br_update_offsets(const int row_block, const int col_block){
     }
 }
 
-
-
 void BufRenderer::br_draw_buffer(
     SDL_Renderer *rend,
-    const class VectorFont *vfont)
+    const class VectorFont *vf)
 {
-    ConstRangeVecStr rows(
-        constbuf->buf_row_end_const(),
-        constbuf->buf_row_begin_const() + row_offset
-    );
+    ConstBufRowIt rows(*constbuf->buf_get_buffer());
+    rows.offset(row_offset).valid();
 
     int row = 0;
     for (; rows.begin != rows.end; ++rows.begin) {
-        const int y = br_gety(row, vfont->vec_row_block());
+        const int y = br_gety(row, vf->vec_row_block());
 
         if(y > viewport.h){
             return;
         }
 
-        ConstRangeStr line(
-            rows.begin->end(),
-            rows.begin->begin() + col_offset
-        );
+        ConstBufStrIt line(*rows.begin); 
+        line.offset(col_offset).valid();
 
-        br_draw_line(
-            rend,
-            vfont,
-            line,
-            y
-        );
+        br_draw_line(rend, vf, line, y);
         row += 1;
     }
 }
 
 void BufRenderer::br_draw_line(
     SDL_Renderer *rend,
-    const class VectorFont *vfont,
-    ConstRangeStr& row,
+    const class VectorFont *vf,
+    ConstBufStrIt& row,
     const int y)
 {
     int col = 0;
     const unsigned char skipchar = ' ';
 
-    for (; row.begin != row.end; row.increm_begin()) {
+    for (; row.begin != row.end; ++row.begin) {
         const unsigned char c = *row.begin;
-        const CSprite &spr = vfont->vec_index_texture(c);
-        const int x = br_getx(col, vfont->vec_col_block());
+        const CSprite &spr = vf->vec_index_texture(c);
+        const int x = br_getx(col, vf->vec_col_block());
 
         if(x > viewport.w){
             return;
@@ -119,63 +110,4 @@ void BufRenderer::br_put_cursor(SDL_Renderer *rend, const int width, const int h
     const int y = br_gety(constbuf->buf_get_row() - row_offset, height);
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderFillRect(rend, &rect);
-}
-
-
-
-void BufRenderer::br_set_thresholds(Thresholds th){
-    thresholds = th;
-}
-
-void BufRenderer::br_set_col_offset(const int val){
-    col_offset = val;
-}
-
-void BufRenderer::br_set_row_offset(const int val){
-    row_offset = val;
-}
-
-int BufRenderer::br_row_offset(void)
-{
-    return row_offset;
-}
-
-int BufRenderer::br_col_offset(void)
-{
-    return col_offset;
-}
-
-const SDL_Rect *BufRenderer::br_get_viewport(void)
-{
-    return &viewport;
-}
-
-void BufRenderer::br_set_viewport_pos(const int x, const int y)
-{
-    viewport.x = x, viewport.y = y;
-}
-
-void BufRenderer::br_set_viewport_dims(const int width, const int height)
-{
-    viewport.w = width, viewport.h = height;
-}
-
-int BufRenderer::br_valid_ptr(void)
-{
-    return constbuf != NULL;
-}
-
-int BufRenderer::br_get_err(void)
-{
-    return error;
-}
-
-void BufRenderer::br_set_err(const int errval)
-{
-    error = errval;
-}
-
-int BufRenderer::br_set_buf(const class Buffer *cbuf)
-{
-    return ((constbuf = cbuf) != NULL);
 }

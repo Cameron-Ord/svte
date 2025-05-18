@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-Editor::Editor(void) : error(CORE_NIL), mode(NVISUAL), current_buffer_id(CORE_NIL)  {
+Editor::Editor(void) : error(CORE_NIL), mode(NAV), current_buffer_id(CORE_NIL)  {
     ed_set_error(ed_determine_cwd());
     std::cout << "Editor Path: " << ed_working_path << std::endl;
 }

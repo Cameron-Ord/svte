@@ -19,11 +19,11 @@ int Editor::ed_save_file(const int32_t id){
         }
         
         size_t accumulator = 0;
-        std::vector<std::string>::iterator row_iterator = buffer->buf_row_begin();
-        std::vector<std::string>::iterator end = buffer->buf_row_end();
+
+        ConstBufRowIt buf(*buffer->buf_get_buffer());
         
-        for(; row_iterator != end; ++row_iterator){
-            std::string str = *row_iterator;
+        for(; buf.begin != buf.end; ++buf.begin){
+            std::string str = *buf.begin;
             accumulator += str.size() * sizeof(str[0]);
             //Just needs a newline, so not using std::endl;
             file << str << '\n';

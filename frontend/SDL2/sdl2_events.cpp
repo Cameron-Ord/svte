@@ -27,8 +27,8 @@ Controls KeyEvent::ev_init_controls(void)
         
         controls.INSERT_MODE = SDLK_i,
         controls.APPEND_MODE = SDLK_a,
-        controls.VISUAL_MODE = SDLK_v,
-        controls.ESCAPE = SDLK_ESCAPE,
+        controls.SELECTION_MODE = SDLK_v,
+        controls.NAV_MODE = SDLK_ESCAPE,
 
         controls.ACTION_CMD = SDLK_c,
         controls.ACTION_MOD = KMOD_LCTRL,
@@ -50,8 +50,8 @@ void KeyEvent::ev_init_keybinds(void)
     
     binds.insert({controls.INSERT_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_insert(mod, e, id); }});
     binds.insert({controls.APPEND_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_append(mod, e, id); }});
-    binds.insert({controls.ESCAPE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_escape(mod, e, id); }});
-    binds.insert({controls.VISUAL_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_visual(mod, e, id); }});
+    binds.insert({controls.NAV_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_escape(mod, e, id); }});
+    binds.insert({controls.SELECTION_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_visual(mod, e, id); }});
 }
 
 class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, const int32_t id){
@@ -64,7 +64,7 @@ class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, con
         buf->buf_rmv_before();
         return EventResult("textinsert", "noopt", id);
 
-    } else if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()){
+    } else if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()){
         buf->buf_mv_col(-1);
         return EventResult("move", "noopt", id);
     }
@@ -83,7 +83,7 @@ class EventResult KeyEvent::ev_return(const int& keymod, class Editor *e, const 
         buf->buf_new_line();
         return EventResult("textinsert", "noopt", id);
 
-    } else if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()){
+    } else if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()){
         buf->buf_mv_row(1);
         return EventResult("move", "noopt", id);
     }
@@ -97,7 +97,7 @@ class EventResult KeyEvent::ev_delete(const int& keymod, class Editor *e, const 
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if(e->ed_get_mode() == INSERT || e->ed_get_mode() == NVISUAL){
+    if(e->ed_get_mode() == INSERT || e->ed_get_mode() == NAV){
         buf->buf_rmv_at();
         return EventResult("textinsert", "noopt", id);
     }
@@ -112,7 +112,7 @@ class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const in
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         buf->buf_mv_col(-1);
     }
     return EventResult("move", "noopt", id);
@@ -125,7 +125,7 @@ class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int3
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         buf->buf_update_col(buf->buf_mv_row(-1));
     }
     return EventResult("move", "noopt", id);
@@ -138,9 +138,9 @@ class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const in
         return EventResult("nobuffer", "noopt", id);
     }
     
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         buf->buf_update_col(buf->buf_mv_row(1));
-    }
+    } 
     return EventResult("move", "noopt", id);
 }
 
@@ -151,7 +151,7 @@ class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const i
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         buf->buf_mv_col(1);
     }
     return EventResult("move", "noopt", id);
@@ -159,15 +159,20 @@ class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const i
 
 class EventResult KeyEvent::ev_visual(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
-        e->ed_set_mode(VISUAL);
+    class Buffer *buf = e->ed_fetch_buffer(id);
+    if(!buf){
+        return EventResult("nobuffer", "noopt", id);
+    }
+    
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
+        e->ed_set_mode(SELECT);
     }
     return EventResult("notbound", "noopt", id);
 }
 
 class EventResult KeyEvent::ev_append(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         e->ed_set_mode(APPEND);
         return EventResult("chsdl2textinput", "start", id);
     }
@@ -176,7 +181,7 @@ class EventResult KeyEvent::ev_append(const int &keymod, class Editor *e, const 
 
 class EventResult KeyEvent::ev_insert(const int &keymod, class Editor *e, const int32_t id)
 {
-    if (e->ed_get_mode() == NVISUAL && !SDL_IsTextInputActive()) {
+    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         e->ed_set_mode(INSERT);
         return EventResult("chsdl2textinput", "start", id);
     }
@@ -185,7 +190,7 @@ class EventResult KeyEvent::ev_insert(const int &keymod, class Editor *e, const 
 
 class EventResult KeyEvent::ev_escape(const int &keymod, class Editor *e, const int32_t id)
 {
-    e->ed_set_mode(NVISUAL);
+    e->ed_set_mode(NAV);
     if(SDL_IsTextInputActive()){
         return EventResult("chsdl2textinput", "stop", id);
     }
@@ -210,7 +215,7 @@ int KeyEvent::ev_mainloop_poll_event_type(SDL_Event *const e)
     }
     return SDL2_NIL;
 }
-//This will probably have to have its own return type later possibly, but for now - checking these two events for size changes is fine.
+
 class EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
 {
     switch (windowevent) {

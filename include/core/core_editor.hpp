@@ -11,7 +11,7 @@
 //Forward declare the buffer class, must be defined in SRC files.
 class Buffer;
 
-typedef enum { VISUAL = 0, INSERT = 1, CMD = 2, NVISUAL = 3, APPEND = 4 } MODES;
+typedef enum { SELECT = 0, INSERT = 1, CMD = 2, NAV = 3, APPEND = 4 } MODES;
 
 class Editor {
     public:

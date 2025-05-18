@@ -91,26 +91,26 @@ class Buffer;
 class BufRenderer {
     public:
         BufRenderer(const class Buffer *cbuf, const int width, const int height);
-        void br_set_viewport_dims(const int width, const int height);
-        void br_set_viewport_pos(const int x, const int y);
-        const SDL_Rect *br_get_viewport(void);
-        int br_get_err(void);
-        void br_set_err(const int errval);
-        int br_set_buf(const class Buffer *cbuf);
-        int br_valid_ptr(void);
         void br_draw_buffer(SDL_Renderer *rend, const class VectorFont* vfont);
-        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstRangeStr& row, const int y);
+        void br_draw_line(SDL_Renderer *rend, const class VectorFont* vfont, ConstBufStrIt& row, const int y);
         void br_put_char(SDL_Renderer *rend, const int x, const int y, const int w, const int h, SDL_Texture *t);
         void br_put_cursor(SDL_Renderer *rend, const int width, const int height);
-        int br_row_offset(void);
-        int br_col_offset(void);
-        void br_set_col_offset(const int val);
-        void br_set_row_offset(const int val);
-        void br_set_thresholds(Thresholds th);
         void br_update_offsets(const int row_block, const int col_block);
         int br_getx(const int col, const int blocksize);
         int br_gety(const int row, const int blocksize);
 
+        int br_row_offset(void) { return row_offset; }
+        int br_col_offset(void) { return col_offset; }
+        void br_set_col_offset(const int val) { col_offset = val; }
+        void br_set_row_offset(const int val) { row_offset = val; }
+        void br_set_thresholds(Thresholds th) { thresholds = th; }
+        const SDL_Rect *br_get_viewport(void) { return &viewport; }
+        int br_get_err(void) { return error; }
+        void br_set_err(const int errval) { error = errval; }
+        int br_set_buf(const class Buffer *cbuf) { return ((constbuf = cbuf) != NULL); }
+        int br_valid_ptr(void){ return constbuf != NULL; }
+        void br_set_viewport_dims(const int width, const int height) {viewport.w = width, viewport.h = height; }
+        void br_set_viewport_pos(const int x, const int y) { viewport.x = x, viewport.y = y; }
     private:
         int error;
         int vertical_padding;

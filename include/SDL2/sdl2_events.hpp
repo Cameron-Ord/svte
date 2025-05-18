@@ -18,8 +18,8 @@ typedef struct {
 
     int INSERT_MODE;
     int APPEND_MODE;
-    int VISUAL_MODE;
-    int ESCAPE;
+    int SELECTION_MODE;
+    int NAV_MODE;
 
     int ACTION_CMD;
     int ACTION_MOD;

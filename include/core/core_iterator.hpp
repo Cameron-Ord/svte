@@ -7,92 +7,180 @@
 // Just defining structs for encapsulating iterators.
 // Defined in core include, can be safely included anywhere.
 
-struct RConstRangeStr{
-    const std::string* str;
-    std::string::const_reverse_iterator rend;
-    std::string::const_reverse_iterator rbegin;
-
-    RConstRangeStr(
-        std::string::const_reverse_iterator e,
-        std::string::const_reverse_iterator b 
-    ) : str(nullptr), rend(e), rbegin(b >= e ? e : b) {} 
-    
-    std::string::const_reverse_iterator _begin(){ return rbegin; }
-    std::string::const_reverse_iterator _end() { return rend; }
-
-    RConstRangeStr& use_str(const std::string *string) { 
-        str = string; 
-        return *this;
-    }
-};
-
-struct ConstRangeStr{
-    const std::string* str;
-    std::string::const_iterator end;
-    std::string::const_iterator begin;
-
-    ConstRangeStr(
-        std::string::const_iterator e,
-        std::string::const_iterator b 
-    ) : str(nullptr), end(e), begin(b >= e ? e : b) {} 
-    
-    std::string::const_iterator _begin(){ return begin; }
-    std::string::const_iterator _end() { return end; }
-
-    ConstRangeStr& use_str(const std::string *string) { 
-        str = string;
-        return *this;
-    }
-    
-    void increm_begin(void){
-        ++begin;
-    }
-};
-
-struct ConstRangeVecStr{
+struct ConstBufRowIt {
+    const std::vector<std::string>& row;
     std::vector<std::string>::const_iterator end;
     std::vector<std::string>::const_iterator begin;
-
-    ConstRangeVecStr(
-        std::vector<std::string>::const_iterator e,
-        std::vector<std::string>::const_iterator b 
-    ) : end(e), begin(b >= e ? e : b) {} 
+    std::vector<std::string>::const_reverse_iterator rend;
+    std::vector<std::string>::const_reverse_iterator rbegin;
     
-    std::vector<std::string>::const_iterator _begin(){ return begin; }
-    std::vector<std::string>::const_iterator _end() { return end; }
-};
+    ConstBufRowIt(const std::vector<std::string> &row) : row(row){
+        init_iterators();
+    }
 
-struct MutRangeStr{
-    std::string *str;
-    std::string::iterator end;
-    std::string::iterator begin;
+    void init_iterators(void){
+        end = row.end(), begin = row.begin();
+        rend = row.rend(), rbegin = row.rbegin();
+    }
 
-    MutRangeStr(
-        std::string::iterator e,
-        std::string::iterator b 
-    ) : str(nullptr), end(e), begin(b >= e ? e : b) {} 
-    
-    std::string::iterator _begin(){ return begin; }
-    std::string::iterator _end() { return end; }
-
-    MutRangeStr& use_str(std::string *string) { 
-        str = string;
+    ConstBufRowIt& offset(const int val){ 
+        begin = row.begin() + val; 
         return *this;
     }
+    ConstBufRowIt& roffset(const int val){ 
+        rbegin = row.rbegin() + val;
+        return *this;
+    }
+    
+    void valid(void){
+        if(begin >= end){
+            begin = end;
+        }
+    }
+
+    void rvalid(void){
+        if(rbegin >= rend){
+            rbegin = rend;
+        }
+    }
+
+    void increment(void){ ++begin; }
+    void rincrement(void){ ++rbegin; }
+    void decrement(void){ --begin; }
+    void rdecrement(void){ --rbegin; }
 };
 
-struct MutRangeVecStr{
+struct ConstBufStrIt{
+    const std::string& line;
+
+    std::string::const_iterator end;
+    std::string::const_iterator begin;
+    std::string::const_reverse_iterator rend;
+    std::string::const_reverse_iterator rbegin;
+    
+    ConstBufStrIt(const std::string &line) : line(line){
+        init_iterators();
+    }
+
+    void init_iterators(void){
+        end = line.end(), begin = line.begin();
+        rend = line.rend(), rbegin = line.rbegin();
+    }
+
+    ConstBufStrIt& offset(const int val){ 
+        begin = line.begin() + val; 
+        return *this;
+    }
+
+    ConstBufStrIt& roffset(const int val){ 
+        rbegin = line.rbegin() + val;
+        return *this;
+    }
+
+    void valid(void){
+        if(begin >= end){
+            begin = end;
+        }
+    }
+
+    void rvalid(void){
+        if(rbegin >= rend){
+            rbegin = rend;
+        }
+    }
+
+    void increment(void){ ++begin; }
+    void rincrement(void){ ++rbegin; }
+    void decrement(void){ --begin; }
+    void rdecrement(void){ --rbegin; }
+};
+
+struct BufRowIt {
+    std::vector<std::string>& row;
     std::vector<std::string>::iterator end;
     std::vector<std::string>::iterator begin;
-
-    MutRangeVecStr(
-        std::vector<std::string>::iterator e,
-        std::vector<std::string>::iterator b 
-    ) : end(e), begin(b >= e ? e : b){} 
+    std::vector<std::string>::reverse_iterator rend;
+    std::vector<std::string>::reverse_iterator rbegin;
     
-    std::vector<std::string>::iterator _begin(){ return begin; }
-    std::vector<std::string>::iterator _end() { return end; }
+    BufRowIt(std::vector<std::string> &row) : row(row){
+        init_iterators();
+    }
+
+    void init_iterators(void){
+        end = row.end(), begin = row.begin();
+        rend = row.rend(), rbegin = row.rbegin();
+    }
+
+    BufRowIt& offset(const int val){ 
+        begin = row.begin() + val; 
+        return *this;
+    }
+
+    BufRowIt& roffset(const int val){ 
+        rbegin = row.rbegin() + val; 
+        return *this;
+    }
+
+    void valid(void){
+        if(begin >= end){
+            begin = end;
+        }
+    }
+
+    void rvalid(void){
+        if(rbegin >= rend){
+            rbegin = rend;
+        }
+    }
+    
+    void increment(void){ ++begin; }
+    void rincrement(void){ ++rbegin; }
+    void decrement(void){ --begin; }
+    void rdecrement(void){ --rbegin; }
 };
 
+struct BufStrIt{
+    std::string& line;
 
+    std::string::iterator end;
+    std::string::iterator begin;
+    std::string::reverse_iterator rend;
+    std::string::reverse_iterator rbegin;
+    
+    BufStrIt(std::string &line) : line(line){
+        init_iterators();
+    }
+
+    void init_iterators(void){
+        end = line.end(), begin = line.begin();
+        rend = line.rend(), rbegin = line.rbegin();
+    }
+
+    BufStrIt& offset(const int val){ 
+        begin = line.begin() + val; 
+        return *this;
+    }
+
+    BufStrIt& roffset(const int val){ 
+        rbegin = line.rbegin() + val; 
+        return *this;
+    }
+
+    void valid(void){
+        if(begin >= end){
+            begin = end;
+        }
+    }
+
+    void rvalid(void){
+        if(rbegin >= rend){
+            rbegin = rend;
+        }
+    }
+
+    void increment(void){ ++begin; }
+    void rincrement(void){ ++rbegin; }
+    void decrement(void){ --begin; }
+    void rdecrement(void){ --rbegin; }
+};
 #endif
