@@ -5,14 +5,6 @@
 #include "sdl2_renderer.hpp"
 #include "sdl2_window.hpp"
 
-struct EventKeys{
-
-};
-
-struct EventOpts{
-
-};
-
 class Editor;
 
 class SDL2_Initializer

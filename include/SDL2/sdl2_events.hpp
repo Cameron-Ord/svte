@@ -6,6 +6,24 @@
 
 class Editor;
 
+struct EventKeys{
+  std::string cmd_exec = "cmdexec";
+  std::string text_input = "cmdtextinput";
+  std::string cmd_text_input = "textinput";
+  std::string input_mode = "inputmode";
+  std::string buf_cursor_move = "move";
+  std::string cmd_cursor_move = "cmdmove";
+  std::string win_size_change = "sizechanged";
+  std::string win_size_resized = "resized";
+  std::string unbound = "unbound";
+};
+
+struct EventOpts{
+  std::string stop_text_input = "stop";
+  std::string start_text_input = "start";
+};
+
+
 typedef struct
 {
     // Set as a SDL2 keysym

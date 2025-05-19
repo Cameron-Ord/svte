@@ -9,7 +9,7 @@ VectorFont::VectorFont(SDL_Renderer *rend)
 {
     vec_set_err(rend != nullptr ? SDL2_NIL : SDL2_ERR);
     vec_set_err(vec_alloc_texture_array());
-    vec_set_err(vec_open_font("dogicapixel.ttf", 14));
+    vec_set_err(vec_open_font("LiberationMono-Regular.ttf", 16));
     vec_set_char();
     vec_set_err(vec_create_textures(rend));
 }
