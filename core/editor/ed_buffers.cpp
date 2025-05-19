@@ -11,6 +11,31 @@ const std::vector<int32_t> &Editor::ed_get_open(void)
     return open;
 }
 
+int32_t Editor::ed_next_id(void){
+    for(size_t i = 0; i < open.size(); i++){
+        const size_t next = i + 1;
+        if(open[i] == current_buffer_id && next < open.size()){
+            return open[next];
+        } else if (open[i] == current_buffer_id && next >= open.size()){
+            return open[0];
+        }
+    }
+    return -1;
+}
+
+int32_t Editor::ed_prev_id(void){
+    const int ssize = static_cast<int>(open.size());
+    for(int i = ssize - 1; i >= 0; --i){
+        const int prev = i - 1;
+        if(open[i] == current_buffer_id && prev >= 0){
+            return open[prev];
+        } else if (open[i] == current_buffer_id && prev < 0){
+            return open[ssize - 1];
+        }
+    }
+    return -1;
+}
+
 const int32_t Editor::ed_commit_buffer(std::string fn)
 {
     const int cond = !fn.empty();

@@ -96,6 +96,8 @@ EventResult KeyEvent::ev_return(const int &keymod, Editor *e, const int32_t id)
         // if a new buffer is created as a result from the cmd, then the internal 
         // state of SDL2 can decide what to do based on the opt string/id
         std::pair<std::string, int32_t> cmdret = e->ed_eval_cmd().ed_do_cmd();
+        //Reset it back to nav mode
+        e->ed_set_mode(NAV);
         return EventResult("cmdexec", cmdret.first, cmdret.second);
     }
 
@@ -127,10 +129,18 @@ EventResult KeyEvent::ev_left(const int &keymod, Editor *e, const int32_t id)
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_mv_col(-1);
+    if(keymod & KMOD_LCTRL){
+        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
+            e->ed_set_current_id(e->ed_prev_id());
+            return EventResult("chbuffer", "noopt", id);
+        }
+    } else {
+        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
+            buf->buf_mv_col(-1);
+            return EventResult("move", "noopt", id);
+        }
     }
-    return EventResult("move", "noopt", id);
+    return EventResult("notbound", "noopt", id);
 }
 
 EventResult KeyEvent::ev_up(const int &keymod, Editor *e, const int32_t id)
@@ -166,10 +176,19 @@ EventResult KeyEvent::ev_right(const int &keymod, Editor *e, const int32_t id)
         return EventResult("nobuffer", "noopt", id);
     }
 
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_mv_col(1);
+    if(keymod & KMOD_LCTRL){
+        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
+            e->ed_set_current_id(e->ed_next_id());
+            return EventResult("chbuffer", "noopt", id);
+        }
+    } else {
+        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
+            buf->buf_mv_col(1);
+            return EventResult("move", "noopt", id);
+        }
     }
-    return EventResult("move", "noopt", id);
+
+    return EventResult("notbound", "noopt", id);
 }
 
 EventResult KeyEvent::ev_visual(const int &keymod, Editor *e, const int32_t id)

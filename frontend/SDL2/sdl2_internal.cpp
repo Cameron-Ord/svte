@@ -68,6 +68,10 @@ void SDL2_Context::sdl2_init_proxy_fncs(void)
     branches.insert({std::string("sizechanged"), [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
 }
 
+void SDL2_Context::sdl2_tinput_force_stop(void){
+    SDL_StopTextInput();
+}
+
 void SDL2_Context::sdl2_cmd_exec_opts(const EventResult &er){
     if(er.get_event_id() < 0){
         return;
@@ -76,6 +80,7 @@ void SDL2_Context::sdl2_cmd_exec_opts(const EventResult &er){
     if(er.get_opt() == "newfile"){
         rend.rndr_commit_buffer(er.get_event_id(), win._wp());
     }
+    sdl2_tinput_force_stop();
 }
 
 void SDL2_Context::sdl2_window_size_update(const EventResult &er)

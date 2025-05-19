@@ -5,6 +5,14 @@
 #include "sdl2_renderer.hpp"
 #include "sdl2_window.hpp"
 
+struct EventKeys{
+
+};
+
+struct EventOpts{
+
+};
+
 class Editor;
 
 class SDL2_Initializer
@@ -40,6 +48,7 @@ class SDL2_Context
     void sdl2_input_chmode(const EventResult &er);
     void sdl2_init_proxy_fncs(void);
     void sdl2_cmd_exec_opts(const EventResult &er);
+    void sdl2_tinput_force_stop(void);
 
   private:
     int fps_target;

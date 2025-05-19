@@ -23,6 +23,8 @@ class Editor {
         Editor(void);
         ~Editor(void);
         
+        int32_t ed_next_id(void);
+        int32_t ed_prev_id(void);
         int32_t ed_gen_id(void);
         int ed_no_file(const int32_t id);
         int ed_open_file(const int32_t id);

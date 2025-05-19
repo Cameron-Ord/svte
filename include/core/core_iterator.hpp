@@ -27,6 +27,7 @@ struct ConstBufRowIt {
         begin = row.begin() + val; 
         return *this;
     }
+    
     ConstBufRowIt& roffset(const int val){ 
         rbegin = row.rbegin() + val;
         return *this;
