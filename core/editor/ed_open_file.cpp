@@ -1,33 +1,34 @@
-#include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_buffer.hpp"
+#include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_error_codes.hpp"
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
-
-int Editor::ed_no_file(const int32_t id){
+int Editor::ed_no_file(const int32_t id)
+{
     Buffer *b = ed_fetch_buffer(id);
-    if(!b){
+    if (!b) {
         return NO_BUFFER;
     }
-    
+
     b->buf_append_line("");
     return CORE_NIL;
 }
 
-int Editor::ed_open_file(const int32_t id){
+int Editor::ed_open_file(const int32_t id)
+{
     std::unordered_map<int32_t, Buffer *>::iterator it;
     it = bufs.find(id);
-    
-    if(it != bufs.end()){
+
+    if (it != bufs.end()) {
         Buffer *buffer = it->second;
-        
+
         buffer->buf_zero_buffer();
         const std::string fullpath = ed_working_path + ed_delimiter() + buffer->buf_get_filename();
 
         std::ifstream file(fullpath, std::ios::in);
-        if(!file.is_open()){
+        if (!file.is_open()) {
             std::cerr << "Failed to open file!" << std::endl;
             buffer->buf_append_line("");
             return BAD_OPEN;
@@ -44,20 +45,22 @@ int Editor::ed_open_file(const int32_t id){
         }
 
         const int cond = buffer->buf_get_size() >= 1;
-        switch(cond){
-            case 1:{
-                std::cout << "Opened file with " << line_count << " lines and ";
-                std::cout << byte_accumulator << " bytes" << std::endl;
-            } break;
+        switch (cond) {
+        case 1:
+        {
+            std::cout << "Opened file with " << line_count << " lines and ";
+            std::cout << byte_accumulator << " bytes" << std::endl;
+        } break;
 
-            case 0:{
-                std::cout << "Empty file!" << std::endl;
-                buffer->buf_append_line("");
-            } break;
+        case 0:
+        {
+            std::cout << "Empty file!" << std::endl;
+            buffer->buf_append_line("");
+        } break;
         }
 
         file.close();
         return CORE_NIL;
-    } 
+    }
     return NO_BUFFER;
 }

@@ -17,7 +17,7 @@ int main(int argc, char **argv)
         std::cerr << "Failed to initialize editor!" << std::endl;
         return 1;
     }
-    
+
     std::string fn;
     if (argc > 1 && argc < 3) {
         fn = std::string(argv[1]);
@@ -35,9 +35,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-     Window *window = context.sdl2_get_win();
-     Renderer *renderer = context.sdl2_get_rend();
-     KeyEvent *ev_handle = context.sdl2_get_keyevent();
+    Window *window = context.sdl2_get_win();
+    Renderer *renderer = context.sdl2_get_rend();
+    KeyEvent *ev_handle = context.sdl2_get_keyevent();
 
     window->win_dft_partition(renderer->_vf().vec_row_block(), renderer->rndr_vpad());
     renderer->rndr_init_cmd_viewport(window->_wp());

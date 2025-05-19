@@ -9,43 +9,45 @@
 #include <unordered_map>
 #include <unordered_set>
 
-
 typedef struct WindowPartition WindowPartition;
 class Buffer;
 class Editor;
 typedef struct EditorCmd EditorCmd;
 
-typedef struct {
+typedef struct
+{
     int w, h;
     SDL_Texture *texture;
     int bad;
-}CSprite;
+} CSprite;
 
-struct RndrThreshold {
+struct RndrThreshold
+{
     int h_th_min, h_th_max;
     int w_th_min, w_th_max;
 
     RndrThreshold(
-        const int w, const int h, 
-        const float wmin, const float wmax, 
-        const float hmin, const float hmax
-    ) : h_th_min(h * hmin), h_th_max(h * hmax),
-        w_th_min(w * wmin), w_th_max(w * wmax){}
+        const int w, const int h,
+        const float wmin, const float wmax,
+        const float hmin, const float hmax) : h_th_min(h * hmin), h_th_max(h * hmax),
+                                              w_th_min(w * wmin), w_th_max(w * wmax) {}
 
-    RndrThreshold& wupdate(const int width, const float wmin, const float wmax) { 
-        w_th_min = width * wmin, w_th_max = width * wmax; 
+    RndrThreshold &wupdate(const int width, const float wmin, const float wmax)
+    {
+        w_th_min = width * wmin, w_th_max = width * wmax;
         return *this;
     }
 
-    RndrThreshold& hupdate(const int height, const float hmin, const float hmax){
+    RndrThreshold &hupdate(const int height, const float hmin, const float hmax)
+    {
         h_th_min = height * hmin, h_th_max = height * hmax;
         return *this;
     }
-    
 };
 typedef struct Thresholds Thresholds;
 
-struct RndrCmd{
+struct RndrCmd
+{
     RndrThreshold th;
     SDL_Rect viewport;
 
@@ -53,22 +55,26 @@ struct RndrCmd{
 
     int getx(const int col, const int block, const int hpad) { return col * (block + hpad); }
 
-    RndrCmd& vp_update(const int x, const int y, const int w, const int h) {  
+    RndrCmd &vp_update(const int x, const int y, const int w, const int h)
+    {
         viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
         return *this;
     }
 
-    RndrCmd& th_update(RndrThreshold new_th){
+    RndrCmd &th_update(RndrThreshold new_th)
+    {
         th = new_th;
         return *this;
     }
 
-    RndrCmd(void) : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0}){
+    RndrCmd(void) : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0})
+    {
         col_offset = 0;
     }
 };
 
-struct RndrItem{
+struct RndrItem
+{
     RndrThreshold th;
     SDL_Rect viewport;
 
@@ -77,98 +83,101 @@ struct RndrItem{
     int gety(const int row, const int block, const int vpad) { return row * (block + vpad); }
     int getx(const int col, const int block, const int hpad) { return col * (block + hpad); }
 
-    RndrItem& vp_update(const int x, const int y, const int w, const int h) {  
+    RndrItem &vp_update(const int x, const int y, const int w, const int h)
+    {
         viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
         return *this;
     }
 
-    RndrItem& th_update(RndrThreshold new_th){
+    RndrItem &th_update(RndrThreshold new_th)
+    {
         th = new_th;
         return *this;
     }
 
-    RndrItem(void) 
-    : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0}) {
+    RndrItem(void)
+        : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0})
+    {
         col_offset = 0, row_offset = 0;
     }
-
 };
 typedef struct RndrItem RndrItem;
 
+class VectorFont
+{
+  public:
+    VectorFont(SDL_Renderer *rend);
+    void vec_set_err(const int errval) { error = errval; }
+    int vec_get_err(void) { return error; }
+    int vec_open_font(const std::string path, const int ptsize);
+    int vec_alloc_texture_array(void);
+    void vec_set_font(TTF_Font *f) { font = f; }
+    TTF_Font *vec_get_font(void) { return font; }
+    void vec_set_char(void);
+    int vec_create_textures(SDL_Renderer *rend);
+    void vec_create_char_texture(SDL_Renderer *rend, CSprite &sprite, SDL_Surface *surface);
+    SDL_Surface *vec_create_char_surface(const char *str);
+    const CSprite &vec_index_texture(const unsigned char c) const;
+    const int &vec_col_block(void) const { return col_block; }
+    const int &vec_row_block(void) const { return row_block; }
 
-class VectorFont {
-    public:
-        VectorFont(SDL_Renderer *rend);
-        void vec_set_err(const int errval) { error = errval; }
-        int vec_get_err(void) { return error; }
-        int vec_open_font(const std::string path, const int ptsize);
-        int vec_alloc_texture_array(void);
-        void vec_set_font(TTF_Font *f) { font = f; }
-        TTF_Font *vec_get_font(void) { return font; }
-        void vec_set_char(void);
-        int vec_create_textures(SDL_Renderer *rend);
-        void vec_create_char_texture(SDL_Renderer *rend, CSprite& sprite, SDL_Surface *surface);
-        SDL_Surface *vec_create_char_surface(const char *str);
-        const CSprite& vec_index_texture(const unsigned char c) const;
-        const int& vec_col_block(void) const { return col_block; }
-        const int& vec_row_block(void) const { return row_block; }
-
-    private:
-        int error;
-        TTF_Font *font;
-        int row_block;
-        int col_block;
-        CSprite *ch;
+  private:
+    int error;
+    TTF_Font *font;
+    int row_block;
+    int col_block;
+    CSprite *ch;
 };
 
-class Renderer {
-    public:
-        Renderer(SDL_Window *w, const Editor* const ed);
-        void rndr_set_blendmode(const SDL_BlendMode mode);
-        void rndr_set_err(const int errval) { error = errval; }
-        int rndr_get_err(void) { return error; }
+class Renderer
+{
+  public:
+    Renderer(SDL_Window *w, const Editor *const ed);
+    void rndr_set_blendmode(const SDL_BlendMode mode);
+    void rndr_set_err(const int errval) { error = errval; }
+    int rndr_get_err(void) { return error; }
 
-        class VectorFont& _vf(void) { return vf; }
-        void rndr_init_cmd_viewport(const WindowPartition *wp);
+    class VectorFont &_vf(void) { return vf; }
+    void rndr_init_cmd_viewport(const WindowPartition *wp);
 
-        SDL_Renderer *rndr_create_renderer(SDL_Window *w, const int flags);
-        SDL_Renderer *rndr_get_renderer(void) { return rend; }
-        void rndr_set_renderer(SDL_Renderer *r) { rend = r; }
-        void rndr_clear(void) { SDL_RenderClear(rend); }
-        void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { SDL_SetRenderDrawColor(rend, r, g, b, a); }
-        void rndr_present(void) { SDL_RenderPresent(rend); }
-        int rndr_commit_buffer(const int32_t id, const WindowPartition *wp);
-        void rndr_draw_id(const int32_t id);
+    SDL_Renderer *rndr_create_renderer(SDL_Window *w, const int flags);
+    SDL_Renderer *rndr_get_renderer(void) { return rend; }
+    void rndr_set_renderer(SDL_Renderer *r) { rend = r; }
+    void rndr_clear(void) { SDL_RenderClear(rend); }
+    void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { SDL_SetRenderDrawColor(rend, r, g, b, a); }
+    void rndr_present(void) { SDL_RenderPresent(rend); }
+    int rndr_commit_buffer(const int32_t id, const WindowPartition *wp);
+    void rndr_draw_id(const int32_t id);
 
-        void rndr_update_viewports(const WindowPartition *wp);
-        void rndr_update_offsets_by_id(const int32_t id);
-        void rndr_set_viewport(const SDL_Rect *vp_rect);
-        
-        void rndr_draw_buffer(RndrItem& item, const Buffer* const b);
-        void rndr_put_cursor(RndrItem& item, const int& row, const int& col);
-        void rndr_draw_line(ConstBufStrIt& line, RndrItem& item, const int y);
-        void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
-        void rndr_buf_offsets(RndrItem& item, const Buffer* const b);
-        void rndr_cmd_offsets(void);
+    void rndr_update_viewports(const WindowPartition *wp);
+    void rndr_update_offsets_by_id(const int32_t id);
+    void rndr_set_viewport(const SDL_Rect *vp_rect);
 
-        const int& rndr_vpad(void) const { return vertical_padding; }
-        const int& rndr_hpad(void) const { return horizontal_padding; }
-        Renderer& rndr_draw_cmd(void);
-        void rndr_cmd_cursor(void);
+    void rndr_draw_buffer(RndrItem &item, const Buffer *const b);
+    void rndr_put_cursor(RndrItem &item, const int &row, const int &col);
+    void rndr_draw_line(ConstBufStrIt &line, RndrItem &item, const int y);
+    void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
+    void rndr_buf_offsets(RndrItem &item, const Buffer *const b);
+    void rndr_cmd_offsets(void);
 
-        void rndr_update_offsets(void);
+    const int &rndr_vpad(void) const { return vertical_padding; }
+    const int &rndr_hpad(void) const { return horizontal_padding; }
+    Renderer &rndr_draw_cmd(void);
+    void rndr_cmd_cursor(void);
 
-    private:
-        int error;
-        SDL_Renderer *rend;
-        std::unordered_set<int32_t> used;
-        std::unordered_map<int32_t, RndrItem> rndrbuffers;
-        RndrCmd rndrcmd;
-        std::vector<int32_t> commited_ids;
-        VectorFont vf;
-        const Editor* const ed;
-        int vertical_padding;
-        int horizontal_padding;
+    void rndr_update_offsets(void);
+
+  private:
+    int error;
+    SDL_Renderer *rend;
+    std::unordered_set<int32_t> used;
+    std::unordered_map<int32_t, RndrItem> rndrbuffers;
+    RndrCmd rndrcmd;
+    std::vector<int32_t> commited_ids;
+    VectorFont vf;
+    const Editor *const ed;
+    int vertical_padding;
+    int horizontal_padding;
 };
 
 #endif

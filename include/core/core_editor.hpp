@@ -34,7 +34,7 @@ class Editor {
         void ed_set_cwd(std::string str);
         std::string ed_fs_cwd_string(void);
         std::string ed_delimiter(void);
-        uint8_t ed_get_mode(void);
+        uint8_t ed_get_mode(void) const { return mode; }
         void ed_set_mode(const uint8_t val);
 
         Buffer *ed_fetch_buffer(const int32_t id);

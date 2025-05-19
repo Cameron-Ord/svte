@@ -3,7 +3,7 @@
 #include "../../include/SDL2/sdl2_macdef.hpp"
 
 Window::Window(void)
-: error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT)
+    : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT)
 {
     win_set_err(
         win_create_window(
@@ -15,7 +15,8 @@ Window::~Window(void)
 {
 }
 
-void Window::win_dft_partition(const int& rblock, const int& vpadding){
+void Window::win_dft_partition(const int &rblock, const int &vpadding)
+{
     const int reserve_cmd_block = rblock + vpadding;
     const int cmd_box_y = height - reserve_cmd_block;
 
@@ -44,7 +45,7 @@ int Window::win_create_window(const int flags)
     return SDL2_NIL;
 }
 
-Window& Window::win_update_window_values(void)
+Window &Window::win_update_window_values(void)
 {
     SDL_GetWindowSize(win, &width, &height);
     return *this;
