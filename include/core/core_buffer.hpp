@@ -69,7 +69,7 @@ class Buffer {
 
         //Getters
         const int buf_get_size(void) const { return static_cast<int>(buffer.size()); }
-        const std::vector<std::string>* const buf_get_buffer(void) const { return &buffer; }
+        const std::vector<std::string>& buf_get_buffer(void) const { return buffer; }
         const int buf_get_line_size(const int access) const {
             if(buf_valid_row(access)){
                 return static_cast<int>(buffer[access].size());

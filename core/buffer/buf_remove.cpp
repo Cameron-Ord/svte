@@ -36,9 +36,7 @@ void Buffer::buf_rmv_before(void){
             BufStrIt mut_line(buffer[row]);
             mut_line.offset(col - 1).valid();
             
-            buf_erase_char(
-                mut_line
-            );
+            buf_erase_char(mut_line);
             buf_mv_col(-1);
 
         } else if(col == 0 && row > 0){
@@ -54,10 +52,7 @@ void Buffer::buf_rmv_before(void){
             BufStrIt concat_line(buffer[row]);
             const size_t prev_size = buffer[row].size();
 
-            buf_ins_substr(
-                concat_line,
-                substr
-            );
+            buf_ins_substr(concat_line,substr);
 
             buf_mv_col(prev_size);
         }
@@ -75,16 +70,16 @@ void Buffer::buf_rmv_at(void){
             mut_line.offset(col).valid();
             buf_erase_char(mut_line);
 
-        } else if(col == 0 && row > 0 && buffer[row].size() == 0){
-            ConstBufStrIt const_line(buffer[row]);  
-            std::string substr = buf_get_substr_after_col_pos(const_line);
+        } else if(col == 0 && row > 0  && buf_get_line_size(row) == 0){
+            const int tmp = row;
+
+            if(row == buf_get_size() - 1){
+                buf_mv_row(-1);
+            }
 
             BufRowIt mut_lines(buffer);
-            mut_lines.offset(row).valid();
+            mut_lines.offset(tmp).valid();
             buf_rmv_line(mut_lines);
-            
-            BufStrIt concat_line(buffer[row]);
-            buf_ins_substr(concat_line, substr);
         }
     }
 }

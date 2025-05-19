@@ -2,17 +2,15 @@
 #include "../../include/SDL2/sdl2_enums.hpp"
 #include "../../include/SDL2/sdl2_macdef.hpp"
 
+#include "../../include/core/core_buffer.hpp"
+
 
 #include <iostream>
 
 Renderer::Renderer(SDL_Window *w)
-    : error(SDL2_NIL), rend(nullptr)
+    : error(SDL2_NIL), rend(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)), vf(rndr_get_renderer())
 {
-    rndr_set_err(
-        rndr_create_renderer(
-            w,
-            SDL_RENDERER_ACCELERATED |
-                SDL_RENDERER_PRESENTVSYNC));
+    rndr_set_err((rend != nullptr) ? SDL2_NIL : SDL2_ERR);
 }
 
 void Renderer::rndr_set_blendmode(SDL_BlendMode mode){
@@ -21,16 +19,14 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode){
 
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
-void Renderer::rndr_update_viewports(
-    const int width, const int height
-)
+void Renderer::rndr_update_viewports(const int width, const int height)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
-        const int32_t id = commited_ids[i];
-        class BufRenderer *br = rndr_grab_bufrenderer(id);
-        if (br) {
-            br->br_set_viewport_dims(width, height);
-            br->br_set_thresholds(Thresholds(width, height, 0.1, 0.9, 0.1, 0.9));
+        std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
+        if (it != rndrbuffers.end()) {
+            it->second.vp_update_w(width).vp_update_h(height).th_update(
+                RndrThreshold(width, height, 0.1, 0.9, 0.1, 0.9)
+            );
         }
     }
 }
@@ -48,66 +44,32 @@ int Renderer::rndr_commit_buffer(BCommit commit, const int width, const int heig
         return 0;
     }
 
-    class BufRenderer brend(commit.cbuf, width, height);
-    if (!brend.br_get_err()) {
+    RndrItem item(width, height);
+    if(!item.set_buf(commit.cbuf)){
         std::cerr << "Passed a NULL pointer using class Buffer" << std::endl;
         return 0;
     }
 
     used.insert(commit.id);
-    renderers.insert({commit.id, brend});
+    rndrbuffers.insert({commit.id, item});
     commited_ids.push_back(commit.id);
+
     return 1;
 }
 
-void Renderer::rndr_set_err(const int errval)
-{
-    error = errval;
-}
-
-int Renderer::rndr_get_err(void)
-{
-    return error;
-}
-
-int Renderer::rndr_create_renderer(SDL_Window *w, const int flags)
+SDL_Renderer *Renderer::rndr_create_renderer(SDL_Window *w, const int flags)
 {
     if (!w) {
         std::cerr << "Passed a NULL pointer using SDL_Window" << std::endl;
-        return SDL2_ERR;
+        return nullptr;
     }
 
     rndr_set_renderer(SDL_CreateRenderer(w, -1, flags));
     if (!rndr_get_renderer()) {
         std::cerr << "Failed to create renderer! -> " << SDL_GetError() << std::endl;
-        return SDL2_ERR;
+        return nullptr;
     }
-    return SDL2_NIL;
-}
-
-SDL_Renderer *Renderer::rndr_get_renderer(void)
-{
-    return rend;
-}
-
-void Renderer::rndr_set_renderer(SDL_Renderer *r)
-{
-    rend = r;
-}
-
-void Renderer::rndr_clear(void)
-{
-    SDL_RenderClear(rend);
-}
-
-void Renderer::rndr_present(void)
-{
-    SDL_RenderPresent(rend);
-}
-
-void Renderer::rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a)
-{
-    SDL_SetRenderDrawColor(rend, r, g, b, a);
+    return rndr_get_renderer();
 }
 
 void Renderer::rndr_set_viewport(const SDL_Rect *vp_rect)
@@ -119,42 +81,115 @@ void Renderer::rndr_set_viewport(const SDL_Rect *vp_rect)
     }
 }
 
-void Renderer::rndr_draw_id(const int32_t id, const class VectorFont *vfont)
+void Renderer::rndr_draw_id(const int32_t id)
 {
-    class BufRenderer *br = rndr_grab_bufrenderer(id);
-    if (br && br->br_valid_ptr()) {
-        rndr_set_viewport(br->br_get_viewport());
-        br->br_draw_buffer(rend, vfont);
+    std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
+    if (it != rndrbuffers.end()) {
+        rndr_set_viewport(&it->second.viewport);
+        rndr_draw_buffer(it->second);
         rndr_set_colour(255, 255, 255, 125);
-        br->br_put_cursor(rend, vfont->vec_col_block(), vfont->vec_row_block());
+        rndr_put_cursor(it->second);
     }
 }
 
-void Renderer::rndr_update_offsets_by_id(const int32_t id, const int row_block, const int col_block)
+void Renderer::rndr_update_offsets_by_id(const int32_t id)
 {
-    BufRenderer *br = rndr_grab_bufrenderer(id);
-    if(!br){
-        return;
+    std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
+    if(it != rndrbuffers.end()){
+        rndr_offsets(it->second);
     }
-    br->br_update_offsets(row_block, col_block);
+
 }
 
-void Renderer::rndr_update_offsets(const int row_block, const int col_block){
-    for (size_t i = 0; i < commited_ids.size(); i++) {
-        const int32_t id = commited_ids[i];
-        class BufRenderer *br = rndr_grab_bufrenderer(id);
-        if (br) {
-            br->br_update_offsets(row_block, col_block);
+void Renderer::rndr_update_offsets(void){
+    for(size_t i = 0; i < commited_ids.size(); i++){
+        std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
+        if(it != rndrbuffers.end()){
+            rndr_offsets(it->second);
         }
     }
 }
 
-class BufRenderer *Renderer::rndr_grab_bufrenderer(const int32_t id)
-{
-    std::unordered_map<int32_t, class BufRenderer>::iterator it = renderers.find(id);
-    if (it != renderers.end()) {
-        return &it->second;
-    } else {
-        return nullptr;
+void Renderer::rndr_offsets(RndrItem& item){
+    const int line_size = item.b->buf_get_line_size(item.b->buf_get_row());
+    const int buf_size = item.b->buf_get_size();
+
+    auto gety = [this, &item]() { return item.gety(item.b->buf_get_row() - item.row_offset, vf.vec_row_block()); };
+
+    while(gety() < item.th.h_th_min && item.row_offset > 0){
+        item.row_offset--;
     }
+
+    while(gety() > item.th.h_th_max && item.row_offset < buf_size){
+        item.row_offset++;
+    }
+
+    auto getx = [this, &item]() { return item.getx(item.b->buf_get_col() - item.col_offset, vf.vec_col_block()); };
+
+    while(getx() < item.th.w_th_min && item.col_offset > 0){
+        item.col_offset--;
+    }
+
+    while(getx() > item.th.w_th_max && line_size > 0 && item.col_offset <= line_size){
+        item.col_offset++;
+    }
+}
+
+void Renderer::rndr_draw_buffer(RndrItem& item)
+{
+    ConstBufRowIt lines(item.b->buf_get_buffer());
+    lines.offset(item.row_offset).valid();
+
+    int row = 0;
+    for (; lines.begin != lines.end; lines.increment()) {
+        const int y = item.gety(row, vf.vec_row_block());
+
+        if(y > item.viewport.h){
+            return;
+        }
+
+        ConstBufStrIt line(*lines.begin); 
+        line.offset(item.col_offset).valid();
+
+        rndr_draw_line(line, item, y);
+        row += 1;
+    }
+}
+
+void Renderer::rndr_draw_line(
+    ConstBufStrIt& line,
+    RndrItem& item,
+    const int y)
+{
+    int col = 0;
+    const unsigned char skipchar = ' ';
+
+    for (; line.begin != line.end; line.increment()) {
+        const unsigned char c = *line.begin;
+        const CSprite &spr = vf.vec_index_texture(c);
+        const int x = item.getx(col, vf.vec_col_block());
+
+        if(x > item.viewport.w){
+            return;
+        }
+
+        if (c != skipchar) {
+            rndr_put_char(x, y, spr.w, spr.h, spr.texture);
+        }
+        col += 1;
+    }
+}
+
+void Renderer::rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t)
+{
+    SDL_Rect rect = {x, y, w, h};
+    SDL_RenderCopy(rend, t, NULL, &rect);
+}
+
+void Renderer::rndr_put_cursor(RndrItem& item)
+{
+    const int x = item.getx(item.b->buf_get_col() - item.col_offset, vf.vec_col_block());
+    const int y = item.gety(item.b->buf_get_row() - item.row_offset, vf.vec_row_block());
+    SDL_Rect rect = {x, y, vf.vec_col_block(), vf.vec_row_block()};
+    SDL_RenderFillRect(rend, &rect);
 }

@@ -33,7 +33,6 @@ int main(int argc, char **argv)
     class Window *window = context.sdl2_get_win();
     class Renderer *renderer = context.sdl2_get_rend();
     class KeyEvent *ev_handle = context.sdl2_get_keyevent();
-    class VectorFont *vfont = context.sdl2_get_vfont();
 
     std::string fn;
     if (argc > 1 && argc < 3) {
@@ -94,7 +93,7 @@ int main(int argc, char **argv)
         } break;
         }
 
-        renderer->rndr_draw_id(ed.ed_get_current_id(), vfont);
+        renderer->rndr_draw_id(ed.ed_get_current_id());
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

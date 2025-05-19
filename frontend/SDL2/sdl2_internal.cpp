@@ -44,11 +44,11 @@ int SDL2_Initializer::init_sdl2_instance(void)
 }
 
 SDL2_Context::SDL2_Context(void) : fps_target(60), error(SDL2_NIL), running(NO_RUN),
-                                   win(), rend(win.win_get_window()), vfont(rend.rndr_get_renderer()), events()
+                                   win(), rend(win.win_get_window()), events()
 {
     sdl2_set_err(win.win_get_err());
     sdl2_set_err(rend.rndr_get_err());
-    sdl2_set_err(vfont.vec_get_err());
+    sdl2_set_err(rend._vf().vec_get_err());
     sdl2_init_proxy_fncs();
 }
 
@@ -56,22 +56,6 @@ SDL2_Context::~SDL2_Context(void)
 {
 }
 
-class Window *SDL2_Context::sdl2_get_win(void)
-{
-    return &win;
-}
-class Renderer *SDL2_Context::sdl2_get_rend(void)
-{
-    return &rend;
-}
-class VectorFont *SDL2_Context::sdl2_get_vfont(void)
-{
-    return &vfont;
-}
-class KeyEvent *SDL2_Context::sdl2_get_keyevent(void)
-{
-    return &events;
-}
 
 void SDL2_Context::sdl2_init_proxy_fncs(void){
     branches.insert({std::string("chsdl2textinput"), [this](const class EventResult& er) -> void { sdl2_input_chmode(er); }});
@@ -85,7 +69,7 @@ void SDL2_Context::sdl2_init_proxy_fncs(void){
 void SDL2_Context::sdl2_window_size_update(const class EventResult& er){
     win.win_update_window_values();
     rend.rndr_update_viewports(win.win_width(), win.win_height());
-    rend.rndr_update_offsets(vfont.vec_row_block(), vfont.vec_col_block());
+    rend.rndr_update_offsets();
 }
 
 void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
@@ -94,11 +78,7 @@ void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
         return;
     }
 
-    rend.rndr_update_offsets_by_id(
-        er.get_event_id(), 
-        vfont.vec_row_block(), 
-        vfont.vec_col_block()
-    );
+    rend.rndr_update_offsets_by_id(er.get_event_id());
 }
 
 void SDL2_Context::sdl2_input_chmode(const class EventResult& er){

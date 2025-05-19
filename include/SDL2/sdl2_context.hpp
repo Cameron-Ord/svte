@@ -25,10 +25,9 @@ class SDL2_Context{
         void sdl2_set_err(const int err);
         void sdl2_set_run_state(int running);
         int sdl2_get_run_state(void);
-        class Window* sdl2_get_win(void);
-        class Renderer* sdl2_get_rend(void);
-        class VectorFont* sdl2_get_vfont(void);
-        class KeyEvent* sdl2_get_keyevent(void);
+        class Window* sdl2_get_win(void) { return &win; }
+        class Renderer* sdl2_get_rend(void) { return &rend; }
+        class KeyEvent* sdl2_get_keyevent(void) { return &events; }
         void sdl2_mainloop_event_branch(const class EventResult& er);
         void sdl2_window_size_update(const class EventResult& er);
         void sdl2_rndr_cursor_update(const class EventResult& er);
@@ -41,7 +40,6 @@ class SDL2_Context{
         int running;
         class Window win;
         class Renderer rend;
-        class VectorFont vfont;
         class KeyEvent events;
         std::unordered_map<std::string, std::function<void(const class EventResult&)>> branches;
 };

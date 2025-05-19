@@ -7,41 +7,12 @@
 VectorFont::VectorFont(SDL_Renderer *rend)
     : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr)
 {
+    vec_set_err(rend != nullptr ? SDL2_NIL : SDL2_ERR);
     vec_set_err(vec_alloc_texture_array());
     vec_set_err(vec_open_font("dogicapixel.ttf", 14));
     vec_set_char();
     vec_set_err(vec_create_textures(rend));
-}
-
-const int &VectorFont::vec_col_block(void) const
-{
-    return col_block;
-}
-
-const int &VectorFont::vec_row_block(void) const
-{
-    return row_block;
-}
-
-int VectorFont::vec_get_err(void)
-{
-    return error;
-}
-
-void VectorFont::vec_set_err(const int errval)
-{
-    error = errval;
-}
-
-void VectorFont::vec_set_font(TTF_Font *f)
-{
-    font = f;
-}
-
-TTF_Font *VectorFont::vec_get_font(void)
-{
-    return font;
-}
+} 
 
 int VectorFont::vec_alloc_texture_array(void)
 {

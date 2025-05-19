@@ -20,7 +20,7 @@ int Editor::ed_save_file(const int32_t id){
         
         size_t accumulator = 0;
 
-        ConstBufRowIt buf(*buffer->buf_get_buffer());
+        ConstBufRowIt buf(buffer->buf_get_buffer());
         
         for(; buf.begin != buf.end; ++buf.begin){
             std::string str = *buf.begin;
