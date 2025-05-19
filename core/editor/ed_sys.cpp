@@ -1,5 +1,5 @@
 #include "../../include/core/core_editor.hpp"
-#include "../../include/core/core_error_codes.hpp"
+#include "../../include/core/core_defines.hpp"
 
 #include <filesystem>
 #include <iostream>

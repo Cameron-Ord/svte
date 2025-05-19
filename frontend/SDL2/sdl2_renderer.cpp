@@ -23,16 +23,16 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode)
 
 void Renderer::rndr_init_cmd_viewport(const WindowPartition *wp)
 {
-    rndrcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.8, 0.1, 0.8));
+    rcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.8, 0.1, 0.8));
 }
 
 Renderer &Renderer::rndr_draw_cmd(void)
 {
-    rndr_set_viewport(&rndrcmd.viewport);
+    rndr_set_viewport(&rcmd.viewport);
 
     const EditorCmd &ec = ed->ed_get_cmd();
     ConstBufStrIt line(ec.cmdstr);
-    line.offset(rndrcmd.col_offset).valid();
+    line.offset(rcmd.col_offset).valid();
 
     int col = 0;
     const unsigned char skipchar = ' ';
@@ -40,9 +40,9 @@ Renderer &Renderer::rndr_draw_cmd(void)
     for (; line.begin != line.end; line.increment()) {
         const unsigned char c = *line.begin;
         const CSprite &spr = vf.vec_index_texture(c);
-        const int x = rndrcmd.getx(col, vf.vec_col_block(), horizontal_padding);
+        const int x = rcmd.getx(col, vf.vec_col_block(), horizontal_padding);
 
-        if (x > rndrcmd.viewport.w) {
+        if (x > rcmd.viewport.w) {
             return *this;
         }
 
@@ -66,7 +66,7 @@ void Renderer::rndr_update_viewports(const WindowPartition *wp)
         }
     }
 
-    rndrcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.95, 0.1, 0.95));
+    rcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.95, 0.1, 0.95));
 }
 
 int Renderer::rndr_commit_buffer(const int32_t id, const WindowPartition *wp)
@@ -151,14 +151,14 @@ void Renderer::rndr_cmd_offsets(void)
     const int line_size = ed->ed_get_cmd().cmdstr.size();
     const int col = ed->ed_get_cmd().cursor;
 
-    auto getx = [this, &col]() { return rndrcmd.getx(col - rndrcmd.col_offset, vf.vec_col_block(), horizontal_padding); };
+    auto getx = [this, &col]() { return rcmd.getx(col - rcmd.col_offset, vf.vec_col_block(), horizontal_padding); };
 
-    while (getx() < rndrcmd.th.w_th_min && rndrcmd.col_offset > 0) {
-        rndrcmd.col_offset--;
+    while (getx() < rcmd.th.w_th_min && rcmd.col_offset > 0) {
+        rcmd.col_offset--;
     }
 
-    while (getx() > rndrcmd.th.w_th_max && line_size > 0 && rndrcmd.col_offset <= line_size) {
-        rndrcmd.col_offset++;
+    while (getx() > rcmd.th.w_th_max && line_size > 0 && rcmd.col_offset <= line_size) {
+        rcmd.col_offset++;
     }
 }
 
@@ -254,7 +254,7 @@ void Renderer::rndr_cmd_cursor(void)
 
     if (ed->ed_get_mode() == CMD) {
         const int c = ed->ed_get_cmd().cursor;
-        const int x = rndrcmd.getx(c - rndrcmd.col_offset, vf.vec_col_block(), horizontal_padding);
+        const int x = rcmd.getx(c - rcmd.col_offset, vf.vec_col_block(), horizontal_padding);
         const int y = 0;
         SDL_Rect rect{x, y, vf.vec_col_block(), vf.vec_row_block()};
         SDL_RenderFillRect(rend, &rect);

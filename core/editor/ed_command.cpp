@@ -1,5 +1,6 @@
 #include "../../include/core/core_editor.hpp"
-#include "../../include/core/core_error_codes.hpp"
+#include "../../include/core/core_defines.hpp"
+
 
 void Editor::ed_cmd_ins(const unsigned char c)
 {

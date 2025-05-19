@@ -46,33 +46,6 @@ struct RndrThreshold
 };
 typedef struct Thresholds Thresholds;
 
-struct RndrCmd
-{
-    RndrThreshold th;
-    SDL_Rect viewport;
-
-    int col_offset;
-
-    int getx(const int col, const int block, const int hpad) { return col * (block + hpad); }
-
-    RndrCmd &vp_update(const int x, const int y, const int w, const int h)
-    {
-        viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
-        return *this;
-    }
-
-    RndrCmd &th_update(RndrThreshold new_th)
-    {
-        th = new_th;
-        return *this;
-    }
-
-    RndrCmd(void) : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0})
-    {
-        col_offset = 0;
-    }
-};
-
 struct RndrItem
 {
     RndrThreshold th;
@@ -172,7 +145,8 @@ class Renderer
     SDL_Renderer *rend;
     std::unordered_set<int32_t> used;
     std::unordered_map<int32_t, RndrItem> rndrbuffers;
-    RndrCmd rndrcmd;
+    RndrItem rcmd;
+    RndrItem status;
     std::vector<int32_t> commited_ids;
     VectorFont vf;
     const Editor *const ed;

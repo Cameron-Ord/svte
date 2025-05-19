@@ -2,14 +2,18 @@
 #define SDL2_WINDOW_HPP
 
 #include <SDL2/SDL_video.h>
+#include "../vector.hpp"
 
 struct WindowPartition
 {
-    int cmd_box_x, cmd_box_y;
-    int cmd_box_w, cmd_box_h;
+  Vec4i bufbox;
+  Vec4i cmdbox;
+  Vec4i statusbox;
+  int cmd_box_x, cmd_box_y;
+  int cmd_box_w, cmd_box_h;
 
-    int buf_box_x, buf_box_y;
-    int buf_box_w, buf_box_h;
+  int buf_box_x, buf_box_y;
+  int buf_box_w, buf_box_h;
 };
 
 class Window

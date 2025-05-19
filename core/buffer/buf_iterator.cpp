@@ -1,7 +1,8 @@
 
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_defines.hpp"
-#include "../../include/core/core_error_codes.hpp"
+#include "../../include/core/core_defines.hpp"
+
 
 std::string Buffer::buf_get_substr_after_col_pos(ConstBufStrIt &str)
 {

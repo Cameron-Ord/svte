@@ -21,7 +21,7 @@ void Window::win_dft_partition(const int &rblock, const int &vpadding)
     const int cmd_box_y = height - reserve_cmd_block;
 
     partitions.cmd_box_x = 4, partitions.cmd_box_y = cmd_box_y;
-    partitions.cmd_box_w = width, partitions.cmd_box_h = reserve_cmd_block;
+    partitions.cmd_box_w = width * 0.5, partitions.cmd_box_h = reserve_cmd_block;
 
     const int buf_box_h = height - reserve_cmd_block;
 
