@@ -59,20 +59,26 @@ SDL2_Context::~SDL2_Context(void)
 
 void SDL2_Context::sdl2_init_proxy_fncs(void){
     branches.insert({std::string("chsdl2textinput"), [this](const  EventResult& er) -> void { sdl2_input_chmode(er); }});
-    branches.insert({std::string("move"), [this](const  EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
-    branches.insert({std::string("textinsert"), [this](const  EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
+    branches.insert({std::string("move"), [this](const  EventResult& er) -> void { sdl2_rndr_buf_cursor_update(er); }});
+    branches.insert({std::string("cmdmove"), [this](const  EventResult& er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
+    branches.insert({std::string("textinsert"), [this](const  EventResult& er) -> void { sdl2_rndr_buf_cursor_update(er); }});
+    branches.insert({std::string("cmdtextinsert"), [this](const  EventResult& er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
     branches.insert({std::string("resized"), [this](const  EventResult& er) -> void { sdl2_window_size_update(er); }});
     branches.insert({std::string("sizechanged"), [this](const  EventResult& er) -> void { sdl2_window_size_update(er); }});
 }
 
 
 void SDL2_Context::sdl2_window_size_update(const  EventResult& er){
-    win.win_update_window_values();
-    rend.rndr_update_viewports(win.win_width(), win.win_height());
+    win.win_update_window_values().win_dft_partition(rend._vf().vec_row_block(), rend.rndr_vpad());
+    rend.rndr_update_viewports(win._wp());
     rend.rndr_update_offsets();
 }
 
-void SDL2_Context::sdl2_rndr_cursor_update(const  EventResult& er){
+void SDL2_Context::sdl2_rndr_cmd_cursor_update(const EventResult& er){
+    rend.rndr_cmd_offsets();
+}
+
+void SDL2_Context::sdl2_rndr_buf_cursor_update(const  EventResult& er){
     if(er.get_event_id() < 0){
         std::cerr << "Invalid ID passed in EventResult!" << std::endl;
         return;

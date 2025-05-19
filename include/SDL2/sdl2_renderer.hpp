@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+
+typedef struct WindowPartition WindowPartition;
 class Buffer;
 class Editor;
 typedef struct EditorCmd EditorCmd;
@@ -47,23 +49,37 @@ struct RndrCmd{
     RndrThreshold th;
     SDL_Rect viewport;
 
-    int horizontal_padding;
     int col_offset;
+
+    int getx(const int col, const int block, const int hpad) { return col * (block + hpad); }
+
+    RndrCmd& vp_update(const int x, const int y, const int w, const int h) {  
+        viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
+        return *this;
+    }
+
+    RndrCmd& th_update(RndrThreshold new_th){
+        th = new_th;
+        return *this;
+    }
+
+    RndrCmd(void) : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0}){
+        col_offset = 0;
+    }
 };
 
 struct RndrItem{
     RndrThreshold th;
     SDL_Rect viewport;
 
-    int vertical_padding;
-    int horizontal_padding;
     int col_offset, row_offset;
 
-    int gety(const int row, const int block) { return row * (block + vertical_padding); }
-    int getx(const int col, const int block) { return col * (block + horizontal_padding); }
+    int gety(const int row, const int block, const int vpad) { return row * (block + vpad); }
+    int getx(const int col, const int block, const int hpad) { return col * (block + hpad); }
 
-    void vp_update_all(const int x, const int y, const int w, const int h) {  
+    RndrItem& vp_update(const int x, const int y, const int w, const int h) {  
         viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
+        return *this;
     }
 
     RndrItem& th_update(RndrThreshold new_th){
@@ -71,20 +87,9 @@ struct RndrItem{
         return *this;
     }
 
-    RndrItem& vp_update_w(const int w) {  
-        viewport.w = w;
-        return *this;
-    }
-
-    RndrItem& vp_update_h(const int h) {  
-        viewport.h = h;
-        return *this;
-    }
-
-    RndrItem(const int width, const int height) 
-    : th(width, height, 0.1, 0.9, 0.1, 0.9), viewport({0, 0, width, height}) {
+    RndrItem(void) 
+    : th(0, 0, 0.0, 0.0, 0.0, 0.0), viewport({0, 0, 0, 0}) {
         col_offset = 0, row_offset = 0;
-        vertical_padding = 2, horizontal_padding = 2;
     }
 
 };
@@ -124,6 +129,7 @@ class Renderer {
         int rndr_get_err(void) { return error; }
 
         class VectorFont& _vf(void) { return vf; }
+        void rndr_init_cmd_viewport(const WindowPartition *wp);
 
         SDL_Renderer *rndr_create_renderer(SDL_Window *w, const int flags);
         SDL_Renderer *rndr_get_renderer(void) { return rend; }
@@ -131,10 +137,10 @@ class Renderer {
         void rndr_clear(void) { SDL_RenderClear(rend); }
         void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { SDL_SetRenderDrawColor(rend, r, g, b, a); }
         void rndr_present(void) { SDL_RenderPresent(rend); }
-        int rndr_commit_buffer(const int32_t id, const int width, const int height);
+        int rndr_commit_buffer(const int32_t id, const WindowPartition *wp);
         void rndr_draw_id(const int32_t id);
 
-        void rndr_update_viewports(const int width, const int height);
+        void rndr_update_viewports(const WindowPartition *wp);
         void rndr_update_offsets_by_id(const int32_t id);
         void rndr_set_viewport(const SDL_Rect *vp_rect);
         
@@ -142,7 +148,13 @@ class Renderer {
         void rndr_put_cursor(RndrItem& item, const int& row, const int& col);
         void rndr_draw_line(ConstBufStrIt& line, RndrItem& item, const int y);
         void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
-        void rndr_offsets(RndrItem& item, const Buffer* const b);
+        void rndr_buf_offsets(RndrItem& item, const Buffer* const b);
+        void rndr_cmd_offsets(void);
+
+        const int& rndr_vpad(void) const { return vertical_padding; }
+        const int& rndr_hpad(void) const { return horizontal_padding; }
+        Renderer& rndr_draw_cmd(void);
+        void rndr_cmd_cursor(void);
 
         void rndr_update_offsets(void);
 
@@ -151,9 +163,12 @@ class Renderer {
         SDL_Renderer *rend;
         std::unordered_set<int32_t> used;
         std::unordered_map<int32_t, RndrItem> rndrbuffers;
+        RndrCmd rndrcmd;
         std::vector<int32_t> commited_ids;
         VectorFont vf;
         const Editor* const ed;
+        int vertical_padding;
+        int horizontal_padding;
 };
 
 #endif

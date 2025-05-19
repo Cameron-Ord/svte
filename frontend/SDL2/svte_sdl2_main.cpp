@@ -17,6 +17,11 @@ int main(int argc, char **argv)
         std::cerr << "Failed to initialize editor!" << std::endl;
         return 1;
     }
+    
+    std::string fn;
+    if (argc > 1 && argc < 3) {
+        fn = std::string(argv[1]);
+    }
 
     SDL2_Initializer init;
     if (init.init_get_err() != SDL2_NIL) {
@@ -34,16 +39,9 @@ int main(int argc, char **argv)
      Renderer *renderer = context.sdl2_get_rend();
      KeyEvent *ev_handle = context.sdl2_get_keyevent();
 
-    std::string fn;
-    if (argc > 1 && argc < 3) {
-        fn = std::string(argv[1]);
-    }
-
-    renderer->rndr_commit_buffer(
-        ed.ed_commit_buffer(fn), 
-        window->win_width(), 
-        window->win_height()
-    );
+    window->win_dft_partition(renderer->_vf().vec_row_block(), renderer->rndr_vpad());
+    renderer->rndr_init_cmd_viewport(window->_wp());
+    renderer->rndr_commit_buffer(ed.ed_commit_buffer(fn), window->_wp());
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
@@ -87,6 +85,7 @@ int main(int argc, char **argv)
         }
 
         renderer->rndr_draw_id(ed.ed_get_current_id());
+        renderer->rndr_draw_cmd().rndr_cmd_cursor();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

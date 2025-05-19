@@ -196,7 +196,7 @@ void KeyEvent::ev_init_keybinds(void)
  EventResult KeyEvent::ev_cmd(const int& keymod,  Editor *e, const int32_t id){
     if(e->ed_get_mode() == NAV && !SDL_IsTextInputActive()){
         e->ed_set_mode(CMD);
-        return EventResult("cmdmode", "start", id);
+        return EventResult("chsdl2textinput", "start", id);
     }
     return EventResult("notbound", "noopt", id);
 }
@@ -270,7 +270,20 @@ int KeyEvent::ev_mainloop_poll_event_type(SDL_Event *const e)
             }break;
         }
     }
-    return EventResult("textinsert", "noopt", id);
+
+    switch(e->ed_get_mode()){
+        default:{
+            return EventResult("notbound", "noopt", id);
+        }
+
+        case INSERT:{
+            return EventResult("textinsert", "noopt", id);           
+        }
+
+        case CMD:{
+            return EventResult("cmdtextinsert", "noopt", id);           
+        }
+    }
 }
 
 int KeyEvent::ev_mainloop_die(void) { return NO_RUN; }

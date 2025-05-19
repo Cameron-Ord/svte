@@ -48,6 +48,7 @@ class Editor {
         Editor& ed_eval_cmd(void);
         void ed_do_cmd(void);
         void ed_cmd_ins(const unsigned char c);
+        const EditorCmd& ed_get_cmd(void) const { return cmd; }
         
     private:
         int error;

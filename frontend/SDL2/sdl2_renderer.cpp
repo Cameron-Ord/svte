@@ -1,3 +1,5 @@
+
+#include "../../include/SDL2/sdl2_window.hpp"
 #include "../../include/SDL2/sdl2_renderer.hpp"
 #include "../../include/SDL2/sdl2_enums.hpp"
 #include "../../include/SDL2/sdl2_macdef.hpp"
@@ -8,8 +10,9 @@
 
 #include <iostream>
 
-Renderer::Renderer(SDL_Window *w, const Editor* const edptr)
-    : error(SDL2_NIL), rend(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)), vf(rndr_get_renderer()), ed(edptr)
+Renderer::Renderer(SDL_Window *w, const Editor* const edptr): 
+error(SDL2_NIL), rend(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)), 
+vf(rndr_get_renderer()), ed(edptr), vertical_padding(2), horizontal_padding(2)
 {
     rndr_set_err((rend != nullptr) ? SDL2_NIL : SDL2_ERR);
     rndr_set_err((edptr != nullptr) ? SDL2_NIL : SDL2_ERR);
@@ -19,21 +22,60 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode){
     SDL_SetRenderDrawBlendMode(rend, mode);
 }
 
+
+void Renderer::rndr_init_cmd_viewport(const WindowPartition *wp){
+    rndrcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(
+        RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.8, 0.1, 0.8)
+    );
+}
+
+Renderer& Renderer::rndr_draw_cmd(void){
+    rndr_set_viewport(&rndrcmd.viewport);
+
+    const EditorCmd& ec = ed->ed_get_cmd();
+    ConstBufStrIt line(ec.cmdstr);
+    line.offset(rndrcmd.col_offset).valid();
+
+    int col = 0;
+    const unsigned char skipchar = ' ';
+
+    for (; line.begin != line.end; line.increment()) {
+        const unsigned char c = *line.begin;
+        const CSprite &spr = vf.vec_index_texture(c);
+        const int x = rndrcmd.getx(col, vf.vec_col_block(), horizontal_padding);
+
+        if(x > rndrcmd.viewport.w){
+            return *this;
+        }
+
+        if (c != skipchar) {
+            rndr_put_char(x, 0, spr.w, spr.h, spr.texture);
+        }
+        col += 1;
+    }
+
+    return *this;
+}
+
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
-void Renderer::rndr_update_viewports(const int width, const int height)
+void Renderer::rndr_update_viewports(const WindowPartition *wp)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
         if (it != rndrbuffers.end()) {
-            it->second.vp_update_w(width).vp_update_h(height).th_update(
-                RndrThreshold(width, height, 0.1, 0.9, 0.1, 0.9)
+            it->second.vp_update(wp->buf_box_x, wp->buf_box_y, wp->buf_box_w, wp->buf_box_h).th_update(
+                RndrThreshold(wp->buf_box_w, wp->buf_box_h, 0.1, 0.8, 0.1, 0.8)
             );
         }
     }
+
+    rndrcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(
+        RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.8, 0.1, 0.8)
+    );
 }
 
-int Renderer::rndr_commit_buffer(const int32_t id, const int width, const int height)
+int Renderer::rndr_commit_buffer(const int32_t id, const WindowPartition *wp)
 {
     if(id < 0){
         return 0;
@@ -45,7 +87,10 @@ int Renderer::rndr_commit_buffer(const int32_t id, const int width, const int he
         return 0;
     }
 
-    RndrItem item(width, height);
+    RndrItem item;
+    item.vp_update(wp->buf_box_x, wp->buf_box_y, wp->buf_box_w, wp->buf_box_h).th_update(
+        RndrThreshold(wp->buf_box_w, wp->buf_box_h, 0.1, 0.8, 0.1, 0.8)
+    );
     used.insert(id);
     rndrbuffers.insert({id, item});
     commited_ids.push_back(id);
@@ -94,7 +139,7 @@ void Renderer::rndr_update_offsets_by_id(const int32_t id)
     std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
     const  Buffer* const b = ed->ed_fetch_buffer_const(id);
     if(it != rndrbuffers.end() && b != nullptr){
-        rndr_offsets(it->second, b);
+        rndr_buf_offsets(it->second, b);
     }
 
 }
@@ -104,16 +149,31 @@ void Renderer::rndr_update_offsets(void){
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
         const  Buffer* const b = ed->ed_fetch_buffer_const(commited_ids[i]);
         if(it != rndrbuffers.end() && b != nullptr){
-            rndr_offsets(it->second, b);
+            rndr_buf_offsets(it->second, b);
         }
     }
 }
 
-void Renderer::rndr_offsets(RndrItem& item, const  Buffer* const b){
+void Renderer::rndr_cmd_offsets(void){
+    const int line_size = ed->ed_get_cmd().cmdstr.size();
+    const int col = ed->ed_get_cmd().cursor;
+
+    auto getx = [this, &col]() { return rndrcmd.getx(col - rndrcmd.col_offset, vf.vec_col_block(), horizontal_padding); };
+
+    while(getx() < rndrcmd.th.w_th_min && rndrcmd.col_offset > 0){
+        rndrcmd.col_offset--;
+    }
+
+    while(getx() > rndrcmd.th.w_th_max && line_size > 0 && rndrcmd.col_offset <= line_size){
+        rndrcmd.col_offset++;
+    }
+}
+
+void Renderer::rndr_buf_offsets(RndrItem& item, const  Buffer* const b){
     const int line_size = b->buf_get_line_size(b->buf_get_row());
     const int buf_size = b->buf_get_size();
 
-    auto gety = [this, b, &item]() { return item.gety(b->buf_get_row() - item.row_offset, vf.vec_row_block()); };
+    auto gety = [this, b, &item]() { return item.gety(b->buf_get_row() - item.row_offset, vf.vec_row_block(), vertical_padding); };
 
     while(gety() < item.th.h_th_min && item.row_offset > 0){
         item.row_offset--;
@@ -123,7 +183,7 @@ void Renderer::rndr_offsets(RndrItem& item, const  Buffer* const b){
         item.row_offset++;
     }
 
-    auto getx = [this, b, &item]() { return item.getx(b->buf_get_col() - item.col_offset, vf.vec_col_block()); };
+    auto getx = [this, b, &item]() { return item.getx(b->buf_get_col() - item.col_offset, vf.vec_col_block(), horizontal_padding); };
 
     while(getx() < item.th.w_th_min && item.col_offset > 0){
         item.col_offset--;
@@ -141,7 +201,7 @@ void Renderer::rndr_draw_buffer(RndrItem& item, const  Buffer* const b)
 
     int row = 0;
     for (; lines.begin != lines.end; lines.increment()) {
-        const int y = item.gety(row, vf.vec_row_block());
+        const int y = item.gety(row, vf.vec_row_block(), vertical_padding);
 
         if(y > item.viewport.h){
             return;
@@ -166,7 +226,7 @@ void Renderer::rndr_draw_line(
     for (; line.begin != line.end; line.increment()) {
         const unsigned char c = *line.begin;
         const CSprite &spr = vf.vec_index_texture(c);
-        const int x = item.getx(col, vf.vec_col_block());
+        const int x = item.getx(col, vf.vec_col_block(), horizontal_padding);
 
         if(x > item.viewport.w){
             return;
@@ -187,8 +247,16 @@ void Renderer::rndr_put_char(const int x, const int y, const int w, const int h,
 
 void Renderer::rndr_put_cursor(RndrItem& item, const int& row, const int& col)
 {
-    const int x = item.getx(col - item.col_offset, vf.vec_col_block());
-    const int y = item.gety(row - item.row_offset, vf.vec_row_block());
+    const int x = item.getx(col - item.col_offset, vf.vec_col_block(), horizontal_padding);
+    const int y = item.gety(row - item.row_offset, vf.vec_row_block(), vertical_padding);
     SDL_Rect rect = {x, y, vf.vec_col_block(), vf.vec_row_block()};
+    SDL_RenderFillRect(rend, &rect);
+}
+
+void Renderer::rndr_cmd_cursor(void){
+    const int c = ed->ed_get_cmd().cursor;
+    const int x = rndrcmd.getx(c - rndrcmd.col_offset, vf.vec_col_block(), horizontal_padding);
+    const int y = 0;
+    SDL_Rect rect {x, y, vf.vec_col_block(), vf.vec_row_block()};
     SDL_RenderFillRect(rend, &rect);
 }

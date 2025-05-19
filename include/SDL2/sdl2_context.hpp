@@ -32,7 +32,8 @@ class SDL2_Context{
         KeyEvent* sdl2_get_keyevent(void) { return &events; }
         void sdl2_mainloop_event_branch(const EventResult& er);
         void sdl2_window_size_update(const EventResult& er);
-        void sdl2_rndr_cursor_update(const EventResult& er);
+        void sdl2_rndr_buf_cursor_update(const EventResult& er);
+        void sdl2_rndr_cmd_cursor_update(const EventResult& er);
         void sdl2_input_chmode(const EventResult& er);
         void sdl2_init_proxy_fncs(void);
 
