@@ -9,27 +9,27 @@ const std::vector<int32_t>& Editor::ed_get_open(void){
     return open;
 }
 
-BCommit Editor::ed_commit_buffer(std::string fn){
+const int32_t Editor::ed_commit_buffer(std::string fn){
     const int cond = !fn.empty();
     switch(cond){
         default:{
-            return BCommit(CORE_NIL, nullptr);
+            return CORE_NIL;
         }
 
         case 1:{
             const int32_t id = ed_append_buffer(fn);
             if(ed_open_file(id) == NO_BUFFER){
-                return BCommit(CORE_NIL, nullptr);
+                return CORE_NIL;
             }
-            return BCommit(id, ed_fetch_buffer_const(id));
+            return id;
         }break;
 
         case 0:{
             const int32_t id = ed_append_buffer();
             if(ed_no_file(id) == NO_BUFFER){
-                return BCommit(CORE_NIL, nullptr);
+                return CORE_NIL;
             }
-            return BCommit(id, ed_fetch_buffer_const(id));
+            return id;
         }break;
     }
 }
@@ -102,7 +102,7 @@ int Editor::ed_append_buffer(std::string fn){
     return id;
 }
 
-const class Buffer *Editor::ed_fetch_buffer_const(const int32_t id){
+const Buffer* const Editor::ed_fetch_buffer_const(const int32_t id) const {
     std::unordered_map<int32_t, class Buffer *>::const_iterator it = bufs.find(id);
     if(it != bufs.end()){
         return it->second;
@@ -111,7 +111,7 @@ const class Buffer *Editor::ed_fetch_buffer_const(const int32_t id){
     }
 }
 
-class Buffer *Editor::ed_fetch_buffer(const int32_t id){
+Buffer *Editor::ed_fetch_buffer(const int32_t id){
     std::unordered_map<int32_t, class Buffer *>::iterator it = bufs.find(id);
     if(it != bufs.end()){
         return it->second;

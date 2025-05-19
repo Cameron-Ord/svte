@@ -6,10 +6,10 @@
 #include <fstream>
 
 int Editor::ed_save_file(const int32_t id){
-    std::unordered_map<int32_t, class Buffer *>::iterator it;
+    std::unordered_map<int32_t, Buffer *>::iterator it;
     it = bufs.find(id);
     if(it != bufs.end()){
-        class Buffer *buffer = it->second;
+        Buffer *buffer = it->second;
         const std::string fullpath = ed_working_path + ed_delimiter() + buffer->buf_get_filename();
         
         std::ofstream file(fullpath, std::ios::out);

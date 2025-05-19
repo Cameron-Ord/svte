@@ -20,8 +20,8 @@ typedef struct {
     int APPEND_MODE;
     int SELECTION_MODE;
     int NAV_MODE;
-
     int ACTION_CMD;
+
     int ACTION_MOD;
 } Controls;
 
@@ -66,6 +66,7 @@ class KeyEvent{
         class EventResult ev_backspace(const int& keymod, class Editor *e, const int32_t id);
         class EventResult ev_return(const int& keymod, class Editor *e, const int32_t id);
         class EventResult ev_delete(const int& keymod, class Editor *e, const int32_t id);
+        class EventResult ev_cmd(const int& keymod, class Editor *e, const int32_t id);
         Controls ev_init_controls(void);
         void ev_init_keybinds(void);
     private:

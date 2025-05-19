@@ -3,14 +3,16 @@
 #include "../../include/SDL2/sdl2_macdef.hpp"
 
 #include "../../include/core/core_buffer.hpp"
+#include "../../include/core/core_editor.hpp"
 
 
 #include <iostream>
 
-Renderer::Renderer(SDL_Window *w)
-    : error(SDL2_NIL), rend(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)), vf(rndr_get_renderer())
+Renderer::Renderer(SDL_Window *w, const Editor* const edptr)
+    : error(SDL2_NIL), rend(rndr_create_renderer(w, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC)), vf(rndr_get_renderer()), ed(edptr)
 {
     rndr_set_err((rend != nullptr) ? SDL2_NIL : SDL2_ERR);
+    rndr_set_err((edptr != nullptr) ? SDL2_NIL : SDL2_ERR);
 }
 
 void Renderer::rndr_set_blendmode(SDL_BlendMode mode){
@@ -31,28 +33,22 @@ void Renderer::rndr_update_viewports(const int width, const int height)
     }
 }
 
-int Renderer::rndr_commit_buffer(BCommit commit, const int width, const int height)
+int Renderer::rndr_commit_buffer(const int32_t id, const int width, const int height)
 {
-    if(commit.id < 0 || !commit.cbuf){
-        std::cerr << "Bad ID or NULL pointer" << std::endl;
+    if(id < 0){
         return 0;
     }
 
-    std::unordered_set<int32_t>::iterator it = used.find(commit.id);
+    std::unordered_set<int32_t>::iterator it = used.find(id);
     if (it != used.end()) {
         std::cout << "ID already exists" << std::endl;
         return 0;
     }
 
     RndrItem item(width, height);
-    if(!item.set_buf(commit.cbuf)){
-        std::cerr << "Passed a NULL pointer using class Buffer" << std::endl;
-        return 0;
-    }
-
-    used.insert(commit.id);
-    rndrbuffers.insert({commit.id, item});
-    commited_ids.push_back(commit.id);
+    used.insert(id);
+    rndrbuffers.insert({id, item});
+    commited_ids.push_back(id);
 
     return 1;
 }
@@ -84,19 +80,21 @@ void Renderer::rndr_set_viewport(const SDL_Rect *vp_rect)
 void Renderer::rndr_draw_id(const int32_t id)
 {
     std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
-    if (it != rndrbuffers.end()) {
+    const  Buffer* const b = ed->ed_fetch_buffer_const(id);
+    if (it != rndrbuffers.end() && b != nullptr) {
         rndr_set_viewport(&it->second.viewport);
-        rndr_draw_buffer(it->second);
+        rndr_draw_buffer(it->second, b);
         rndr_set_colour(255, 255, 255, 125);
-        rndr_put_cursor(it->second);
+        rndr_put_cursor(it->second, b->buf_get_row(), b->buf_get_col());
     }
 }
 
 void Renderer::rndr_update_offsets_by_id(const int32_t id)
 {
     std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
-    if(it != rndrbuffers.end()){
-        rndr_offsets(it->second);
+    const  Buffer* const b = ed->ed_fetch_buffer_const(id);
+    if(it != rndrbuffers.end() && b != nullptr){
+        rndr_offsets(it->second, b);
     }
 
 }
@@ -104,17 +102,18 @@ void Renderer::rndr_update_offsets_by_id(const int32_t id)
 void Renderer::rndr_update_offsets(void){
     for(size_t i = 0; i < commited_ids.size(); i++){
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
-        if(it != rndrbuffers.end()){
-            rndr_offsets(it->second);
+        const  Buffer* const b = ed->ed_fetch_buffer_const(commited_ids[i]);
+        if(it != rndrbuffers.end() && b != nullptr){
+            rndr_offsets(it->second, b);
         }
     }
 }
 
-void Renderer::rndr_offsets(RndrItem& item){
-    const int line_size = item.b->buf_get_line_size(item.b->buf_get_row());
-    const int buf_size = item.b->buf_get_size();
+void Renderer::rndr_offsets(RndrItem& item, const  Buffer* const b){
+    const int line_size = b->buf_get_line_size(b->buf_get_row());
+    const int buf_size = b->buf_get_size();
 
-    auto gety = [this, &item]() { return item.gety(item.b->buf_get_row() - item.row_offset, vf.vec_row_block()); };
+    auto gety = [this, b, &item]() { return item.gety(b->buf_get_row() - item.row_offset, vf.vec_row_block()); };
 
     while(gety() < item.th.h_th_min && item.row_offset > 0){
         item.row_offset--;
@@ -124,7 +123,7 @@ void Renderer::rndr_offsets(RndrItem& item){
         item.row_offset++;
     }
 
-    auto getx = [this, &item]() { return item.getx(item.b->buf_get_col() - item.col_offset, vf.vec_col_block()); };
+    auto getx = [this, b, &item]() { return item.getx(b->buf_get_col() - item.col_offset, vf.vec_col_block()); };
 
     while(getx() < item.th.w_th_min && item.col_offset > 0){
         item.col_offset--;
@@ -135,9 +134,9 @@ void Renderer::rndr_offsets(RndrItem& item){
     }
 }
 
-void Renderer::rndr_draw_buffer(RndrItem& item)
+void Renderer::rndr_draw_buffer(RndrItem& item, const  Buffer* const b)
 {
-    ConstBufRowIt lines(item.b->buf_get_buffer());
+    ConstBufRowIt lines(b->buf_get_buffer());
     lines.offset(item.row_offset).valid();
 
     int row = 0;
@@ -186,10 +185,10 @@ void Renderer::rndr_put_char(const int x, const int y, const int w, const int h,
     SDL_RenderCopy(rend, t, NULL, &rect);
 }
 
-void Renderer::rndr_put_cursor(RndrItem& item)
+void Renderer::rndr_put_cursor(RndrItem& item, const int& row, const int& col)
 {
-    const int x = item.getx(item.b->buf_get_col() - item.col_offset, vf.vec_col_block());
-    const int y = item.gety(item.b->buf_get_row() - item.row_offset, vf.vec_row_block());
+    const int x = item.getx(col - item.col_offset, vf.vec_col_block());
+    const int y = item.gety(row - item.row_offset, vf.vec_row_block());
     SDL_Rect rect = {x, y, vf.vec_col_block(), vf.vec_row_block()};
     SDL_RenderFillRect(rend, &rect);
 }

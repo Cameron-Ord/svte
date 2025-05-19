@@ -29,8 +29,8 @@ Controls KeyEvent::ev_init_controls(void)
         controls.APPEND_MODE = SDLK_a,
         controls.SELECTION_MODE = SDLK_v,
         controls.NAV_MODE = SDLK_ESCAPE,
-
         controls.ACTION_CMD = SDLK_c,
+
         controls.ACTION_MOD = KMOD_LCTRL,
     };
     return c;
@@ -39,23 +39,25 @@ Controls KeyEvent::ev_init_controls(void)
 //https://en.cppreference.com/w/cpp/language/lambda
 void KeyEvent::ev_init_keybinds(void)
 {
-    binds.insert({controls.LEFT, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_left(mod, e, id); }});
-    binds.insert({controls.RIGHT, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_right(mod, e, id); }});
-    binds.insert({controls.UP, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_up(mod, e, id); }});
-    binds.insert({controls.DOWN, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_down(mod, e, id); }});
+    binds.insert({controls.LEFT, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_left(mod, e, id); }});
+    binds.insert({controls.RIGHT, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_right(mod, e, id); }});
+    binds.insert({controls.UP, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_up(mod, e, id); }});
+    binds.insert({controls.DOWN, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_down(mod, e, id); }});
     
-    binds.insert({controls.RETURN, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_return(mod, e, id); }});
-    binds.insert({controls.BACKSPACE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_backspace(mod, e, id); }});
-    binds.insert({controls.DELETE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_delete(mod, e, id); }});
+    binds.insert({controls.RETURN, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_return(mod, e, id); }});
+    binds.insert({controls.BACKSPACE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_backspace(mod, e, id); }});
+    binds.insert({controls.DELETE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_delete(mod, e, id); }});
     
-    binds.insert({controls.INSERT_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_insert(mod, e, id); }});
-    binds.insert({controls.APPEND_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_append(mod, e, id); }});
-    binds.insert({controls.NAV_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_escape(mod, e, id); }});
-    binds.insert({controls.SELECTION_MODE, [this](int mod, class Editor *e, const int32_t id) -> class EventResult { return ev_visual(mod, e, id); }});
+    binds.insert({controls.INSERT_MODE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_insert(mod, e, id); }});
+    binds.insert({controls.APPEND_MODE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_append(mod, e, id); }});
+    binds.insert({controls.NAV_MODE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_escape(mod, e, id); }});
+    binds.insert({controls.SELECTION_MODE, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_visual(mod, e, id); }});
+    binds.insert({controls.ACTION_CMD, [this](int mod,  Editor *e, const int32_t id) ->  EventResult { return ev_cmd(mod, e, id); }});
 }
 
-class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, const int32_t id){
-    class Buffer *buf = e->ed_fetch_buffer(id);
+
+ EventResult KeyEvent::ev_backspace(const int& keymod,  Editor *e, const int32_t id){
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -70,11 +72,10 @@ class EventResult KeyEvent::ev_backspace(const int& keymod, class Editor *e, con
     }
 
     return EventResult("notbound", "noopt", id);
-
 }
 
-class EventResult KeyEvent::ev_return(const int& keymod, class Editor *e, const int32_t id){
-    class Buffer *buf = e->ed_fetch_buffer(id);
+ EventResult KeyEvent::ev_return(const int& keymod,  Editor *e, const int32_t id){
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -86,13 +87,17 @@ class EventResult KeyEvent::ev_return(const int& keymod, class Editor *e, const 
     } else if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()){
         buf->buf_mv_row(1);
         return EventResult("move", "noopt", id);
+
+    } else if (e->ed_get_mode() == CMD && SDL_IsTextInputActive()){
+        e->ed_eval_cmd().ed_do_cmd();
+        return EventResult("cmdexec", "noopt", id);
     }
 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_delete(const int& keymod, class Editor *e, const int32_t id){
-    class Buffer *buf = e->ed_fetch_buffer(id);
+ EventResult KeyEvent::ev_delete(const int& keymod,  Editor *e, const int32_t id){
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -105,9 +110,9 @@ class EventResult KeyEvent::ev_delete(const int& keymod, class Editor *e, const 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_left(const int &keymod,  Editor *e, const int32_t id)
 {
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -118,9 +123,9 @@ class EventResult KeyEvent::ev_left(const int &keymod, class Editor *e, const in
     return EventResult("move", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_up(const int &keymod,  Editor *e, const int32_t id)
 {
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -131,9 +136,9 @@ class EventResult KeyEvent::ev_up(const int &keymod, class Editor *e, const int3
     return EventResult("move", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_down(const int &keymod,  Editor *e, const int32_t id)
 {
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -144,9 +149,9 @@ class EventResult KeyEvent::ev_down(const int &keymod, class Editor *e, const in
     return EventResult("move", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_right(const int &keymod,  Editor *e, const int32_t id)
 {    
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -157,9 +162,9 @@ class EventResult KeyEvent::ev_right(const int &keymod, class Editor *e, const i
     return EventResult("move", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_visual(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_visual(const int &keymod,  Editor *e, const int32_t id)
 {
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
@@ -170,7 +175,7 @@ class EventResult KeyEvent::ev_visual(const int &keymod, class Editor *e, const 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_append(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_append(const int &keymod,  Editor *e, const int32_t id)
 {
     if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         e->ed_set_mode(APPEND);
@@ -179,7 +184,7 @@ class EventResult KeyEvent::ev_append(const int &keymod, class Editor *e, const 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_insert(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_insert(const int &keymod,  Editor *e, const int32_t id)
 {
     if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
         e->ed_set_mode(INSERT);
@@ -188,8 +193,18 @@ class EventResult KeyEvent::ev_insert(const int &keymod, class Editor *e, const 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_escape(const int &keymod, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_cmd(const int& keymod,  Editor *e, const int32_t id){
+    if(e->ed_get_mode() == NAV && !SDL_IsTextInputActive()){
+        e->ed_set_mode(CMD);
+        return EventResult("cmdmode", "start", id);
+    }
+    return EventResult("notbound", "noopt", id);
+}
+
+
+ EventResult KeyEvent::ev_escape(const int &keymod,  Editor *e, const int32_t id)
 {
+    // No check, if this key is hit always just back out of whatever mode it was in no matter what.
     e->ed_set_mode(NAV);
     if(SDL_IsTextInputActive()){
         return EventResult("chsdl2textinput", "stop", id);
@@ -197,10 +212,10 @@ class EventResult KeyEvent::ev_escape(const int &keymod, class Editor *e, const 
     return EventResult("notbound", "noopt", id);
 }
 
-class EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, class Editor *e)
+ EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod,  Editor *e)
 {
     const int32_t id = e->ed_get_current_id();
-    std::unordered_map<int, std::function<class EventResult(int, class Editor *e, int)>>::const_iterator it;
+    std::unordered_map<int, std::function< EventResult(int,  Editor *e, int)>>::const_iterator it;
     it = binds.find(keysym);
     if (it != binds.end()) {
         return it->second(keymod, e, id);
@@ -216,7 +231,7 @@ int KeyEvent::ev_mainloop_poll_event_type(SDL_Event *const e)
     return SDL2_NIL;
 }
 
-class EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
+ EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
 {
     switch (windowevent) {
     default:
@@ -235,16 +250,25 @@ class EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
     }
 }
 
-class EventResult KeyEvent::ev_mainloop_text_input(const char *text, class Editor *e, const int32_t id)
+ EventResult KeyEvent::ev_mainloop_text_input(const char *text,  Editor *e, const int32_t id)
 {
-    const size_t len = strlen(text);
-    class Buffer *buf = e->ed_fetch_buffer(id);
+     Buffer *buf = e->ed_fetch_buffer(id);
     if(!buf){
         return EventResult("nobuffer", "noopt", id);
     }
 
+    const size_t len = strlen(text);
     for (size_t i = 0; i < len; i++) {
-        buf->buf_ins_char(text[i]);
+        switch(e->ed_get_mode()){
+            default: break;
+            case INSERT:{
+                buf->buf_ins_char(text[i]);
+            }break;
+
+            case CMD:{
+                e->ed_cmd_ins(text[i]);
+            }break;
+        }
     }
     return EventResult("textinsert", "noopt", id);
 }

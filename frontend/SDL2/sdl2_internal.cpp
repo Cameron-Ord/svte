@@ -43,8 +43,8 @@ int SDL2_Initializer::init_sdl2_instance(void)
     return SDL2_NIL;
 }
 
-SDL2_Context::SDL2_Context(void) : fps_target(60), error(SDL2_NIL), running(NO_RUN),
-                                   win(), rend(win.win_get_window()), events()
+SDL2_Context::SDL2_Context(const  Editor* const edptr) : fps_target(60), error(SDL2_NIL), running(NO_RUN),
+                                   win(), rend(win.win_get_window(), edptr), events()
 {
     sdl2_set_err(win.win_get_err());
     sdl2_set_err(rend.rndr_get_err());
@@ -58,21 +58,21 @@ SDL2_Context::~SDL2_Context(void)
 
 
 void SDL2_Context::sdl2_init_proxy_fncs(void){
-    branches.insert({std::string("chsdl2textinput"), [this](const class EventResult& er) -> void { sdl2_input_chmode(er); }});
-    branches.insert({std::string("move"), [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
-    branches.insert({std::string("textinsert"), [this](const class EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
-    branches.insert({std::string("resized"), [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
-    branches.insert({std::string("sizechanged"), [this](const class EventResult& er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({std::string("chsdl2textinput"), [this](const  EventResult& er) -> void { sdl2_input_chmode(er); }});
+    branches.insert({std::string("move"), [this](const  EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
+    branches.insert({std::string("textinsert"), [this](const  EventResult& er) -> void { sdl2_rndr_cursor_update(er); }});
+    branches.insert({std::string("resized"), [this](const  EventResult& er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({std::string("sizechanged"), [this](const  EventResult& er) -> void { sdl2_window_size_update(er); }});
 }
 
 
-void SDL2_Context::sdl2_window_size_update(const class EventResult& er){
+void SDL2_Context::sdl2_window_size_update(const  EventResult& er){
     win.win_update_window_values();
     rend.rndr_update_viewports(win.win_width(), win.win_height());
     rend.rndr_update_offsets();
 }
 
-void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
+void SDL2_Context::sdl2_rndr_cursor_update(const  EventResult& er){
     if(er.get_event_id() < 0){
         std::cerr << "Invalid ID passed in EventResult!" << std::endl;
         return;
@@ -81,7 +81,7 @@ void SDL2_Context::sdl2_rndr_cursor_update(const class EventResult& er){
     rend.rndr_update_offsets_by_id(er.get_event_id());
 }
 
-void SDL2_Context::sdl2_input_chmode(const class EventResult& er){
+void SDL2_Context::sdl2_input_chmode(const  EventResult& er){
     if(er.get_opt() == "start"){
         SDL_StartTextInput();
     } else if(er.get_opt() == "stop"){
@@ -90,7 +90,7 @@ void SDL2_Context::sdl2_input_chmode(const class EventResult& er){
 }
 
 void SDL2_Context::sdl2_mainloop_event_branch(const EventResult& er){
-    std::unordered_map<std::string, std::function<void(const class EventResult&)>>::iterator it;
+    std::unordered_map<std::string, std::function<void(const  EventResult&)>>::iterator it;
     it = branches.find(er.get_type());
     if(it != branches.end()){
         it->second(er);

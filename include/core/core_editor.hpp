@@ -6,7 +6,11 @@
 #include <string>
 #include <cstdint>
 
-#include "core_structs.hpp"
+
+struct EditorCmd{
+    std::string cmdstr;
+    int cursor;
+};
 
 //Forward declare the buffer class, must be defined in SRC files.
 class Buffer;
@@ -30,25 +34,30 @@ class Editor {
         void ed_set_cwd(std::string str);
         std::string ed_fs_cwd_string(void);
         std::string ed_delimiter(void);
-        class Buffer *ed_fetch_buffer(const int32_t id);
         uint8_t ed_get_mode(void);
         void ed_set_mode(const uint8_t val);
 
-        const class Buffer *ed_fetch_buffer_const(const int32_t id);
+        Buffer *ed_fetch_buffer(const int32_t id);
+        const Buffer* const ed_fetch_buffer_const(const int32_t id) const;
         const std::string& ed_get_cwd(void);
         const std::vector<int32_t>& ed_get_open(void);
         const int32_t& ed_get_current_id(void);
         const int& ed_get_error(void);
-        BCommit ed_commit_buffer(std::string fn);
-
+        const int32_t ed_commit_buffer(std::string fn);
+        
+        Editor& ed_eval_cmd(void);
+        void ed_do_cmd(void);
+        void ed_cmd_ins(const unsigned char c);
+        
     private:
         int error;
         uint8_t mode;
         int32_t current_buffer_id;
         std::string ed_working_path;
-        std::unordered_map<int32_t, class Buffer*> bufs;
+        std::unordered_map<int32_t, Buffer*> bufs;
         std::unordered_set<int32_t> used_ids;
         std::vector<int32_t> open;
+        EditorCmd cmd;
 };
 
 #endif

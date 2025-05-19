@@ -12,39 +12,32 @@
 
 int main(int argc, char **argv)
 {
-    SDL2_Initializer init;
-    if (init.init_get_err() != SDL2_NIL) {
-        std::cerr << "Failed to initialize SDL2 -> " << SDL_GetError() << std::endl;
-        return 1;
-    }
-
-    SDL2_Context context;
-    if (context.sdl2_get_err() != SDL2_NIL) {
-        std::cerr << "Failed to build contexts! -> " << SDL_GetError() << std::endl;
-        return 1;
-    }
-
     Editor ed;
     if (ed.ed_get_error() != CORE_NIL) {
         std::cerr << "Failed to initialize editor!" << std::endl;
         return 1;
     }
 
-    class Window *window = context.sdl2_get_win();
-    class Renderer *renderer = context.sdl2_get_rend();
-    class KeyEvent *ev_handle = context.sdl2_get_keyevent();
+    SDL2_Initializer init;
+    if (init.init_get_err() != SDL2_NIL) {
+        std::cerr << "Failed to initialize SDL2 -> " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+    SDL2_Context context(&ed);
+    if (context.sdl2_get_err() != SDL2_NIL) {
+        std::cerr << "Failed to build contexts! -> " << SDL_GetError() << std::endl;
+        return 1;
+    }
+
+     Window *window = context.sdl2_get_win();
+     Renderer *renderer = context.sdl2_get_rend();
+     KeyEvent *ev_handle = context.sdl2_get_keyevent();
 
     std::string fn;
     if (argc > 1 && argc < 3) {
         fn = std::string(argv[1]);
     }
-
-    // Commit a created buffer to its own renderer inside the main renderer class.
-    // Stores the commited buffers within a vector of IDs and also creates a new 
-    // BufRenderer class inside a map,
-    // which accessed by the buffer ID.
-    // A const pointer to the core buffer class is passed to the BufRenderer's constructor
-    // Giving access to required values (Characters, cursor positions) without allowing them to be mutable
 
     renderer->rndr_commit_buffer(
         ed.ed_commit_buffer(fn), 

@@ -7,7 +7,7 @@
 
 
 int Editor::ed_no_file(const int32_t id){
-    class Buffer *b = ed_fetch_buffer(id);
+    Buffer *b = ed_fetch_buffer(id);
     if(!b){
         return NO_BUFFER;
     }
@@ -17,11 +17,11 @@ int Editor::ed_no_file(const int32_t id){
 }
 
 int Editor::ed_open_file(const int32_t id){
-    std::unordered_map<int32_t, class Buffer *>::iterator it;
+    std::unordered_map<int32_t, Buffer *>::iterator it;
     it = bufs.find(id);
     
     if(it != bufs.end()){
-        class Buffer *buffer = it->second;
+        Buffer *buffer = it->second;
         
         buffer->buf_zero_buffer();
         const std::string fullpath = ed_working_path + ed_delimiter() + buffer->buf_get_filename();

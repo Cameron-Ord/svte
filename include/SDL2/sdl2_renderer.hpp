@@ -5,12 +5,13 @@
 #include <SDL2/SDL_ttf.h>
 
 #include "../core/core_iterator.hpp"
-#include "../core/core_structs.hpp"
 
 #include <unordered_map>
 #include <unordered_set>
 
 class Buffer;
+class Editor;
+typedef struct EditorCmd EditorCmd;
 
 typedef struct {
     int w, h;
@@ -42,9 +43,15 @@ struct RndrThreshold {
 };
 typedef struct Thresholds Thresholds;
 
+struct RndrCmd{
+    RndrThreshold th;
+    SDL_Rect viewport;
+
+    int horizontal_padding;
+    int col_offset;
+};
 
 struct RndrItem{
-    const class Buffer *b;
     RndrThreshold th;
     SDL_Rect viewport;
 
@@ -54,9 +61,6 @@ struct RndrItem{
 
     int gety(const int row, const int block) { return row * (block + vertical_padding); }
     int getx(const int col, const int block) { return col * (block + horizontal_padding); }
-
-    int set_buf(const class Buffer *cbuf) { return ((b = cbuf) != NULL); }
-    int valid_ptr(void){ return b != NULL; }
 
     void vp_update_all(const int x, const int y, const int w, const int h) {  
         viewport.x = x, viewport.y = y, viewport.w = w, viewport.h = h;
@@ -72,7 +76,6 @@ struct RndrItem{
         return *this;
     }
 
-    
     RndrItem& vp_update_h(const int h) {  
         viewport.h = h;
         return *this;
@@ -111,12 +114,11 @@ class VectorFont {
         int row_block;
         int col_block;
         CSprite *ch;
-
 };
 
 class Renderer {
     public:
-        Renderer(SDL_Window *w);
+        Renderer(SDL_Window *w, const Editor* const ed);
         void rndr_set_blendmode(const SDL_BlendMode mode);
         void rndr_set_err(const int errval) { error = errval; }
         int rndr_get_err(void) { return error; }
@@ -129,18 +131,18 @@ class Renderer {
         void rndr_clear(void) { SDL_RenderClear(rend); }
         void rndr_set_colour(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a) { SDL_SetRenderDrawColor(rend, r, g, b, a); }
         void rndr_present(void) { SDL_RenderPresent(rend); }
-        int rndr_commit_buffer(BCommit commit, const int width, const int height);
+        int rndr_commit_buffer(const int32_t id, const int width, const int height);
         void rndr_draw_id(const int32_t id);
 
         void rndr_update_viewports(const int width, const int height);
         void rndr_update_offsets_by_id(const int32_t id);
         void rndr_set_viewport(const SDL_Rect *vp_rect);
         
-        void rndr_draw_buffer(RndrItem& item);
-        void rndr_put_cursor(RndrItem& item);
+        void rndr_draw_buffer(RndrItem& item, const Buffer* const b);
+        void rndr_put_cursor(RndrItem& item, const int& row, const int& col);
         void rndr_draw_line(ConstBufStrIt& line, RndrItem& item, const int y);
         void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
-        void rndr_offsets(RndrItem& item);
+        void rndr_offsets(RndrItem& item, const Buffer* const b);
 
         void rndr_update_offsets(void);
 
@@ -150,7 +152,8 @@ class Renderer {
         std::unordered_set<int32_t> used;
         std::unordered_map<int32_t, RndrItem> rndrbuffers;
         std::vector<int32_t> commited_ids;
-        class VectorFont vf;
+        VectorFont vf;
+        const Editor* const ed;
 };
 
 #endif
