@@ -90,8 +90,12 @@ EventResult KeyEvent::ev_return(const int &keymod, Editor *e, const int32_t id)
         return EventResult("move", "noopt", id);
 
     } else if (e->ed_get_mode() == CMD && SDL_IsTextInputActive()) {
-        e->ed_eval_cmd().ed_do_cmd();
-        return EventResult("cmdexec", "noopt", id);
+        // If a command is entered, evaluate, do the command and return an opt string
+        // with a related ID; this can be the ID sent ot the function or a new one
+        // if a new buffer is created as a result from the cmd, then the internal 
+        // state of SDL2 can decide what to do based on the opt string/id
+        std::pair<std::string, int32_t> cmdret = e->ed_eval_cmd().ed_do_cmd();
+        return EventResult("cmdexec", cmdret.first, cmdret.second);
     }
 
     return EventResult("notbound", "noopt", id);
@@ -107,6 +111,9 @@ EventResult KeyEvent::ev_delete(const int &keymod, Editor *e, const int32_t id)
     if (e->ed_get_mode() == INSERT || e->ed_get_mode() == NAV) {
         buf->buf_rmv_at();
         return EventResult("textinsert", "noopt", id);
+    } else if(e->ed_get_mode() == CMD){
+        e->ed_clear_cmd();
+        return EventResult("notbound", "noopt", id);
     }
 
     return EventResult("notbound", "noopt", id);

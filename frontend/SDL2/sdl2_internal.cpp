@@ -61,10 +61,21 @@ void SDL2_Context::sdl2_init_proxy_fncs(void)
     branches.insert({std::string("chsdl2textinput"), [this](const EventResult &er) -> void { sdl2_input_chmode(er); }});
     branches.insert({std::string("move"), [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
     branches.insert({std::string("cmdmove"), [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
+    branches.insert({std::string("cmdexec"), [this](const EventResult &er) -> void { sdl2_cmd_exec_opts(er); }});
     branches.insert({std::string("textinsert"), [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
     branches.insert({std::string("cmdtextinsert"), [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
     branches.insert({std::string("resized"), [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
     branches.insert({std::string("sizechanged"), [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
+}
+
+void SDL2_Context::sdl2_cmd_exec_opts(const EventResult &er){
+    if(er.get_event_id() < 0){
+        return;
+    }
+
+    if(er.get_opt() == "newfile"){
+        rend.rndr_commit_buffer(er.get_event_id(), win._wp());
+    }
 }
 
 void SDL2_Context::sdl2_window_size_update(const EventResult &er)

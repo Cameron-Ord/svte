@@ -9,6 +9,7 @@
 
 struct EditorCmd{
     std::string cmdstr;
+    std::string sanitized;
     int cursor;
 };
 
@@ -46,7 +47,8 @@ class Editor {
         const int32_t ed_commit_buffer(std::string fn);
         
         Editor& ed_eval_cmd(void);
-        void ed_do_cmd(void);
+        void ed_clear_cmd(void);
+        std::pair<std::string, int32_t> ed_do_cmd(void);
         void ed_cmd_ins(const unsigned char c);
         const EditorCmd& ed_get_cmd(void) const { return cmd; }
         

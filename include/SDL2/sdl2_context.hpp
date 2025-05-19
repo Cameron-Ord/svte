@@ -39,6 +39,7 @@ class SDL2_Context
     void sdl2_rndr_cmd_cursor_update(const EventResult &er);
     void sdl2_input_chmode(const EventResult &er);
     void sdl2_init_proxy_fncs(void);
+    void sdl2_cmd_exec_opts(const EventResult &er);
 
   private:
     int fps_target;
