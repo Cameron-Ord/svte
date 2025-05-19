@@ -64,7 +64,7 @@ int VectorFont::vec_create_textures(SDL_Renderer *rend)
 SDL_Surface *VectorFont::vec_create_char_surface(const char *str)
 {
     SDL_Color col = {255, 255, 255, 255};
-    SDL_Surface *surf = TTF_RenderText_Solid(font, str, col);
+    SDL_Surface *surf = TTF_RenderText_Blended(font, str, col);
     if (!surf) {
         std::cerr << "Failed to create surface -> " << SDL_GetError() << std::endl;
         return nullptr;

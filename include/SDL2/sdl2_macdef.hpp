@@ -6,7 +6,7 @@
 #define ASCII_START 32
 #define ASCII_END 128
 
-#define BASE_WIDTH 400
-#define BASE_HEIGHT 300
+#define BASE_WIDTH 1080
+#define BASE_HEIGHT 720
 
 #endif
