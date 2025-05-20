@@ -21,73 +21,39 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode)
     SDL_SetRenderDrawBlendMode(rend, mode);
 }
 
-void Renderer::rndr_init_status_viewport(const WindowPartition *wp){
-    rcmd.vp_update(
-        wp->get(STATUS_BOX).x, wp->get(STATUS_BOX).y, 
-        wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h
-    ).th_update(RndrThreshold(wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h, 0.1, 0.8, 0.1, 0.8));
-}
-
-void Renderer::rndr_init_cmd_viewport(const WindowPartition *wp)
-{
-    rcmd.vp_update(
-        wp->get(CMD_BOX).x, wp->get(CMD_BOX).y, 
-        wp->get(CMD_BOX).w, wp->get(CMD_BOX).h
-    ).th_update(RndrThreshold(wp->get(CMD_BOX).w, wp->get(CMD_BOX).h, 0.1, 0.8, 0.1, 0.8));
+void Renderer::rndr_update_viewport(RndrItem& item, const WindowPartition *wp, const uint8_t i){
+    item.vp_update(
+        wp->get(i).x, wp->get(i).y, 
+        wp->get(i).w, wp->get(i).h
+    ).th_update(RndrThreshold(wp->get(i).w, wp->get(i).h, 0.1, 0.8, 0.1, 0.8));
 }
 
 Renderer &Renderer::rndr_draw_cmd(void)
 {
-    rndr_set_viewport(&rcmd.viewport);
-
     const EditorCmd &ec = ed->ed_get_cmd();
     ConstBufStrIt line(ec.cmdstr);
     line.offset(rcmd.col_offset).valid();
-
-    int col = 0;
-    const unsigned char skipchar = ' ';
-
-    for (; line.begin != line.end; line.increment()) {
-        const unsigned char c = *line.begin;
-        const CSprite &spr = vf.vec_index_texture(c);
-        const int x = rcmd.getx(col, vf.vec_col_block(), horizontal_padding);
-
-        if (x > rcmd.viewport.w) {
-            return *this;
-        }
-
-        if (c != skipchar) {
-            rndr_put_char(x, 0, spr.w, spr.h, spr.texture);
-        }
-        col += 1;
-    }
-
+    rndr_draw_line(line, &rcmd, 0);
     return *this;
 }
 
-//At some point maybe support multiple buffers but right now I just want to make what I have good first
-//so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
+void Renderer::rndr_draw_filename(const std::string& fn){
+    ConstBufStrIt line(fn);
+    rndr_draw_line(line, &filename, 0);
+}
+
 Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
         if (it != rndrbuffers.end()) {
-            it->second.vp_update(
-                wp->get(BUF_BOX).x, wp->get(BUF_BOX).y, 
-                wp->get(BUF_BOX).w, wp->get(BUF_BOX).h
-            ).th_update(RndrThreshold(wp->get(BUF_BOX).w, wp->get(BUF_BOX).h, 0.1, 0.95, 0.1, 0.95));
+            rndr_update_viewport(it->second, wp, BUF_BOX);
         }
     }
 
-    status.vp_update(
-        wp->get(STATUS_BOX).x, wp->get(STATUS_BOX).y, 
-        wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h
-    ).th_update(RndrThreshold(wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h, 0.1, 0.95, 0.1, 0.95));
-
-    rcmd.vp_update(
-        wp->get(CMD_BOX).x, wp->get(CMD_BOX).y, 
-        wp->get(CMD_BOX).w, wp->get(CMD_BOX).h
-    ).th_update(RndrThreshold(wp->get(CMD_BOX).w, wp->get(CMD_BOX).h, 0.1, 0.95, 0.1, 0.95));
+    rndr_update_viewport(rcmd, wp, CMD_BOX);
+    rndr_update_viewport(status, wp, STATUS_BOX);
+    rndr_update_viewport(filename, wp, FN_BOX);
     return *this;
 }
 
@@ -103,11 +69,9 @@ int Renderer::rndr_commit_buffer(const int32_t id, const WindowPartition *wp)
         return 0;
     }
 
+    //No need to initialize with proper values -
+    //Gets set in rndr_update_viewports which is called after a commit.
     RndrItem item;
-    item.vp_update(
-        wp->get(BUF_BOX).x, wp->get(BUF_BOX).y, 
-        wp->get(BUF_BOX).w, wp->get(BUF_BOX).h
-    ).th_update(RndrThreshold(wp->get(BUF_BOX).w, wp->get(BUF_BOX).h, 0.1, 0.95, 0.1, 0.95));
     used.insert(id);
     rndrbuffers.insert({id, item});
     commited_ids.push_back(id);
@@ -130,26 +94,26 @@ SDL_Renderer *Renderer::rndr_create_renderer(SDL_Window *w, const int flags)
     return rndr_get_renderer();
 }
 
-void Renderer::rndr_set_viewport(const SDL_Rect *vp_rect)
+Renderer& Renderer::rndr_set_viewport(const SDL_Rect *vp_rect)
 {
     if (vp_rect) {
         SDL_RenderSetViewport(rend, vp_rect);
     } else {
         SDL_RenderSetViewport(rend, NULL);
     }
+
+    return *this;
 }
 
-void Renderer::rndr_draw_id(const int32_t id)
-{
+const RndrItem *Renderer::rndr_get_buffer_item(const int32_t id){
     std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
-    const Buffer *const b = ed->ed_fetch_buffer_const(id);
-    if (it != rndrbuffers.end() && b != nullptr) {
-        rndr_set_viewport(&it->second.viewport);
-        rndr_draw_buffer(it->second, b);
-        rndr_set_colour(255, 255, 255, 125);
-        rndr_put_cursor(it->second, b->buf_get_row(), b->buf_get_col());
+    if(it != rndrbuffers.end()){
+        return &it->second;
+    } else {
+        return nullptr;
     }
 }
+
 
 void Renderer::rndr_update_offsets_by_id(const int32_t id)
 {
@@ -215,52 +179,36 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
 }
 
 void Renderer::rndr_draw_status(void){
-    rndr_set_viewport(&status.viewport);
-    
     const std::string str = ed->ed_mode_str(ed->ed_get_mode());
     ConstBufStrIt line(str);
-
-    int col = 0;
-    const unsigned char skipchar = ' ';
-    for(; line.begin != line.end; line.increment()){
-        const unsigned char c = *line.begin;
-        const CSprite& spr = vf.vec_index_texture(c);
-        const int x = status.getx(col, vf.vec_col_block(), horizontal_padding);
-        if(x > status.viewport.w){
-            return;
-        }
-        if(c != skipchar){
-            rndr_put_char(x, 0, spr.w, spr.h, spr.texture);
-        }
-        col+=1;
-    }
-
+    rndr_draw_line(line, &status, 0);
 }
 
-void Renderer::rndr_draw_buffer(RndrItem &item, const Buffer *const b)
+Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *const b)
 {
     ConstBufRowIt lines(b->buf_get_buffer());
-    lines.offset(item.row_offset).valid();
+    lines.offset(item->row_offset).valid();
 
     int row = 0;
     for (; lines.begin != lines.end; lines.increment()) {
-        const int y = item.gety(row, vf.vec_row_block(), vertical_padding);
+        const int y = item->gety(row, vf.vec_row_block(), vertical_padding);
 
-        if (y > item.viewport.h) {
-            return;
+        if (y > item->viewport.h) {
+            return *this;
         }
 
         ConstBufStrIt line(*lines.begin);
-        line.offset(item.col_offset).valid();
+        line.offset(item->col_offset).valid();
 
         rndr_draw_line(line, item, y);
         row += 1;
     }
+    return *this;
 }
 
 void Renderer::rndr_draw_line(
     ConstBufStrIt &line,
-    RndrItem &item,
+    const RndrItem *const item,
     const int y)
 {
     int col = 0;
@@ -269,9 +217,9 @@ void Renderer::rndr_draw_line(
     for (; line.begin != line.end; line.increment()) {
         const unsigned char c = *line.begin;
         const CSprite &spr = vf.vec_index_texture(c);
-        const int x = item.getx(col, vf.vec_col_block(), horizontal_padding);
+        const int x = item->getx(col, vf.vec_col_block(), horizontal_padding);
 
-        if (x > item.viewport.w) {
+        if (x > item->viewport.w) {
             return;
         }
 
@@ -288,11 +236,11 @@ void Renderer::rndr_put_char(const int x, const int y, const int w, const int h,
     SDL_RenderCopy(rend, t, NULL, &rect);
 }
 
-void Renderer::rndr_put_cursor(RndrItem &item, const int &row, const int &col)
+void Renderer::rndr_put_cursor(const RndrItem *const item, const int &row, const int &col)
 {
     if (ed->ed_get_mode() != CMD) {
-        const int x = item.getx(col - item.col_offset, vf.vec_col_block(), horizontal_padding);
-        const int y = item.gety(row - item.row_offset, vf.vec_row_block(), vertical_padding);
+        const int x = item->getx(col - item->col_offset, vf.vec_col_block(), horizontal_padding);
+        const int y = item->gety(row - item->row_offset, vf.vec_row_block(), vertical_padding);
         SDL_Rect rect = {x, y, vf.vec_col_block(), vf.vec_row_block()};
         SDL_RenderFillRect(rend, &rect);
     }

@@ -11,7 +11,7 @@ EventResult KeyEvent::ev_left(const int &keymod, Editor *e, const int32_t id)
     if(keymod & KMOD_LCTRL){
         if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
             e->ed_set_current_id(e->ed_prev_id());
-            return EventResult(NO_KEY, NO_OPTION, id);
+            return EventResult(BUFFER_CHANGED, NO_OPTION, id);
         }
     } else {
         if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive() && buf != nullptr) {
@@ -52,7 +52,7 @@ EventResult KeyEvent::ev_right(const int &keymod, Editor *e, const int32_t id)
     if(keymod & KMOD_LCTRL){
         if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
             e->ed_set_current_id(e->ed_next_id());
-            return EventResult(NO_KEY, NO_OPTION, id);
+            return EventResult(BUFFER_CHANGED, NO_OPTION, id);
         }
     } else {
         if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive() && buf != nullptr) {

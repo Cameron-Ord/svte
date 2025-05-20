@@ -24,10 +24,8 @@ int FileSys::sys_current_path(void)
 
 int FileSys::sys_check_exists(const std::string fn){
     if(std::filesystem::exists(fn)){
-        std::cout << "Path: " << fn << " Does exist" << std::endl;
         return 1;
     } else {
-        std::cout << "Path: " << fn << " Does not exist" << std::endl;
         return 0;
     }
 }
@@ -35,6 +33,7 @@ int FileSys::sys_check_exists(const std::string fn){
 std::string FileSys::sys_cwd_join_fn(const std::string fn){
     return cwd.string() +  sys_delimiter() + fn;
 }
+
 
 std::pair<std::string, std::vector<std::string>> FileSys::sys_new_file(const std::string fn){
     const std::string path = sys_cwd_join_fn(fn);

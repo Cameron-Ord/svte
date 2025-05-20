@@ -11,6 +11,7 @@ typedef enum {
     BUFFER_CURSOR_MOVE = 4,
     COMMAND_CURSOR_MOVE = 5,
     DISPLAY_SIZE_CHANGED = 6,
+    BUFFER_CHANGED = 7,
     NO_KEY = 9,
     MODE_CHANGE = 12,
 } EventKeys;

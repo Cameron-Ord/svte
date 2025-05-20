@@ -17,19 +17,23 @@ Window::~Window(void)
 
 void Window::win_dft_partition(const int &rblock, const int &vpadding)
 {
-    const int cmd_block_height = rblock + vpadding;
+    const int mono_line = rblock + vpadding;
     partitions.set(CMD_BOX, 
-        vpadding, height - cmd_block_height, width * 0.20, cmd_block_height
-    );
-
-    const int buf_block_height = height - cmd_block_height;
-    partitions.set(BUF_BOX, 
-        vpadding, 0, width, buf_block_height
+        vpadding, height - mono_line, width * 0.20, mono_line
     );
 
     partitions.set(STATUS_BOX,
         vpadding + partitions.get(0).w, 
-        height - cmd_block_height, width * 0.20, cmd_block_height
+        height - mono_line, width * 0.20, mono_line
+    );
+
+    partitions.set(FN_BOX,
+        vpadding, 0, width, mono_line
+    );
+
+    const int buf_block_height = height - (mono_line * 2);
+    partitions.set(BUF_BOX, 
+        vpadding, mono_line, width, buf_block_height
     );
 }
 

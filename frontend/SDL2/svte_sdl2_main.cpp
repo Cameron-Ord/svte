@@ -11,7 +11,10 @@
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_defines.hpp"
 
-static void event_chain_update(const EventResult er, SDL2_Context *ctx, Editor *e, FileSys *sys);
+static void event_chain_update(
+    const EventResult er, SDL2_Context *ctx, Editor *e, 
+    FileSys *sys, const Buffer*& cbptr, const RndrItem*& citemptr
+);
 
 int main(int argc, char **argv)
 {
@@ -49,12 +52,15 @@ int main(int argc, char **argv)
     KeyEvent *ev_handle = context.sdl2_get_keyevent();
 
     window->win_dft_partition(renderer->_vf().vec_row_block(), renderer->rndr_vpad());
-    renderer->rndr_init_cmd_viewport(window->_wp());
     
     renderer->rndr_commit_buffer(
         ed.ed_append_buffer(sys.sys_new_file(fn)), 
         window->_wp()
     ); 
+    renderer->rndr_update_viewports(window->_wp());
+
+    const Buffer *b = ed.ed_fetch_buffer(ed.ed_get_current_id());
+    const RndrItem *item = renderer->rndr_get_buffer_item(ed.ed_get_current_id());
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
@@ -78,7 +84,7 @@ int main(int argc, char **argv)
             const int keymod = e.key.keysym.mod;
             event_chain_update(
                 ev_handle->ev_mainloop_keydown(keysym, keymod, &ed),
-                &context, &ed, &sys
+                &context, &ed, &sys, b, item
             );
         } break;
 
@@ -86,7 +92,7 @@ int main(int argc, char **argv)
         {
             event_chain_update(
                 ev_handle->ev_mainloop_window_event_type(e.window.event),
-                &context, &ed, &sys
+                &context, &ed, &sys, b, item
             );
         } break;
 
@@ -95,7 +101,7 @@ int main(int argc, char **argv)
             const char *t = e.text.text;
             event_chain_update(
                 ev_handle->ev_mainloop_text_input(t, &ed, ed.ed_get_current_id()),
-                &context, &ed, &sys
+                &context, &ed, &sys, b, item
             );
         } break;
 
@@ -105,9 +111,22 @@ int main(int argc, char **argv)
         } break;
         }
 
-        renderer->rndr_draw_id(ed.ed_get_current_id());
-        renderer->rndr_draw_cmd().rndr_cmd_cursor();
-        renderer->rndr_draw_status();
+        renderer->rndr_set_viewport(&item->viewport).rndr_draw_buffer(item, b);
+        renderer->rndr_set_colour(255, 255, 255, 200).rndr_put_cursor(
+            item, b->buf_get_row(), b->buf_get_col()
+        );
+
+        renderer->rndr_set_viewport(
+            &renderer->rndr_get_filename()->viewport
+        ).rndr_draw_filename(b->buf_get_filename());
+
+        renderer->rndr_set_viewport(
+            &renderer->rndr_get_rcmd()->viewport
+        ).rndr_set_colour(255, 255, 255, 200).rndr_draw_cmd().rndr_cmd_cursor();
+
+        renderer->rndr_set_viewport(
+            &renderer->rndr_get_status()->viewport
+        ).rndr_draw_status();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
@@ -120,12 +139,23 @@ int main(int argc, char **argv)
     return 0;
 }
 
-static void event_chain_update(const EventResult er, SDL2_Context *ctx, Editor *e, FileSys *sys){
+static void event_chain_update(
+    const EventResult er, SDL2_Context *ctx, Editor *e, FileSys *sys,
+    const Buffer*& cb_ptr, const RndrItem*& citem_ptr
+){
     const int32_t id = er.get_event_id();
     const uint8_t key = er.get_key();
     const uint8_t opt = er.get_opt();
 
     switch(key){
+        case BUFFER_CHANGED:{
+            //Overwrite the old const ptrs with new ones.
+            if(cb_ptr && citem_ptr){
+                cb_ptr = e->ed_fetch_buffer(e->ed_get_current_id());
+                citem_ptr = ctx->sdl2_get_rend()->rndr_get_buffer_item(e->ed_get_current_id());
+            }
+        }break;
+
         case MODE_CHANGE:{
             switch(opt){
                 default: break;
@@ -168,10 +198,17 @@ static void event_chain_update(const EventResult er, SDL2_Context *ctx, Editor *
                 case NEW_BUFFER:{
                     Renderer *r = ctx->sdl2_get_rend();
                     Window *w = ctx->sdl2_get_win();
+
                     r->rndr_commit_buffer(
                         e->ed_append_buffer(sys->sys_new_file(e->ed_get_cmd().sanitized)), 
                         w->_wp()
                     );  
+                    r->rndr_update_viewports(w->_wp());
+
+                    if(cb_ptr && citem_ptr){
+                        cb_ptr = e->ed_fetch_buffer(e->ed_get_current_id());
+                        citem_ptr = ctx->sdl2_get_rend()->rndr_get_buffer_item(e->ed_get_current_id());
+                    }
                 }break;
             }
             e->ed_set_mode(NAV);
