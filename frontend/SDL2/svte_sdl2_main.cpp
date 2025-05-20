@@ -11,6 +11,8 @@
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_defines.hpp"
 
+static void event_chain_update(const EventResult er, SDL2_Context *ctx, Editor *e, FileSys *sys);
+
 int main(int argc, char **argv)
 {
     Editor ed;
@@ -54,15 +56,13 @@ int main(int argc, char **argv)
         window->_wp()
     ); 
 
-
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
     int frame_time;
 
+    SDL_StopTextInput();
     renderer->rndr_set_blendmode(SDL_BLENDMODE_BLEND);
-
     window->win_show_window();
-    context.sdl2_input_chmode(EventResult("chsdl2textinput", "stop", SDL2_NIL));
     context.sdl2_set_run_state(RUN);
 
     while (context.sdl2_get_run_state() != NO_RUN) {
@@ -76,18 +76,27 @@ int main(int argc, char **argv)
         {
             const int keysym = e.key.keysym.sym;
             const int keymod = e.key.keysym.mod;
-            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_keydown(keysym, keymod, &ed));
+            event_chain_update(
+                ev_handle->ev_mainloop_keydown(keysym, keymod, &ed),
+                &context, &ed, &sys
+            );
         } break;
 
         case SDL_WINDOWEVENT:
         {
-            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_window_event_type(e.window.event));
+            event_chain_update(
+                ev_handle->ev_mainloop_window_event_type(e.window.event),
+                &context, &ed, &sys
+            );
         } break;
 
         case SDL_TEXTINPUT:
         {
             const char *t = e.text.text;
-            context.sdl2_mainloop_event_branch(ev_handle->ev_mainloop_text_input(t, &ed, ed.ed_get_current_id()));
+            event_chain_update(
+                ev_handle->ev_mainloop_text_input(t, &ed, ed.ed_get_current_id()),
+                &context, &ed, &sys
+            );
         } break;
 
         case SDL_QUIT:
@@ -108,4 +117,77 @@ int main(int argc, char **argv)
     }
 
     return 0;
+}
+
+static void event_chain_update(const EventResult er, SDL2_Context *ctx, Editor *e, FileSys *sys){
+    const int32_t id = er.get_event_id();
+    const uint8_t key = er.get_key();
+    const uint8_t opt = er.get_opt();
+
+    switch(key){
+        case MODE_CHANGE:{
+            switch(opt){
+                default: break;
+
+                case STOP_TEXT_INPUT:{
+                    SDL_StopTextInput();
+                }break;
+
+                case START_TEXT_INPUT:{
+                    SDL_StartTextInput();
+                }break;
+            };
+        }break;
+
+        case DISPLAY_SIZE_CHANGED:{
+            Window *w = ctx->sdl2_get_win();
+            Renderer *r = ctx->sdl2_get_rend();
+
+            w->win_update_window_values().win_dft_partition(
+                r->_vf().vec_row_block(), r->rndr_vpad()
+            );
+            r->rndr_update_viewports(w->_wp()).rndr_update_offsets().rndr_cmd_offsets();
+        }break;
+
+        case COMMAND_MUTATION:{
+            Renderer *r = ctx->sdl2_get_rend();
+            r->rndr_cmd_offsets();
+        }break;
+
+        case BUFFER_MUTATION:{
+            Renderer *r = ctx->sdl2_get_rend();
+            r->rndr_update_offsets_by_id(id);
+        }break;
+
+        case COMMAND_COMMIT:{
+            SDL_StopTextInput();
+            switch(opt){
+                default: break;
+
+                case NEW_BUFFER:{
+                    Renderer *r = ctx->sdl2_get_rend();
+                    Window *w = ctx->sdl2_get_win();
+                    r->rndr_commit_buffer(
+                        e->ed_append_buffer(sys->sys_new_file(e->ed_get_cmd().sanitized)), 
+                        w->_wp()
+                    );  
+                }break;
+            }
+            e->ed_set_mode(NAV);
+        }break;
+
+        case COMMAND_CURSOR_MOVE : {
+            Renderer *r = ctx->sdl2_get_rend();
+            r->rndr_cmd_offsets();
+        }break;
+
+        case BUFFER_CURSOR_MOVE: {
+            Renderer *r = ctx->sdl2_get_rend();
+            r->rndr_update_offsets_by_id(id);
+        }break;
+
+    }
+
+
+
 }

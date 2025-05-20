@@ -70,7 +70,7 @@ EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, Ed
     if (it != binds.end()) {
         return it->second(keymod, e, id);
     }
-    return EventResult(keys.unbound, opts.no_opt, id);
+    return EventResult(NO_KEY, NO_OPTION, id);
 }
 
 int KeyEvent::ev_mainloop_poll_event_type(SDL_Event *const e)
@@ -86,16 +86,16 @@ EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
     switch (windowevent) {
     default:
     {
-        return EventResult(keys.unbound, opts.no_opt, SDL2_NIL);
+        return EventResult(NO_KEY, NO_OPTION, SDL2_NIL);
     }
     case SDL_WINDOWEVENT_RESIZED:
     {
-        return EventResult(keys.win_size_resized, opts.no_opt, SDL2_NIL);
+        return EventResult(DISPLAY_SIZE_CHANGED, DISPLAY_UPDATE, SDL2_NIL);
     } break;
 
     case SDL_WINDOWEVENT_SIZE_CHANGED:
     {
-        return EventResult(keys.win_size_change, opts.no_opt, SDL2_NIL);
+        return EventResult(DISPLAY_SIZE_CHANGED, DISPLAY_UPDATE, SDL2_NIL);
     } break;
     }
 }
@@ -105,11 +105,7 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
     //In any of these functions where im checking this condition and it fails it will
     //pretty much prevent any other behavior from occuring - IE. wanting to enter a command without
     //a dedicated buffer present. Obviously I need to check the location of the pointer checks to allow behaviors but im lazy right now.
-    
     Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult(keys.unbound, opts.no_opt, id);
-    }
 
     const size_t len = strlen(text);
     for (size_t i = 0; i < len; i++) {
@@ -118,7 +114,9 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
             break;
         case INSERT:
         {
-            buf->buf_ins_char(text[i]);
+            if (buf) {
+                buf->buf_ins_char(text[i]);
+            } 
         } break;
 
         case CMD:
@@ -131,17 +129,17 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
     switch (e->ed_get_mode()) {
     default:
     {
-        return EventResult(keys.unbound, opts.no_opt, id);
+        return EventResult(NO_KEY, NO_OPTION, id);
     }
 
     case INSERT:
     {
-        return EventResult(keys.text_input, opts.no_opt, id);
+        return EventResult(BUFFER_MUTATION, NO_OPTION, id);
     }
 
     case CMD:
     {
-        return EventResult(keys.cmd_text_input, opts.no_opt, id);
+        return EventResult(COMMAND_MUTATION, NO_OPTION, id);
     }
     }
 }

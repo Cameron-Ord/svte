@@ -33,14 +33,6 @@ class SDL2_Context
     Window *sdl2_get_win(void) { return &win; }
     Renderer *sdl2_get_rend(void) { return &rend; }
     KeyEvent *sdl2_get_keyevent(void) { return &events; }
-    void sdl2_mainloop_event_branch(const EventResult &er);
-    void sdl2_window_size_update(const EventResult &er);
-    void sdl2_rndr_buf_cursor_update(const EventResult &er);
-    void sdl2_rndr_cmd_cursor_update(const EventResult &er);
-    void sdl2_input_chmode(const EventResult &er);
-    void sdl2_init_proxy_fncs(void);
-    void sdl2_cmd_exec_opts(const EventResult &er);
-    void sdl2_tinput_force_stop(void);
 
   private:
     int fps_target;

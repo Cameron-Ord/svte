@@ -3,17 +3,27 @@
 
 #include <SDL2/SDL_video.h>
 #include "../vector.hpp"
+#include <array>
+
+#define CMD_BOX 0
+#define BUF_BOX 1
+#define STATUS_NOX 2
 
 struct WindowPartition
 {
   Vec4i bufbox;
   Vec4i cmdbox;
   Vec4i statusbox;
-  int cmd_box_x, cmd_box_y;
-  int cmd_box_w, cmd_box_h;
 
-  int buf_box_x, buf_box_y;
-  int buf_box_w, buf_box_h;
+  std::array<Vec4i, 3> boxes = {cmdbox, bufbox, statusbox};
+
+  void set(const int i, const int x, const int y, const int w, const int h){
+    boxes.at(i).x = x, boxes.at(i).y = y, boxes.at(i).w = w, boxes.at(i).h = h;
+  }
+
+  const Vec4i& get(const int i) const {
+    return boxes.at(i);
+  }
 };
 
 class Window

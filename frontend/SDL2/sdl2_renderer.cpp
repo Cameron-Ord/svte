@@ -23,7 +23,10 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode)
 
 void Renderer::rndr_init_cmd_viewport(const WindowPartition *wp)
 {
-    rcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.8, 0.1, 0.8));
+    rcmd.vp_update(
+        wp->get(CMD_BOX).x, wp->get(CMD_BOX).y, 
+        wp->get(CMD_BOX).w, wp->get(CMD_BOX).h
+    ).th_update(RndrThreshold(wp->get(CMD_BOX).w, wp->get(CMD_BOX).h, 0.1, 0.8, 0.1, 0.8));
 }
 
 Renderer &Renderer::rndr_draw_cmd(void)
@@ -57,16 +60,23 @@ Renderer &Renderer::rndr_draw_cmd(void)
 
 //At some point maybe support multiple buffers but right now I just want to make what I have good first
 //so just only support one buffer displaying at a time for the size of window. Can still switch between them though.
-void Renderer::rndr_update_viewports(const WindowPartition *wp)
+Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
         if (it != rndrbuffers.end()) {
-            it->second.vp_update(wp->buf_box_x, wp->buf_box_y, wp->buf_box_w, wp->buf_box_h).th_update(RndrThreshold(wp->buf_box_w, wp->buf_box_h, 0.1, 0.95, 0.1, 0.95));
+            it->second.vp_update(
+                wp->get(BUF_BOX).x, wp->get(BUF_BOX).y, 
+                wp->get(BUF_BOX).w, wp->get(BUF_BOX).h
+            ).th_update(RndrThreshold(wp->get(BUF_BOX).w, wp->get(BUF_BOX).h, 0.1, 0.95, 0.1, 0.95));
         }
     }
 
-    rcmd.vp_update(wp->cmd_box_x, wp->cmd_box_y, wp->cmd_box_w, wp->cmd_box_h).th_update(RndrThreshold(wp->cmd_box_w, wp->cmd_box_h, 0.1, 0.95, 0.1, 0.95));
+    rcmd.vp_update(
+        wp->get(CMD_BOX).x, wp->get(CMD_BOX).y, 
+        wp->get(CMD_BOX).w, wp->get(CMD_BOX).h
+    ).th_update(RndrThreshold(wp->get(CMD_BOX).w, wp->get(CMD_BOX).h, 0.1, 0.95, 0.1, 0.95));
+    return *this;
 }
 
 int Renderer::rndr_commit_buffer(const int32_t id, const WindowPartition *wp)
@@ -82,7 +92,10 @@ int Renderer::rndr_commit_buffer(const int32_t id, const WindowPartition *wp)
     }
 
     RndrItem item;
-    item.vp_update(wp->buf_box_x, wp->buf_box_y, wp->buf_box_w, wp->buf_box_h).th_update(RndrThreshold(wp->buf_box_w, wp->buf_box_h, 0.1, 0.95, 0.1, 0.95));
+    item.vp_update(
+        wp->get(BUF_BOX).x, wp->get(BUF_BOX).y, 
+        wp->get(BUF_BOX).w, wp->get(BUF_BOX).h
+    ).th_update(RndrThreshold(wp->get(BUF_BOX).w, wp->get(BUF_BOX).h, 0.1, 0.95, 0.1, 0.95));
     used.insert(id);
     rndrbuffers.insert({id, item});
     commited_ids.push_back(id);
@@ -135,7 +148,7 @@ void Renderer::rndr_update_offsets_by_id(const int32_t id)
     }
 }
 
-void Renderer::rndr_update_offsets(void)
+Renderer& Renderer::rndr_update_offsets(void)
 {
     for (size_t i = 0; i < commited_ids.size(); i++) {
         std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(commited_ids[i]);
@@ -144,6 +157,7 @@ void Renderer::rndr_update_offsets(void)
             rndr_buf_offsets(it->second, b);
         }
     }
+    return *this;
 }
 
 void Renderer::rndr_cmd_offsets(void)
@@ -251,7 +265,6 @@ void Renderer::rndr_put_cursor(RndrItem &item, const int &row, const int &col)
 
 void Renderer::rndr_cmd_cursor(void)
 {
-
     if (ed->ed_get_mode() == CMD) {
         const int c = ed->ed_get_cmd().cursor;
         const int x = rcmd.getx(c - rcmd.col_offset, vf.vec_col_block(), horizontal_padding);

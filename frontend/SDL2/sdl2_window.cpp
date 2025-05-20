@@ -17,16 +17,20 @@ Window::~Window(void)
 
 void Window::win_dft_partition(const int &rblock, const int &vpadding)
 {
-    const int reserve_cmd_block = rblock + vpadding;
-    const int cmd_box_y = height - reserve_cmd_block;
+    const int cmd_block_height = rblock + vpadding;
+    partitions.set(CMD_BOX, 
+        vpadding, height - cmd_block_height, width * 0.40, cmd_block_height
+    );
 
-    partitions.cmd_box_x = 4, partitions.cmd_box_y = cmd_box_y;
-    partitions.cmd_box_w = width * 0.5, partitions.cmd_box_h = reserve_cmd_block;
+    const int buf_block_height = height - cmd_block_height;
+    partitions.set(BUF_BOX, 
+        vpadding, 0, width, buf_block_height
+    );
 
-    const int buf_box_h = height - reserve_cmd_block;
-
-    partitions.buf_box_x = 4, partitions.buf_box_y = 0;
-    partitions.buf_box_w = width, partitions.buf_box_h = buf_box_h;
+    partitions.set(STATUS_NOX,
+        vpadding + partitions.get(0).w, 
+        height - cmd_block_height, width * 0.25, cmd_block_height
+    );
 }
 
 int Window::win_create_window(const int flags)

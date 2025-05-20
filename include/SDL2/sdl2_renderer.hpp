@@ -122,7 +122,7 @@ class Renderer
     int rndr_commit_buffer(const int32_t id, const WindowPartition *wp);
     void rndr_draw_id(const int32_t id);
 
-    void rndr_update_viewports(const WindowPartition *wp);
+    Renderer& rndr_update_viewports(const WindowPartition *wp);
     void rndr_update_offsets_by_id(const int32_t id);
     void rndr_set_viewport(const SDL_Rect *vp_rect);
 
@@ -138,7 +138,7 @@ class Renderer
     Renderer &rndr_draw_cmd(void);
     void rndr_cmd_cursor(void);
 
-    void rndr_update_offsets(void);
+    Renderer& rndr_update_offsets(void);
 
   private:
     int error;

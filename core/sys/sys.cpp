@@ -40,12 +40,12 @@ std::pair<std::string, std::vector<std::string>> FileSys::sys_new_file(const std
     const std::string path = sys_cwd_join_fn(fn);
 
     switch(sys_check_exists(fn)){
-        case 1:{
-            return std::make_pair(fn, sys_read(path));
+        default: {
+            return std::make_pair(fn, std::vector<std::string>({""}));
         }break;
 
-        case 0:{
-            return std::make_pair(fn, std::vector<std::string>({""}));
+        case 1:{
+            return std::make_pair(fn, sys_read(path));
         }break;
     }
 }
@@ -72,15 +72,14 @@ std::vector<std::string> FileSys::sys_read(const std::string path){
 
     const int cond = byte_accumulator > 0;
     switch(cond){
+        default:{
+            return std::vector<std::string>({""});
+        }break;
+
         case 1:{
             return buffer;
         }break;
-
-        case 0:{
-            return std::vector<std::string>({""});
-        }break;
     }
-
 }
 
 //return n bytes

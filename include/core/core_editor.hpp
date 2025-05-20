@@ -38,10 +38,12 @@ class Editor {
         const std::vector<int32_t>& ed_get_open(void);
         const int32_t& ed_get_current_id(void);
         const int& ed_get_error(void);
+        void ed_clear_cmd(void) {
+            cmd.cmdstr.clear();
+            cmd.cursor = 0;
+        }
         
-        Editor& ed_eval_cmd(void);
-        void ed_clear_cmd(void);
-        std::pair<std::string, int32_t> ed_do_cmd(void);
+        int ed_eval_cmd(void);
         void ed_cmd_ins(const unsigned char c);
         const EditorCmd& ed_get_cmd(void) const { return cmd; }
         

@@ -4,24 +4,24 @@
 #include <string>
 #include <cstdint>
 
-struct EventKeys {
-    const uint8_t COMMAND_COMMIT = 0;
-    const uint8_t BUFFER_INPUT = 1;
-    const uint8_t COMMAND_INPUT = 2;
-    const uint8_t INPUT_ACTIVE = 3;
-    const uint8_t BUFFER_CURSOR_MOVED = 4;
-    const uint8_t COMMAND_CURSOR_MOVED = 5;
-    const uint8_t DISPLAY_SIZE_CHANGED = 6;
-    const uint8_t CHANGE_BUFFER = 7;
-    const uint8_t NO_KEY = 8;
-};
+typedef enum {
+    COMMAND_COMMIT = 0,
+    BUFFER_MUTATION = 1,
+    COMMAND_MUTATION = 2,
+    BUFFER_CURSOR_MOVE = 4,
+    COMMAND_CURSOR_MOVE = 5,
+    DISPLAY_SIZE_CHANGED = 6,
+    NO_KEY = 9,
+    MODE_CHANGE = 12,
+} EventKeys;
 
-struct EventOpts {
-    const uint8_t NO_OPTION = 0;
-    const uint8_t STOP_TEXT_INPUT = 1;
-    const uint8_t START_TEXT_INPUT = 2;
-    const uint8_t NEW_BUFFER = 3;
-};
+typedef enum {
+    NO_OPTION = 0,
+    STOP_TEXT_INPUT = 1,
+    START_TEXT_INPUT = 2,
+    NEW_BUFFER = 3,
+    DISPLAY_UPDATE = 4,
+} EventOpts;
 
 class EventResult
 {

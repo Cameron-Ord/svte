@@ -1,6 +1,6 @@
 #include "../../include/core/core_editor.hpp"
-#include "../../include/core/core_sys.hpp"
 #include "../../include/core/core_defines.hpp"
+#include "../../include/core/core_event_mgr.hpp"
 
 
 void Editor::ed_cmd_ins(const unsigned char c)
@@ -11,23 +11,30 @@ void Editor::ed_cmd_ins(const unsigned char c)
     }
 }
 
-Editor &Editor::ed_eval_cmd(void)
+int Editor::ed_eval_cmd(void)
 {
+    //Extremely basic but works for now
     cmd.sanitized.clear();
     for(size_t i = 0; i < cmd.cmdstr.size(); i++){
         if(cmd.cmdstr[i] != ' '){
             cmd.sanitized += cmd.cmdstr[i];
         }
     }
-    ed_clear_cmd();
-    return *this;
-}
-
-std::pair<std::string, int32_t> Editor::ed_do_cmd(void)
-{
-}
-
-void Editor::ed_clear_cmd(void){
     cmd.cmdstr.clear();
     cmd.cursor = 0;
+
+    if(cmd.sanitized.empty()){
+        return NO_OPTION;
+    }
+
+    switch(cmd.sanitized[0]){
+        default:{
+            return NO_OPTION;
+        }
+
+        case 'n': {
+            cmd.sanitized.erase(cmd.sanitized.begin());
+            return NEW_BUFFER;
+        }
+    }
 }
