@@ -7,7 +7,7 @@
 
 #define CMD_BOX 0
 #define BUF_BOX 1
-#define STATUS_NOX 2
+#define STATUS_BOX 2
 
 struct WindowPartition
 {

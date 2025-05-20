@@ -13,6 +13,30 @@ Editor::~Editor(void)
 {
 }
 
+const std::string Editor::ed_mode_str(const int8_t c) const {
+    switch(c){
+        default: {
+            return std::string("");
+        }break;
+
+        case NAV: {
+            return std::string("nav");
+        }break;
+
+        case SELECT:{
+            return std::string("select");
+        }break;
+
+        case INSERT:{
+            return std::string("insert");
+        }break;
+
+        case CMD:{
+            return std::string("cmd");
+        }break;
+    }
+}
+
 void Editor::ed_set_mode(const uint8_t val)
 {
     mode = val;

@@ -21,6 +21,13 @@ void Renderer::rndr_set_blendmode(SDL_BlendMode mode)
     SDL_SetRenderDrawBlendMode(rend, mode);
 }
 
+void Renderer::rndr_init_status_viewport(const WindowPartition *wp){
+    rcmd.vp_update(
+        wp->get(STATUS_BOX).x, wp->get(STATUS_BOX).y, 
+        wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h
+    ).th_update(RndrThreshold(wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h, 0.1, 0.8, 0.1, 0.8));
+}
+
 void Renderer::rndr_init_cmd_viewport(const WindowPartition *wp)
 {
     rcmd.vp_update(
@@ -71,6 +78,11 @@ Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
             ).th_update(RndrThreshold(wp->get(BUF_BOX).w, wp->get(BUF_BOX).h, 0.1, 0.95, 0.1, 0.95));
         }
     }
+
+    status.vp_update(
+        wp->get(STATUS_BOX).x, wp->get(STATUS_BOX).y, 
+        wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h
+    ).th_update(RndrThreshold(wp->get(STATUS_BOX).w, wp->get(STATUS_BOX).h, 0.1, 0.95, 0.1, 0.95));
 
     rcmd.vp_update(
         wp->get(CMD_BOX).x, wp->get(CMD_BOX).y, 
@@ -200,6 +212,29 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
     while (getx() > item.th.w_th_max && line_size > 0 && item.col_offset <= line_size) {
         item.col_offset++;
     }
+}
+
+void Renderer::rndr_draw_status(void){
+    rndr_set_viewport(&status.viewport);
+    
+    const std::string str = ed->ed_mode_str(ed->ed_get_mode());
+    ConstBufStrIt line(str);
+
+    int col = 0;
+    const unsigned char skipchar = ' ';
+    for(; line.begin != line.end; line.increment()){
+        const unsigned char c = *line.begin;
+        const CSprite& spr = vf.vec_index_texture(c);
+        const int x = status.getx(col, vf.vec_col_block(), horizontal_padding);
+        if(x > status.viewport.w){
+            return;
+        }
+        if(c != skipchar){
+            rndr_put_char(x, 0, spr.w, spr.h, spr.texture);
+        }
+        col+=1;
+    }
+
 }
 
 void Renderer::rndr_draw_buffer(RndrItem &item, const Buffer *const b)

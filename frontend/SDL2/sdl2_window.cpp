@@ -19,7 +19,7 @@ void Window::win_dft_partition(const int &rblock, const int &vpadding)
 {
     const int cmd_block_height = rblock + vpadding;
     partitions.set(CMD_BOX, 
-        vpadding, height - cmd_block_height, width * 0.40, cmd_block_height
+        vpadding, height - cmd_block_height, width * 0.20, cmd_block_height
     );
 
     const int buf_block_height = height - cmd_block_height;
@@ -27,9 +27,9 @@ void Window::win_dft_partition(const int &rblock, const int &vpadding)
         vpadding, 0, width, buf_block_height
     );
 
-    partitions.set(STATUS_NOX,
+    partitions.set(STATUS_BOX,
         vpadding + partitions.get(0).w, 
-        height - cmd_block_height, width * 0.25, cmd_block_height
+        height - cmd_block_height, width * 0.20, cmd_block_height
     );
 }
 

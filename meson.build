@@ -1,4 +1,4 @@
-project('svte', 'cpp')
+project('svte', 'cpp', default_options: ['cpp_std=c++17'])
 
 src = [
         'frontend/SDL2/sdl2_events.cpp',

@@ -109,6 +109,7 @@ class Renderer
     void rndr_set_blendmode(const SDL_BlendMode mode);
     void rndr_set_err(const int errval) { error = errval; }
     int rndr_get_err(void) { return error; }
+    void rndr_draw_status(void);
 
     class VectorFont &_vf(void) { return vf; }
     void rndr_init_cmd_viewport(const WindowPartition *wp);
@@ -137,6 +138,7 @@ class Renderer
     const int &rndr_hpad(void) const { return horizontal_padding; }
     Renderer &rndr_draw_cmd(void);
     void rndr_cmd_cursor(void);
+    void rndr_init_status_viewport(const WindowPartition *wp);
 
     Renderer& rndr_update_offsets(void);
 

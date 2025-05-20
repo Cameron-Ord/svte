@@ -22,7 +22,7 @@ class Editor {
     public:
         Editor(void);
         ~Editor(void);
-        
+        const std::string ed_mode_str(const int8_t m) const;        
         int32_t ed_next_id(void);
         int32_t ed_prev_id(void);
         int32_t ed_gen_id(void);

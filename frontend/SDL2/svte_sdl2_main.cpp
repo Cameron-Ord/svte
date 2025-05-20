@@ -107,6 +107,7 @@ int main(int argc, char **argv)
 
         renderer->rndr_draw_id(ed.ed_get_current_id());
         renderer->rndr_draw_cmd().rndr_cmd_cursor();
+        renderer->rndr_draw_status();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
