@@ -36,35 +36,6 @@ int32_t Editor::ed_prev_id(void){
     return -1;
 }
 
-const int32_t Editor::ed_commit_buffer(std::string fn)
-{
-    const int cond = !fn.empty();
-    switch (cond) {
-    default:
-    {
-        return CORE_NIL;
-    }
-
-    case 1:
-    {
-        const int32_t id = ed_append_buffer(fn);
-        if (ed_open_file(id) == NO_BUFFER) {
-            return CORE_NIL;
-        }
-        return id;
-    } break;
-
-    case 0:
-    {
-        const int32_t id = ed_append_buffer();
-        if (ed_no_file(id) == NO_BUFFER) {
-            return CORE_NIL;
-        }
-        return id;
-    } break;
-    }
-}
-
 int32_t Editor::ed_gen_id(void)
 {
     std::random_device d;
@@ -81,7 +52,6 @@ int32_t Editor::ed_gen_id(void)
         const int32_t generated = dist(rng);
         it = used_ids.find(generated);
         if (it == used_ids.end()) {
-            used_ids.insert(generated);
             return generated;
         }
         attempt++;
@@ -90,7 +60,7 @@ int32_t Editor::ed_gen_id(void)
     return BAD_ID;
 }
 
-int Editor::ed_append_buffer(void)
+int Editor::ed_append_buffer(std::pair<std::string, std::vector<std::string>> commit)
 {
     const int32_t id = ed_gen_id();
     if (id == BAD_ID) {
@@ -98,41 +68,21 @@ int Editor::ed_append_buffer(void)
         return ED_BAD_APPEND;
     }
 
-    std::cout << "Appending: " << id << std::endl;
     class Buffer *buffer = new Buffer(id);
     if (!buffer) {
         std::cerr << "Could not allocate buffer!" << std::endl;
-        used_ids.erase(id);
         return ED_BAD_APPEND;
     }
-
+    buffer->buf_copy(commit.second).buf_set_filename(commit.first);
+    
     bufs.insert({id, buffer});
     open.push_back(id);
+    used_ids.insert(id);
+
     ed_set_current_id(id);
     return id;
 }
 
-int Editor::ed_append_buffer(std::string fn)
-{
-    const int32_t id = ed_gen_id();
-    if (id == BAD_ID) {
-        std::cerr << "Could not create a valid ID" << std::endl;
-        return ED_BAD_APPEND;
-    }
-    std::cout << "Appending: " << id << std::endl;
-    class Buffer *buffer = new Buffer(id, fn);
-    if (!buffer) {
-        std::cerr << "Could not allocate buffer!" << std::endl;
-        used_ids.erase(id);
-        return ED_BAD_APPEND;
-    }
-
-    bufs.insert({id, buffer});
-    open.push_back(id);
-    ed_set_current_id(id);
-
-    return id;
-}
 
 const Buffer *const Editor::ed_fetch_buffer_const(const int32_t id) const
 {

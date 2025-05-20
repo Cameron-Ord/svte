@@ -6,9 +6,7 @@
 
 Editor::Editor(void) : error(CORE_NIL), mode(NAV), current_buffer_id(CORE_NIL)
 {
-    ed_set_error(ed_determine_cwd());
     cmd.cursor = 0;
-    std::cout << "Editor Path: " << ed_working_path << std::endl;
 }
 
 Editor::~Editor(void)

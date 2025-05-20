@@ -6,24 +6,6 @@
 
 class Editor;
 
-struct EventKeys{
-  std::string cmd_exec = "cmdexec";
-  std::string text_input = "cmdtextinput";
-  std::string cmd_text_input = "textinput";
-  std::string input_mode = "inputmode";
-  std::string buf_cursor_move = "move";
-  std::string cmd_cursor_move = "cmdmove";
-  std::string win_size_change = "sizechanged";
-  std::string win_size_resized = "resized";
-  std::string unbound = "unbound";
-};
-
-struct EventOpts{
-  std::string stop_text_input = "stop";
-  std::string start_text_input = "start";
-};
-
-
 typedef struct
 {
     // Set as a SDL2 keysym
@@ -49,24 +31,6 @@ typedef struct
     int keysym;
     int keymod;
 } KeyC;
-
-class EventResult
-{
-  public:
-    EventResult(
-        const std::string type,
-        const std::string iopt,
-        const int id) : ev_type(type), input_opt(iopt), request_id(id) {}
-
-    const int get_event_id(void) const { return request_id; }
-    const std::string &get_opt(void) const { return input_opt; }
-    const std::string &get_type(void) const { return ev_type; }
-
-  private:
-    std::string ev_type;
-    std::string input_opt;
-    int request_id;
-};
 
 class KeyEvent
 {
@@ -97,6 +61,7 @@ class KeyEvent
     std::unordered_map<int, std::function<class EventResult(int, class Editor *e, int32_t)>> binds;
     // Stores meta data from the last input event.
     // IE. the buffer ID of the related input, values/returns of functions, etc
+    
 };
 
 #endif

@@ -61,6 +61,11 @@ class Buffer {
         Buffer(const int32_t id);
         Buffer(const int32_t id, std::string fn);
         //Setters
+
+        Buffer& buf_copy(std::vector<std::string> commit_vector) { 
+            buffer = commit_vector; 
+            return *this;
+        }
         void buf_set_id(const int32_t id) { buffer_id = id; }
         void buf_set_filename(const std::string fn) { filename = fn; }
         void buf_set_error(const int err) { error = err; }

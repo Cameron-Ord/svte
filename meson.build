@@ -2,17 +2,17 @@ project('svte', 'cpp')
 
 src = [
         'frontend/SDL2/sdl2_events.cpp',
+        'frontend/SDL2/sdl2_mode_events.cpp',
+        'frontend/SDL2/sdl2_key_events.cpp',
+        'frontend/SDL2/sdl2_move_events.cpp',
         'frontend/SDL2/sdl2_internal.cpp',
         'frontend/SDL2/sdl2_renderer.cpp',
         'frontend/SDL2/sdl2_window.cpp',
         'frontend/SDL2/sdl2_font.cpp',
         'frontend/SDL2/svte_sdl2_main.cpp',
 
-        'core/editor/ed_sys.cpp',
         'core/editor/ed_constructor.cpp',
         'core/editor/ed_buffers.cpp',
-        'core/editor/ed_save_file.cpp',
-        'core/editor/ed_open_file.cpp',
         'core/editor/ed_command.cpp',
 
         'core/buffer/buf_constructor.cpp',
@@ -20,6 +20,8 @@ src = [
         'core/buffer/buf_insert.cpp',
         'core/buffer/buf_cursor.cpp',
         'core/buffer/buf_iterator.cpp',
+
+        'core/sys/sys.cpp',
 ]
 
 sdl2_dep = dependency('SDL2')

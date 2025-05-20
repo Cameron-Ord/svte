@@ -58,14 +58,14 @@ SDL2_Context::~SDL2_Context(void)
 
 void SDL2_Context::sdl2_init_proxy_fncs(void)
 {
-    branches.insert({std::string("chsdl2textinput"), [this](const EventResult &er) -> void { sdl2_input_chmode(er); }});
-    branches.insert({std::string("move"), [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
-    branches.insert({std::string("cmdmove"), [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
-    branches.insert({std::string("cmdexec"), [this](const EventResult &er) -> void { sdl2_cmd_exec_opts(er); }});
-    branches.insert({std::string("textinsert"), [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
-    branches.insert({std::string("cmdtextinsert"), [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
-    branches.insert({std::string("resized"), [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
-    branches.insert({std::string("sizechanged"), [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({events.keys.input_mode, [this](const EventResult &er) -> void { sdl2_input_chmode(er); }});
+    branches.insert({events.keys.buf_cursor_move, [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
+    branches.insert({events.keys.cmd_cursor_move, [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
+    branches.insert({events.keys.cmd_exec, [this](const EventResult &er) -> void { sdl2_cmd_exec_opts(er); }});
+    branches.insert({events.keys.text_input, [this](const EventResult &er) -> void { sdl2_rndr_buf_cursor_update(er); }});
+    branches.insert({events.keys.cmd_text_input, [this](const EventResult &er) -> void { sdl2_rndr_cmd_cursor_update(er); }});
+    branches.insert({events.keys.win_size_change, [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
+    branches.insert({events.keys.win_size_resized, [this](const EventResult &er) -> void { sdl2_window_size_update(er); }});
 }
 
 void SDL2_Context::sdl2_tinput_force_stop(void){
@@ -74,11 +74,12 @@ void SDL2_Context::sdl2_tinput_force_stop(void){
 
 void SDL2_Context::sdl2_cmd_exec_opts(const EventResult &er){
     sdl2_tinput_force_stop();
+    
     if(er.get_event_id() < 0){
         return;
     }
 
-    if(er.get_opt() == "newfile"){
+    if(er.get_opt() == events.opts.new_file){
         rend.rndr_commit_buffer(er.get_event_id(), win._wp());
     }
 }
@@ -107,9 +108,9 @@ void SDL2_Context::sdl2_rndr_buf_cursor_update(const EventResult &er)
 
 void SDL2_Context::sdl2_input_chmode(const EventResult &er)
 {
-    if (er.get_opt() == "start") {
+    if (er.get_opt() == events.opts.start_text_input) {
         SDL_StartTextInput();
-    } else if (er.get_opt() == "stop") {
+    } else if (er.get_opt() == events.opts.stop_text_input) {
         SDL_StopTextInput();
     }
 }

@@ -3,12 +3,17 @@
 
 #include "../../include/SDL2/sdl2_enums.hpp"
 #include "../../include/SDL2/sdl2_events.hpp"
-#include "../../include/SDL2/sdl2_macdef.hpp"
 
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_editor.hpp"
-#include "../../include/core/core_defines.hpp"
 
+/*
+Right now the setup I have for the event chain is really holding me back, 
+it has the ground work for being good but I need to decouple it from the tight grip of SDL and use a core event to handle sdl2 or core changes from the result
+
+For example if I want to do a command right now its next to impossible as I have to return a key and opt value that I defined in an sdl2 header and that cant be included in core files.
+Also would have to pass another class pointer for the sys which just should not be done IMO. So yeah fix this shit you lazy cunt.
+*/
 
 KeyEvent::KeyEvent(void) : controls(ev_init_controls())
 {
@@ -56,190 +61,6 @@ void KeyEvent::ev_init_keybinds(void)
     binds.insert({controls.ACTION_CMD, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_cmd(mod, e, id); }});
 }
 
-EventResult KeyEvent::ev_backspace(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == INSERT && SDL_IsTextInputActive()) {
-        buf->buf_rmv_before();
-        return EventResult("textinsert", "noopt", id);
-
-    } else if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_mv_col(-1);
-        return EventResult("move", "noopt", id);
-    }
-
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_return(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == INSERT && SDL_IsTextInputActive()) {
-        buf->buf_new_line();
-        return EventResult("textinsert", "noopt", id);
-
-    } else if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_mv_row(1);
-        return EventResult("move", "noopt", id);
-
-    } else if (e->ed_get_mode() == CMD && SDL_IsTextInputActive()) {
-        // If a command is entered, evaluate, do the command and return an opt string
-        // with a related ID; this can be the ID sent ot the function or a new one
-        // if a new buffer is created as a result from the cmd, then the internal 
-        // state of SDL2 can decide what to do based on the opt string/id
-        std::pair<std::string, int32_t> cmdret = e->ed_eval_cmd().ed_do_cmd();
-        //Reset it back to nav mode
-        e->ed_set_mode(NAV);
-        return EventResult("cmdexec", cmdret.first, cmdret.second);
-    }
-
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_delete(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == INSERT || e->ed_get_mode() == NAV) {
-        buf->buf_rmv_at();
-        return EventResult("textinsert", "noopt", id);
-    } else if(e->ed_get_mode() == CMD){
-        e->ed_clear_cmd();
-        return EventResult("notbound", "noopt", id);
-    }
-
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_left(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if(keymod & KMOD_LCTRL){
-        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-            e->ed_set_current_id(e->ed_prev_id());
-            return EventResult("chbuffer", "noopt", id);
-        }
-    } else {
-        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-            buf->buf_mv_col(-1);
-            return EventResult("move", "noopt", id);
-        }
-    }
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_up(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_update_col(buf->buf_mv_row(-1));
-    }
-    return EventResult("move", "noopt", id);
-}
-
-EventResult KeyEvent::ev_down(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        buf->buf_update_col(buf->buf_mv_row(1));
-    }
-    return EventResult("move", "noopt", id);
-}
-
-EventResult KeyEvent::ev_right(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if(keymod & KMOD_LCTRL){
-        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-            e->ed_set_current_id(e->ed_next_id());
-            return EventResult("chbuffer", "noopt", id);
-        }
-    } else {
-        if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-            buf->buf_mv_col(1);
-            return EventResult("move", "noopt", id);
-        }
-    }
-
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_visual(const int &keymod, Editor *e, const int32_t id)
-{
-    Buffer *buf = e->ed_fetch_buffer(id);
-    if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
-    }
-
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        e->ed_set_mode(SELECT);
-    }
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_append(const int &keymod, Editor *e, const int32_t id)
-{
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        e->ed_set_mode(APPEND);
-        return EventResult("chsdl2textinput", "start", id);
-    }
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_insert(const int &keymod, Editor *e, const int32_t id)
-{
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        e->ed_set_mode(INSERT);
-        return EventResult("chsdl2textinput", "start", id);
-    }
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_cmd(const int &keymod, Editor *e, const int32_t id)
-{
-    if (e->ed_get_mode() == NAV && !SDL_IsTextInputActive()) {
-        e->ed_set_mode(CMD);
-        return EventResult("chsdl2textinput", "start", id);
-    }
-    return EventResult("notbound", "noopt", id);
-}
-
-EventResult KeyEvent::ev_escape(const int &keymod, Editor *e, const int32_t id)
-{
-    // No check, if this key is hit always just back out of whatever mode it was in no matter what.
-    e->ed_set_mode(NAV);
-    if (SDL_IsTextInputActive()) {
-        return EventResult("chsdl2textinput", "stop", id);
-    }
-    return EventResult("notbound", "noopt", id);
-}
 
 EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, Editor *e)
 {
@@ -249,7 +70,7 @@ EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, Ed
     if (it != binds.end()) {
         return it->second(keymod, e, id);
     }
-    return EventResult("notbound", "noopt", id);
+    return EventResult(keys.unbound, opts.no_opt, id);
 }
 
 int KeyEvent::ev_mainloop_poll_event_type(SDL_Event *const e)
@@ -265,25 +86,29 @@ EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
     switch (windowevent) {
     default:
     {
-        return EventResult("notbound", "noopt", SDL2_NIL);
+        return EventResult(keys.unbound, opts.no_opt, SDL2_NIL);
     }
     case SDL_WINDOWEVENT_RESIZED:
     {
-        return EventResult("resized", "noopt", SDL2_NIL);
+        return EventResult(keys.win_size_resized, opts.no_opt, SDL2_NIL);
     } break;
 
     case SDL_WINDOWEVENT_SIZE_CHANGED:
     {
-        return EventResult("sizechanged", "noopt", SDL2_NIL);
+        return EventResult(keys.win_size_change, opts.no_opt, SDL2_NIL);
     } break;
     }
 }
 
 EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const int32_t id)
 {
+    //In any of these functions where im checking this condition and it fails it will
+    //pretty much prevent any other behavior from occuring - IE. wanting to enter a command without
+    //a dedicated buffer present. Obviously I need to check the location of the pointer checks to allow behaviors but im lazy right now.
+    
     Buffer *buf = e->ed_fetch_buffer(id);
     if (!buf) {
-        return EventResult("nobuffer", "noopt", id);
+        return EventResult(keys.unbound, opts.no_opt, id);
     }
 
     const size_t len = strlen(text);
@@ -306,17 +131,17 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
     switch (e->ed_get_mode()) {
     default:
     {
-        return EventResult("notbound", "noopt", id);
+        return EventResult(keys.unbound, opts.no_opt, id);
     }
 
     case INSERT:
     {
-        return EventResult("textinsert", "noopt", id);
+        return EventResult(keys.text_input, opts.no_opt, id);
     }
 
     case CMD:
     {
-        return EventResult("cmdtextinsert", "noopt", id);
+        return EventResult(keys.cmd_text_input, opts.no_opt, id);
     }
     }
 }

@@ -1,4 +1,5 @@
 #include "../../include/core/core_editor.hpp"
+#include "../../include/core/core_sys.hpp"
 #include "../../include/core/core_defines.hpp"
 
 
@@ -24,19 +25,6 @@ Editor &Editor::ed_eval_cmd(void)
 
 std::pair<std::string, int32_t> Editor::ed_do_cmd(void)
 {
-    if(!cmd.sanitized.empty()){
-        switch(cmd.sanitized[0]){
-            default:{
-                return {"noopt", -1};
-            }
-            case 'n':{
-                cmd.sanitized.erase(cmd.sanitized.begin());
-                return {"newfile", ed_commit_buffer(cmd.sanitized)};
-            }break;
-        }
-    } else {
-        return {"noopt", -1};
-    }
 }
 
 void Editor::ed_clear_cmd(void){

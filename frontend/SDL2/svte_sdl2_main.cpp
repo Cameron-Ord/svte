@@ -7,6 +7,7 @@
 #include "../../include/SDL2/sdl2_enums.hpp"
 
 #include "../../include/core/core_buffer.hpp"
+#include "../../include/core/core_sys.hpp"
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_defines.hpp"
 
@@ -15,6 +16,12 @@ int main(int argc, char **argv)
     Editor ed;
     if (ed.ed_get_error() != CORE_NIL) {
         std::cerr << "Failed to initialize editor!" << std::endl;
+        return 1;
+    }
+
+    FileSys sys;
+    if(sys.sys_get_err() != FS_NIL) {
+        std::cerr << "Failed to initialize filesys!" << std::endl;
         return 1;
     }
 
@@ -41,7 +48,12 @@ int main(int argc, char **argv)
 
     window->win_dft_partition(renderer->_vf().vec_row_block(), renderer->rndr_vpad());
     renderer->rndr_init_cmd_viewport(window->_wp());
-    renderer->rndr_commit_buffer(ed.ed_commit_buffer(fn), window->_wp());
+    
+    renderer->rndr_commit_buffer(
+        ed.ed_append_buffer(sys.sys_new_file(fn)), 
+        window->_wp()
+    ); 
+
 
     const int tpf = (1000.0 / context.sdl2_get_fps());
     uint64_t frame_start;
