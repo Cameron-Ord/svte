@@ -19,6 +19,7 @@ src = [
         'core/buffer/buf_remove.cpp',
         'core/buffer/buf_insert.cpp',
         'core/buffer/buf_cursor.cpp',
+        'core/buffer/buf_tokens.cpp',
         'core/buffer/buf_iterator.cpp',
 
         'core/sys/sys.cpp',
@@ -30,9 +31,13 @@ cmp_time_args = [
     '-Wall', '-Wextra', '-Wpedantic'
 ]
 
+link_args = []
+
 target = executable(
         meson.project_name(),
         src,
         dependencies: [sdl2_dep, sdl2_ttf_dep],
-        c_args: cmp_time_args
+        c_args: cmp_time_args,
+        link_args: link_args,
+        win_subsystem: 'console'
 )

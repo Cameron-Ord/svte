@@ -8,51 +8,9 @@
 
 #include "core_iterator.hpp"
 
-struct Selection {
-    int row_start, col_start;
-    int row_end, col_end;
-
-    BufStrIt *first;
-    BufStrIt *last;
-
-    std::vector<BufStrIt *> region;
-
-    Selection(void) : 
-    row_start(0), col_start(0), row_end(0), col_end(0), first(nullptr), last(nullptr) {}
-
-    Selection& set_row_start(const int start) { 
-        row_start = start; 
-        return *this;
-    }
-
-    Selection& set_row_end(const int end) { 
-        row_end = end; 
-        return *this;
-    }
-
-    Selection& set_col_start(const int start) { 
-        col_start = start; 
-        return *this;
-    }
-
-    Selection& set_col_end(const int end) { 
-        row_start = end; 
-        return *this;
-    }
-
-    void clear(void){ region.clear(); }
-
-    void push_line(BufStrIt *line){
-        region.push_back(line);
-    }
-
-    void insert_start(void){
-        region.insert(region.begin(), first);
-    }
-
-    void insert_end(void){
-        region.insert(region.end(), last);
-    }
+struct Token {
+    std::string token;
+    std::string identifier;
 };
 
 // Maybe consider breaking this up into subclasses
@@ -111,6 +69,11 @@ class Buffer {
         std::string buf_get_substr_after_col_pos(ConstBufStrIt& str);
         std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
 
+        std::vector<std::vector<Token>> buf_tokenize(void);
+        void buf_set_token_buffer(std::vector<std::vector<Token>> tb) { token_buffer = tb; }
+        void buf_line_retokenize(void);
+
+
         ~Buffer(void);
     private:
         int error;
@@ -118,7 +81,7 @@ class Buffer {
         int row, col, saved_col;
         std::string filename;
         std::vector<std::string> buffer;
-        Selection sel;
+        std::vector<std::vector<Token>> token_buffer;
 };
 
 #endif

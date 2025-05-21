@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-Buffer::Buffer(const int32_t id) : error(CORE_NIL), sel()
+Buffer::Buffer(const int32_t id) : error(CORE_NIL)
 {
     buf_set_id(id);
     buf_zero_buffer();
@@ -15,7 +15,7 @@ Buffer::Buffer(const int32_t id) : error(CORE_NIL), sel()
     std::cout << "Buffer created with ID: " << id << std::endl;
 }
 
-Buffer::Buffer(const int32_t id, std::string fn) : error(CORE_NIL), sel()
+Buffer::Buffer(const int32_t id, std::string fn) : error(CORE_NIL)
 {
     buf_set_id(id);
     buf_set_filename(fn);

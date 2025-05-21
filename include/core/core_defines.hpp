@@ -1,8 +1,8 @@
 #ifndef CORE_DEFINES_HPP
 #define CORE_DEFINES_HPP
-#define SPACECHAR ' '
-#define NULLCHAR '\0'
-#define NEWLINE '\n'
+#define SPACE_CHAR ' '
+#define NULL_CHAR '\0'
+#define NEW_LINE '\n'
 
 typedef enum { 
     CORE_NIL = -1,

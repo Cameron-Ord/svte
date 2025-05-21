@@ -20,19 +20,19 @@ const std::string Editor::ed_mode_str(const int8_t c) const {
         }break;
 
         case NAV: {
-            return std::string("nav");
+            return std::string("NAV");
         }break;
 
         case SELECT:{
-            return std::string("select");
+            return std::string("SELECT");
         }break;
 
         case INSERT:{
-            return std::string("insert");
+            return std::string("INSERT");
         }break;
 
         case CMD:{
-            return std::string("cmd");
+            return std::string("CMD");
         }break;
     }
 }
