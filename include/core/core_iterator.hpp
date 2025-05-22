@@ -4,15 +4,63 @@
 #include <vector>
 #include <string>
 
-// Just defining structs for encapsulating iterators.
-// Defined in core include, can be safely included anywhere.
+struct Token {
+    std::string token;
+    std::string identifier;
+};
+
+struct ConstTokenRowIt {
+    const std::vector<Token>& tokens;
+    int substr_offset = 0;
+
+
+    std::vector<Token>::const_iterator end;
+    std::vector<Token>::const_iterator begin;
+
+    ConstTokenRowIt(const std::vector<Token> &row) : tokens(row){
+        init_iterators();
+    }
+
+    void init_iterators(void){
+        end = tokens.end(), begin = tokens.begin();
+    }
+
+    const int map_offset(const int val){
+        int index = 0;
+        const int size = static_cast<int>(tokens.size());
+        
+        for(int i = 0; i < size; i++){
+            const int len = static_cast<int>(tokens[i].token.size());
+            if(index + len > val){
+                substr_offset = val - index;
+                return static_cast<int>(i);
+            }
+            index += len;
+        }
+
+        substr_offset = 0;
+        return static_cast<int>(tokens.size());
+    }
+
+    ConstTokenRowIt& offset(const int val){    
+        begin = tokens.begin() + map_offset(val); 
+        return *this;
+    }
+    
+    void valid(void){
+        if(begin >= end){
+            begin = end;
+        }
+    }
+
+    void increment(void){ ++begin; }
+    void decrement(void){ --begin; }
+};
 
 struct ConstBufRowIt {
     const std::vector<std::string>& row;
     std::vector<std::string>::const_iterator end;
     std::vector<std::string>::const_iterator begin;
-    std::vector<std::string>::const_reverse_iterator rend;
-    std::vector<std::string>::const_reverse_iterator rbegin;
     
     ConstBufRowIt(const std::vector<std::string> &row) : row(row){
         init_iterators();
@@ -20,35 +68,21 @@ struct ConstBufRowIt {
 
     void init_iterators(void){
         end = row.end(), begin = row.begin();
-        rend = row.rend(), rbegin = row.rbegin();
     }
 
     ConstBufRowIt& offset(const int val){ 
         begin = row.begin() + val; 
         return *this;
     }
-    
-    ConstBufRowIt& roffset(const int val){ 
-        rbegin = row.rbegin() + val;
-        return *this;
-    }
-    
+        
     void valid(void){
         if(begin >= end){
             begin = end;
         }
     }
 
-    void rvalid(void){
-        if(rbegin >= rend){
-            rbegin = rend;
-        }
-    }
-
     void increment(void){ ++begin; }
-    void rincrement(void){ ++rbegin; }
     void decrement(void){ --begin; }
-    void rdecrement(void){ --rbegin; }
 };
 
 struct ConstBufStrIt{
@@ -56,8 +90,6 @@ struct ConstBufStrIt{
 
     std::string::const_iterator end;
     std::string::const_iterator begin;
-    std::string::const_reverse_iterator rend;
-    std::string::const_reverse_iterator rbegin;
     
     ConstBufStrIt(const std::string &line) : line(line){
         init_iterators();
@@ -65,7 +97,6 @@ struct ConstBufStrIt{
 
     void init_iterators(void){
         end = line.end(), begin = line.begin();
-        rend = line.rend(), rbegin = line.rbegin();
     }
 
     ConstBufStrIt& offset(const int val){ 
@@ -73,35 +104,20 @@ struct ConstBufStrIt{
         return *this;
     }
 
-    ConstBufStrIt& roffset(const int val){ 
-        rbegin = line.rbegin() + val;
-        return *this;
-    }
-
     void valid(void){
         if(begin >= end){
             begin = end;
         }
     }
 
-    void rvalid(void){
-        if(rbegin >= rend){
-            rbegin = rend;
-        }
-    }
-
     void increment(void){ ++begin; }
-    void rincrement(void){ ++rbegin; }
     void decrement(void){ --begin; }
-    void rdecrement(void){ --rbegin; }
 };
 
 struct BufRowIt {
     std::vector<std::string>& row;
     std::vector<std::string>::iterator end;
     std::vector<std::string>::iterator begin;
-    std::vector<std::string>::reverse_iterator rend;
-    std::vector<std::string>::reverse_iterator rbegin;
     
     BufRowIt(std::vector<std::string> &row) : row(row){
         init_iterators();
@@ -109,7 +125,6 @@ struct BufRowIt {
 
     void init_iterators(void){
         end = row.end(), begin = row.begin();
-        rend = row.rend(), rbegin = row.rbegin();
     }
 
     BufRowIt& offset(const int val){ 
@@ -117,27 +132,14 @@ struct BufRowIt {
         return *this;
     }
 
-    BufRowIt& roffset(const int val){ 
-        rbegin = row.rbegin() + val; 
-        return *this;
-    }
-
     void valid(void){
         if(begin >= end){
             begin = end;
         }
     }
 
-    void rvalid(void){
-        if(rbegin >= rend){
-            rbegin = rend;
-        }
-    }
-    
     void increment(void){ ++begin; }
-    void rincrement(void){ ++rbegin; }
     void decrement(void){ --begin; }
-    void rdecrement(void){ --rbegin; }
 };
 
 struct BufStrIt{
@@ -145,8 +147,6 @@ struct BufStrIt{
 
     std::string::iterator end;
     std::string::iterator begin;
-    std::string::reverse_iterator rend;
-    std::string::reverse_iterator rbegin;
     
     BufStrIt(std::string &line) : line(line){
         init_iterators();
@@ -154,16 +154,10 @@ struct BufStrIt{
 
     void init_iterators(void){
         end = line.end(), begin = line.begin();
-        rend = line.rend(), rbegin = line.rbegin();
     }
 
     BufStrIt& offset(const int val){ 
         begin = line.begin() + val; 
-        return *this;
-    }
-
-    BufStrIt& roffset(const int val){ 
-        rbegin = line.rbegin() + val; 
         return *this;
     }
 
@@ -173,15 +167,7 @@ struct BufStrIt{
         }
     }
 
-    void rvalid(void){
-        if(rbegin >= rend){
-            rbegin = rend;
-        }
-    }
-
     void increment(void){ ++begin; }
-    void rincrement(void){ ++rbegin; }
     void decrement(void){ --begin; }
-    void rdecrement(void){ --rbegin; }
 };
 #endif

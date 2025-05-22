@@ -22,11 +22,6 @@ void Window::win_dft_partition(const int &rblock, const int &vpadding)
         vpadding, height - mono_line, width * 0.20, mono_line
     );
 
-    partitions.set(STATUS_BOX,
-        vpadding + partitions.get(0).w, 
-        height - mono_line, width * 0.20, mono_line
-    );
-
     partitions.set(FN_BOX,
         vpadding, 0, width, mono_line
     );

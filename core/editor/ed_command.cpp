@@ -3,11 +3,13 @@
 #include "../../include/core/core_event_mgr.hpp"
 
 
-void Editor::ed_cmd_ins(const unsigned char c)
+void Editor::ed_cmd_ins(const char *c, const size_t size)
 {
     if (cmd.cursor <= static_cast<int>(cmd.cmdstr.size())) {
-        cmd.cmdstr.insert(cmd.cmdstr.begin() + cmd.cursor, c);
-        cmd.cursor++;
+        for(size_t i = 0; i < size && c[i] != NULL_CHAR; i++){
+            cmd.cmdstr.insert(cmd.cmdstr.begin() + cmd.cursor, c[i]);
+            cmd.cursor++;
+        }
     }
 }
 

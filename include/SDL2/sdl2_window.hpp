@@ -7,8 +7,7 @@
 
 #define CMD_BOX 0
 #define BUF_BOX 1
-#define STATUS_BOX 2
-#define FN_BOX 3
+#define FN_BOX 2
 
 struct WindowPartition
 {
@@ -17,7 +16,7 @@ struct WindowPartition
   Vec4i cmdbox;
   Vec4i statusbox;
 
-  std::array<Vec4i, 4> boxes = {cmdbox, bufbox, statusbox, fnbox};
+  std::array<Vec4i, 3> boxes = {cmdbox, bufbox, fnbox};
 
   void set(const int i, const int x, const int y, const int w, const int h){
     boxes.at(i).x = x, boxes.at(i).y = y, boxes.at(i).w = w, boxes.at(i).h = h;

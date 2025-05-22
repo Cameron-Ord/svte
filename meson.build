@@ -2,8 +2,8 @@ project('svte', 'cpp', default_options: ['cpp_std=c++17'])
 
 src = [
         'frontend/SDL2/sdl2_events.cpp',
-        'frontend/SDL2/sdl2_mode_events.cpp',
-        'frontend/SDL2/sdl2_key_events.cpp',
+        'frontend/SDL2/sdl2_mutation_key_events.cpp',
+        'frontend/SDL2/sdl2_buffer_key_events.cpp',
         'frontend/SDL2/sdl2_move_events.cpp',
         'frontend/SDL2/sdl2_internal.cpp',
         'frontend/SDL2/sdl2_renderer.cpp',

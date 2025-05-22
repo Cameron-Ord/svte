@@ -66,7 +66,7 @@ int main(int argc, char **argv)
     uint64_t frame_start;
     int frame_time;
 
-    SDL_StopTextInput();
+    SDL_StartTextInput();
     renderer->rndr_set_blendmode(SDL_BLENDMODE_BLEND);
     window->win_show_window();
     context.sdl2_set_run_state(RUN);
@@ -124,9 +124,6 @@ int main(int argc, char **argv)
             &renderer->rndr_get_rcmd()->viewport
         ).rndr_set_colour(255, 255, 255, 200).rndr_draw_cmd().rndr_cmd_cursor();
 
-        renderer->rndr_set_viewport(
-            &renderer->rndr_get_status()->viewport
-        ).rndr_draw_status();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
@@ -156,20 +153,6 @@ static void event_chain_update(
             }
         }break;
 
-        case MODE_CHANGE:{
-            switch(opt){
-                default: break;
-
-                case STOP_TEXT_INPUT:{
-                    SDL_StopTextInput();
-                }break;
-
-                case START_TEXT_INPUT:{
-                    SDL_StartTextInput();
-                }break;
-            };
-        }break;
-
         case DISPLAY_SIZE_CHANGED:{
             Window *w = ctx->sdl2_get_win();
             Renderer *r = ctx->sdl2_get_rend();
@@ -188,10 +171,14 @@ static void event_chain_update(
         case BUFFER_MUTATION:{
             Renderer *r = ctx->sdl2_get_rend();
             r->rndr_update_offsets_by_id(id);
+
+            Buffer *buf = e->ed_fetch_buffer(id);
+            if(buf){
+                buf->buf_tokenize();
+            }
         }break;
 
         case COMMAND_COMMIT:{
-            SDL_StopTextInput();
             switch(opt){
                 default: break;
 
@@ -211,7 +198,6 @@ static void event_chain_update(
                     }
                 }break;
             }
-            e->ed_set_mode(NAV);
         }break;
 
         case COMMAND_CURSOR_MOVE : {

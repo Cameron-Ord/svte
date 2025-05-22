@@ -23,21 +23,20 @@ KeyEvent::KeyEvent(void) : controls(ev_init_controls())
 Controls KeyEvent::ev_init_controls(void)
 {
     Controls c = {
-        controls.LEFT = SDLK_h,
-        controls.RIGHT = SDLK_l,
-        controls.UP = SDLK_k,
-        controls.DOWN = SDLK_j,
+        controls.LEFT = SDLK_a,
+        controls.RIGHT = SDLK_f,
+        controls.UP = SDLK_e,
+        controls.DOWN = SDLK_d,
         controls.RETURN = SDLK_RETURN,
         controls.BACKSPACE = SDLK_BACKSPACE,
         controls.DELETE = SDLK_DELETE,
 
-        controls.INSERT_MODE = SDLK_i,
-        controls.APPEND_MODE = SDLK_a,
-        controls.SELECTION_MODE = SDLK_v,
-        controls.NAV_MODE = SDLK_ESCAPE,
-        controls.ACTION_CMD = SDLK_c,
+        controls.BUFFER_INC = SDLK_l,
+        controls.BUFFER_DEC = SDLK_h,
 
+        controls.ACTION_CMD = SDLK_c,
         controls.ACTION_MOD = KMOD_LCTRL,
+        controls.META_MOD = KMOD_LALT,
     };
     return c;
 }
@@ -45,21 +44,21 @@ Controls KeyEvent::ev_init_controls(void)
 //https://en.cppreference.com/w/cpp/language/lambda
 void KeyEvent::ev_init_keybinds(void)
 {
-    binds.insert({controls.LEFT, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_left(mod, e, id); }});
-    binds.insert({controls.RIGHT, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_right(mod, e, id); }});
-    binds.insert({controls.UP, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_up(mod, e, id); }});
-    binds.insert({controls.DOWN, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_down(mod, e, id); }});
+    binds.insert({controls.LEFT, [this](int mod, Editor *e, const int32_t id) -> EventResult { return prev_char(mod, e, id); }});
+    binds.insert({controls.RIGHT, [this](int mod, Editor *e, const int32_t id) -> EventResult { return next_char(mod, e, id); }});
+    binds.insert({controls.UP, [this](int mod, Editor *e, const int32_t id) -> EventResult { return prev_line(mod, e, id); }});
+    binds.insert({controls.DOWN, [this](int mod, Editor *e, const int32_t id) -> EventResult { return next_line(mod, e, id); }});
+
+    binds.insert({controls.BUFFER_DEC, [this](int mod, Editor *e, const int32_t id) -> EventResult { return prev_buffer(mod, e, id); }});
+    binds.insert({controls.BUFFER_INC, [this](int mod, Editor *e, const int32_t id) -> EventResult { return next_buffer(mod, e, id); }});
 
     binds.insert({controls.RETURN, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_return(mod, e, id); }});
     binds.insert({controls.BACKSPACE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_backspace(mod, e, id); }});
     binds.insert({controls.DELETE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_delete(mod, e, id); }});
 
-    binds.insert({controls.INSERT_MODE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_insert(mod, e, id); }});
-    binds.insert({controls.APPEND_MODE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_append(mod, e, id); }});
-    binds.insert({controls.NAV_MODE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_escape(mod, e, id); }});
-    binds.insert({controls.SELECTION_MODE, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_visual(mod, e, id); }});
-    binds.insert({controls.ACTION_CMD, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_cmd(mod, e, id); }});
+    binds.insert({controls.ACTION_CMD, [this](int mod, Editor *e, const int32_t id) -> EventResult { return ev_cmd_mode(mod, e, id); }});
 }
+
 
 
 EventResult KeyEvent::ev_mainloop_keydown(const int keysym, const int keymod, Editor *e)
@@ -102,46 +101,36 @@ EventResult KeyEvent::ev_mainloop_window_event_type(const int windowevent)
 
 EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const int32_t id)
 {
-    //In any of these functions where im checking this condition and it fails it will
-    //pretty much prevent any other behavior from occuring - IE. wanting to enter a command without
-    //a dedicated buffer present. Obviously I need to check the location of the pointer checks to allow behaviors but im lazy right now.
-    Buffer *buf = e->ed_fetch_buffer(id);
-
     const size_t len = strlen(text);
-    for (size_t i = 0; i < len; i++) {
-        switch (e->ed_get_mode()) {
-        default:
-            break;
-        case INSERT:
-        {
-            if (buf) {
-                buf->buf_ins_char(text[i]);
-            } 
-        } break;
+    char input_buffer[len + 1];
 
-        case CMD:
-        {
-            e->ed_cmd_ins(text[i]);
-        } break;
-        }
-    }
+    strncpy(input_buffer, text, sizeof(char) * len);
+    input_buffer[len] = '\0';
 
-    switch (e->ed_get_mode()) {
-    default:
-    {
-        return EventResult(NO_KEY, NO_OPTION, id);
-    }
+    switch(e->ed_taking_cmd()){
+        default:{
+            return EventResult(NO_KEY, NO_OPTION, id);
+        }break;
 
-    case INSERT:
-    {
-        return EventResult(BUFFER_MUTATION, NO_OPTION, id);
-    }
+        case 0: {
+            e->ed_ins_char(id, input_buffer, len);
+            return EventResult(BUFFER_MUTATION, NO_OPTION, id);
+        }break;
 
-    case CMD:
-    {
-        return EventResult(COMMAND_MUTATION, NO_OPTION, id);
-    }
+        case 1:{
+            e->ed_cmd_ins(input_buffer, len);
+            return EventResult(COMMAND_MUTATION, NO_OPTION, id);
+        }break;
     }
 }
+
+EventResult KeyEvent::ev_cmd_mode(const int &keymod, Editor *e, const int32_t id){
+    if(keymod & controls.ACTION_MOD){
+        e->ed_set_cmd_mode(!e->ed_taking_cmd());
+    }
+    return EventResult(NO_KEY, NO_OPTION, id);
+}
+
+
 
 int KeyEvent::ev_mainloop_die(void) { return NO_RUN; }

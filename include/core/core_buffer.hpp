@@ -8,11 +8,6 @@
 
 #include "core_iterator.hpp"
 
-struct Token {
-    std::string token;
-    std::string identifier;
-};
-
 // Maybe consider breaking this up into subclasses
 class Buffer {
     public:
@@ -66,12 +61,12 @@ class Buffer {
         int buf_mv_row(const int amount);
         void buf_mv_col(const int amount);
 
+        const std::vector<std::vector<Token>>& buf_get_token_buffer(void) const { return token_buffer; }
+
         std::string buf_get_substr_after_col_pos(ConstBufStrIt& str);
         std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
 
-        std::vector<std::vector<Token>> buf_tokenize(void);
-        void buf_set_token_buffer(std::vector<std::vector<Token>> tb) { token_buffer = tb; }
-        void buf_line_retokenize(void);
+        void buf_tokenize(void);
 
 
         ~Buffer(void);

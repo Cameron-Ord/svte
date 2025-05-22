@@ -13,9 +13,8 @@ static std::string char_type(const unsigned char c){
 }
 
 // Basic tokenization by character type - will have to also identify things by keywords for syntax highlighting
-std::vector<std::vector<Token>> Buffer::buf_tokenize(void){
-    std::vector<std::vector<Token>> token_buffer;
-    
+void Buffer::buf_tokenize(void){
+    token_buffer.clear();
     const int size = buf_get_size();
     for(int i = 0; i < size; i++){
         const int strsize = buf_get_line_size(i);
@@ -37,10 +36,4 @@ std::vector<std::vector<Token>> Buffer::buf_tokenize(void){
 
         token_buffer.push_back(token_line);
     }
-
-    return token_buffer;
-}
-
-void Buffer::buf_line_retokenize(void){
-
 }

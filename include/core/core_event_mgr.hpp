@@ -13,7 +13,6 @@ typedef enum {
     DISPLAY_SIZE_CHANGED = 6,
     BUFFER_CHANGED = 7,
     NO_KEY = 9,
-    MODE_CHANGE = 12,
 } EventKeys;
 
 typedef enum {

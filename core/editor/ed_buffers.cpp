@@ -104,3 +104,13 @@ Buffer *Editor::ed_fetch_buffer(const int32_t id)
         return nullptr;
     }
 }
+
+
+void Editor::ed_ins_char(const int32_t id, const char *c, const size_t size){
+    Buffer *b = ed_fetch_buffer(id);
+    if(b){
+        for(size_t i = 0; i < size && c[i] != NULL_CHAR; i++){
+            b->buf_ins_char(c[i]);
+        }
+    }
+}

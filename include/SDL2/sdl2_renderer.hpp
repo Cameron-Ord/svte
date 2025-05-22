@@ -109,7 +109,6 @@ class Renderer
     void rndr_set_blendmode(const SDL_BlendMode mode);
     void rndr_set_err(const int errval) { error = errval; }
     int rndr_get_err(void) { return error; }
-    void rndr_draw_status(void);
 
     class VectorFont &_vf(void) { return vf; }
 
@@ -130,7 +129,7 @@ class Renderer
 
     Renderer& rndr_draw_buffer(const RndrItem *const item, const Buffer *const b);
     void rndr_put_cursor(const RndrItem *const item, const int &row, const int &col);
-    void rndr_draw_line(ConstBufStrIt &line, const RndrItem *const item, const int y);
+    void rndr_draw_line(int& col, ConstBufStrIt &line, const RndrItem *const item, const int& y);
     void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
     void rndr_buf_offsets(RndrItem &item, const Buffer *const b);
     void rndr_cmd_offsets(void);
@@ -146,7 +145,6 @@ class Renderer
 
     const RndrItem *const rndr_get_rcmd(void) { return &rcmd; }
     const RndrItem *const rndr_get_filename(void) { return &filename; }
-    const RndrItem *const rndr_get_status(void) { return &status; }
 
     void rndr_draw_filename(const std::string& fn);
 
@@ -156,7 +154,6 @@ class Renderer
     std::unordered_set<int32_t> used;
     std::unordered_map<int32_t, RndrItem> rndrbuffers;
     RndrItem rcmd;
-    RndrItem status;
     RndrItem filename;
     std::vector<int32_t> commited_ids;
     VectorFont vf;
