@@ -11,10 +11,20 @@ const SDL_Color digit = {245, 169, 127, 255};
 const SDL_Color type = {198, 160, 246, 255};
 const SDL_Color keyword = {138, 173, 244, 255};
 
+void ColourRef::set_map(void){
+    map.push_back(std::make_pair(PUNCTUATION, punctuation));
+    map.push_back(std::make_pair(OPERATORS, operators));
+    map.push_back(std::make_pair(TYPE_DEFINITION, type));
+    map.push_back(std::make_pair(GENERIC_TEXT, generic_letters));
+    map.push_back(std::make_pair(KEYWORD, key_words));
+    map.push_back(std::make_pair(DIGITS, digits));
+}
+
 VectorFont::VectorFont(SDL_Renderer *rend)
     : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr), colours(punct, ops, letter, digit, type, keyword)
 {
     vec_set_err(rend != nullptr ? SDL2_NIL : SDL2_ERR);
+    colours.set_map();
     vec_set_err(vec_alloc_texture_array());
     vec_set_err(vec_open_font("LiberationMono-Regular.ttf", 16));
     vec_set_char();
@@ -60,8 +70,8 @@ int VectorFont::vec_create_textures(SDL_Renderer *rend)
         char c = (char)i;
         const char str[2] = {c, '\0'};
 
-        for(size_t j = 0; j < colours.vec.size(); i++){
-            vec_create_char_texture(colours.vec[i].first, rend, ch[i], vec_create_char_surface(str, colours.vec[j].second));
+        for(size_t j = 0; j < colours.map.size(); j++){
+            vec_create_char_texture(colours.map[j].first, rend, ch[i], vec_create_char_surface(str, &colours.map[j].second));
         }
 
         if (ch[i].bad != SDL2_NIL) {

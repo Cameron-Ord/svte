@@ -17,7 +17,7 @@ static const std::unordered_set<std::string> operators = {
 };
 
 
-const uint8_t char_type(const unsigned char c){
+const uint8_t char_type(const char c){
     if(c == SPACE_CHAR) {return SPACE_TOKEN; }
     if(c == '\t') { return TAB_TOKEN; }
 
@@ -56,6 +56,8 @@ Buffer& Buffer::buf_tokenize(void){
 
         token_buffer.push_back(token_line);
     }
+
+    return *this;
 }
 
 void Buffer::buf_semantic_group(void){

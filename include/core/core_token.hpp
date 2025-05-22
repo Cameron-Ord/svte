@@ -5,7 +5,7 @@
 #include <cstdint>
 
 struct Token {
-    unsigned char token;
+    char token;
     uint8_t identifier;
 };
 

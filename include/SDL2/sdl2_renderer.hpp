@@ -8,6 +8,7 @@
 
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 typedef struct WindowPartition WindowPartition;
 class Buffer;
@@ -77,20 +78,14 @@ struct ColourRef {
     SDL_Color key_words;
     SDL_Color digits;
 
-
-
-    std::vector<std::pair<uint8_t, SDL_Color*>> vec = {
-        {PUNCTUATION, &punctuation}, {OPERATORS, &operators}, 
-        {TYPE_DEFINITION, &type}, {GENERIC_TEXT, &generic_letters},
-        {KEYWORD, &key_words}, {DIGITS, &digits}
-    };
+    std::vector<std::pair<uint8_t, SDL_Color>> map;
 
     ColourRef(SDL_Color p, SDL_Color o, SDL_Color g, SDL_Color d, SDL_Color t, SDL_Color k) {
         punctuation = p, operators = o, type = t, 
         generic_letters = g, key_words = k, digits = d;
     }
 
-    const SDL_Color get(const uint8_t type);
+    void set_map(void);
 };
 
 typedef struct
