@@ -4,29 +4,33 @@
 
 #include <iostream>
 
-const SDL_Color punct = {237, 135, 150, 255};
-const SDL_Color ops = {139, 213, 202, 255};
-const SDL_Color letter = {202, 211, 245, 255};
-const SDL_Color digit = {245, 169, 127, 255};
-const SDL_Color type = {198, 160, 246, 255};
-const SDL_Color keyword = {138, 173, 244, 255};
+const SDL_Color punct      = {220, 110, 130, 255};  // Slightly deeper pink
+const SDL_Color ops        = {120, 200, 190, 255};  // Teal softened
+const SDL_Color letter     = {190, 200, 230, 255};  // Soft lavender
+const SDL_Color digit      = {235, 140, 90, 255};   // Warm orange
+const SDL_Color type       = {175, 140, 220, 255};  // Muted purple
+const SDL_Color keyword    = {120, 150, 220, 255};  // Desaturated blue
+const SDL_Color string     = {170, 200, 120, 255};  // Gentle green
+const SDL_Color comment    = {100, 100, 120, 255}; 
 
 void ColourRef::set_map(void){
-    map.push_back(std::make_pair(PUNCTUATION, punctuation));
-    map.push_back(std::make_pair(OPERATORS, operators));
+    map.push_back(std::make_pair(PUNCTUATION, punct));
+    map.push_back(std::make_pair(OPERATORS, ops));
     map.push_back(std::make_pair(TYPE_DEFINITION, type));
-    map.push_back(std::make_pair(GENERIC_TEXT, generic_letters));
-    map.push_back(std::make_pair(KEYWORD, key_words));
-    map.push_back(std::make_pair(DIGITS, digits));
+    map.push_back(std::make_pair(GENERIC_TEXT, letter));
+    map.push_back(std::make_pair(KEYWORD, keyword));
+    map.push_back(std::make_pair(DIGITS, digit));
+    map.push_back(std::make_pair(STRING, string));
+    map.push_back(std::make_pair(COMMENT, comment));
 }
 
 VectorFont::VectorFont(SDL_Renderer *rend)
-    : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr), colours(punct, ops, letter, digit, type, keyword)
+    : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr)
 {
     vec_set_err(rend != nullptr ? SDL2_NIL : SDL2_ERR);
     colours.set_map();
     vec_set_err(vec_alloc_texture_array());
-    vec_set_err(vec_open_font("LiberationMono-Regular.ttf", 16));
+    vec_set_err(vec_open_font("LiberationMono-Regular.ttf", 12));
     vec_set_char();
     vec_set_err(vec_create_textures(rend));
 }

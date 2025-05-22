@@ -104,7 +104,7 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
     const size_t len = strlen(text);
     char input_buffer[len + 1];
 
-    strncpy(input_buffer, text, sizeof(char) * len);
+    strncpy(input_buffer, text, sizeof(char) * len + 1);
     input_buffer[len] = '\0';
 
     switch(e->ed_taking_cmd()){

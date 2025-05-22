@@ -21,7 +21,11 @@ typedef enum {
     PUNCT_TOKEN = 3, 
     NUMERIC_TOKEN = 4,
     SPACE_TOKEN = 5,
-    CONTROL_TOKEN = 6
+    CONTROL_TOKEN = 6,
+    QUOTATION_TOKEN = 7,
+    REVERSE_SLASH_TOKEN = 8,
+    UNKNOWN_TOKEN = 9,
+    ALHPA_NUMERIC = 10,
 }TOKEN_TYPES;
 
 typedef enum {
@@ -32,7 +36,9 @@ typedef enum {
     TYPE_DEFINITION = 4,
     KEYWORD = 5,
     FUNCTION = 6,
-    IGNORE = 7
+    IGNORE = 7,
+    COMMENT = 8, 
+    STRING = 9
 }SUBSTR_TYPES;
 
 const uint8_t char_type(const unsigned char c);

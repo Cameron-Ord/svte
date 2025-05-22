@@ -66,7 +66,7 @@ class Buffer {
         std::string buf_get_substr_after_col_pos(ConstBufStrIt& str);
         std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
 
-        Buffer& buf_tokenize(void);
+        void buf_tokenize(void);
 
         ~Buffer(void);
     private:

@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
     while (context.sdl2_get_run_state() != NO_RUN) {
         frame_start = SDL_GetTicks64();
-        renderer->rndr_set_colour(30, 32, 48, 255);
+        renderer->rndr_set_colour(13, 13, 13, 255);
         renderer->rndr_clear();
 
         SDL_Event e;

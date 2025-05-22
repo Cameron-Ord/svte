@@ -3,12 +3,13 @@
 #include "../../include/SDL2/sdl2_macdef.hpp"
 
 Window::Window(void)
-    : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT)
+    : error(SDL2_NIL), win(nullptr), width(BASE_WIDTH), height(BASE_HEIGHT), partitions()
 {
     win_set_err(
         win_create_window(
             SDL_WINDOW_HIDDEN |
             SDL_WINDOW_RESIZABLE));
+
 }
 
 Window::~Window(void)

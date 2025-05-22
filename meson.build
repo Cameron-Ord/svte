@@ -22,7 +22,8 @@ src = [
         'core/buffer/buf_tokens.cpp',
         'core/buffer/buf_iterator.cpp',
 
-        'core/sys/sys.cpp',
+        'core/sys.cpp',
+        'core/parser.cpp',
 ]
 
 sdl2_dep = dependency('SDL2')

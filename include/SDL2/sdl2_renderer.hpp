@@ -71,19 +71,9 @@ struct RndrItem
 typedef struct RndrItem RndrItem;
 
 struct ColourRef {
-    SDL_Color punctuation;
-    SDL_Color operators;
-    SDL_Color type;
-    SDL_Color generic_letters;
-    SDL_Color key_words;
-    SDL_Color digits;
-
     std::vector<std::pair<uint8_t, SDL_Color>> map;
 
-    ColourRef(SDL_Color p, SDL_Color o, SDL_Color g, SDL_Color d, SDL_Color t, SDL_Color k) {
-        punctuation = p, operators = o, type = t, 
-        generic_letters = g, key_words = k, digits = d;
-    }
+    ColourRef() {}
 
     void set_map(void);
 };

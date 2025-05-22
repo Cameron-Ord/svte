@@ -16,7 +16,15 @@ struct WindowPartition
   Vec4i cmdbox;
   Vec4i statusbox;
 
-  std::array<Vec4i, 3> boxes = {cmdbox, bufbox, fnbox};
+  std::array<Vec4i, 3> boxes;
+
+  WindowPartition(){
+    memset(&fnbox, 0, sizeof(Vec4i));
+    memset(&bufbox, 0, sizeof(Vec4i));
+    memset(&cmdbox, 0, sizeof(Vec4i));
+    memset(&statusbox, 0, sizeof(Vec4i));
+    boxes = {cmdbox, bufbox, fnbox};
+  }
 
   void set(const int i, const int x, const int y, const int w, const int h){
     boxes.at(i).x = x, boxes.at(i).y = y, boxes.at(i).w = w, boxes.at(i).h = h;
