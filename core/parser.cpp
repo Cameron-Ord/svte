@@ -14,11 +14,11 @@ TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
 
     ch = {
         [this](char c) -> const uint8_t { return space_char(c); },
+        [this](char c) -> const uint8_t { return quote_char(c); },
         [this](char c) -> const uint8_t { return symbol_char_start(c); },
         [this](char c) -> const uint8_t { return numeric_char(c); }, 
         [this](char c) -> const uint8_t { return operator_char(c); },
         [this](char c) -> const uint8_t { return punct_char(c); },
-        [this](char c) -> const uint8_t { return quote_char(c); },
     };
 
     comment = {
@@ -37,7 +37,7 @@ TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
 
     operators = {
         "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", 
-        ">=", "&&", "||", "!"
+        ">=", "&&", "||", "!", "+=", "-=", "&"
     };
 
 
@@ -124,8 +124,7 @@ std::vector<std::vector<Group>> TokenParser::tokenize_by_group(void){
             auto it = fn.find(char_key(*str_begin));
             if(it != fn.end()){
                 auto tmp = str_begin;
-                const Group g = it->second(tmp, buf_ref[i].end());
-                grouping.push_back(g);
+                grouping.push_back(it->second(tmp, buf_ref[i].end()));
                 str_begin = tmp;
             } else {
                 grouping.push_back({std::string(1, *str_begin), GENERIC_TEXT});
@@ -215,19 +214,27 @@ const Group TokenParser::operator_begin(std::string::const_iterator& begin, std:
 
 const Group TokenParser::string_begin(std::string::const_iterator& begin, std::string::const_iterator end){
     std::string substr;
-    int s = 0;
-    for(; begin != end; ++begin){
-        if(s > 1){
-            return {substr, STRING};
-        }
 
-        if(quote_char(*begin) != UNKNOWN_TOKEN){
-            s++;
-        }
-        
+    substr += *begin;
+    begin = begin + 1 >= end ? end : begin + 1;
+
+    for (; begin != end; ++begin) {
         substr += *begin;
-    }
 
+        if (quote_char(*begin) == QUOTATION_TOKEN) {
+            int count = 0;
+            const int size = substr.size() - 2;
+
+            for (int i = size; i >= 0 && substr[i] == '\\'; --i) {
+                count++;
+            }
+
+            if (count % 2 == 0) {
+                begin = begin + 1 >= end ? end : begin + 1;
+                return {substr, STRING};
+            }
+        }
+    }
 
     return {substr, STRING};
 }

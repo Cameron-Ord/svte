@@ -227,7 +227,7 @@ void Renderer::rndr_draw_line(
             return;
         }
 
-        if (c != skipchar) {
+        if (tkey != IGNORE) {
             rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(tkey));
         }
         col++;
