@@ -3,88 +3,139 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <functional>
 
 static const std::unordered_set<std::string> keywords = {
-    "if", "else", "for", "while", "return", "switch", "case", "break", "continue"
+    "if", "else", "for", "while", "return", "switch", "case", "break", "continue", "static", "const"
 };
 
 static const std::unordered_set<std::string> types = {
-    "int", "float", "double", "char", "void", "bool", "unsigned", "long", "short"
+   "size_t", "int", "float", "double", "char", "void", "bool", "unsigned", "long", "short"
 };
 
 static const std::unordered_set<std::string> operators = {
     "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", ">=", "&&", "||", "!"
 };
 
+static const std::unordered_set<uint8_t> delimiters = {
+    OPERATOR_TOKEN, PUNCT_TOKEN, SPACE_TOKEN, TAB_TOKEN
+};
 
-const uint8_t char_type(const char c){
-    if(c == SPACE_CHAR) {return SPACE_TOKEN; }
-    if(c == '\t') { return TAB_TOKEN; }
 
-    if(std::string("+-*/%&|^=<>!").find(c) != std::string::npos) {
-        return OPERATOR_TOKEN;
+const int space_char(const char c){
+    return std::string(" \t").find(c) != std::string::npos;
+}
+
+const uint8_t identifier_string(const std::string& s){
+    if(types.count(s)) {
+        return TYPE_DEFINITION;
+    } else {
+        return GENERIC_TEXT;
+    }
+}
+
+const int keyword_string(const std::string& s){
+    if(keywords.count(s)){
+        return KEYWORD;
+    } else {
+        return GENERIC_TEXT;
+    }
+}
+
+const int numeric_char(const int c){
+    return std::isdigit(c);
+}
+
+const int regular_char(const char c){
+    return std::isalnum(c) || c == '_';
+}
+
+const int operator_char(const char c){
+    return std::string("+-*/%&|^=<>!").find(c) != std::string::npos;
+}
+
+const int punct_char(const char c){
+    return std::string("(){}[];:,.").find(c) != std::string::npos;
+}
+
+const int preprocessor_char(const char c){
+    return c == '#';
+}
+
+const int quote_char(const char c){
+    return c == '"' || c == '\'';
+}
+
+const int reverse_slash(const char c){
+    return c == '\\';
+}
+
+struct Rule {
+    std::function<const int(const char)> fn;
+    uint8_t type;
+};
+
+static const std::array<Rule, 8> rules = {{
+    { space_char, IGNORE },
+    { numeric_char, DIGITS },
+    { regular_char, GENERIC_TEXT }, 
+    { operator_char, OPERATORS },
+    { punct_char, PUNCTUATION },
+    { preprocessor_char, GENERIC_TEXT },
+    { quote_char, GENERIC_TEXT },
+    { reverse_slash, GENERIC_TEXT }
+}};
+
+static void semantic_grouping(const char c, const int strsize, int& j, const int i, std::vector<std::string>& buffer, std::vector<Group>& grouping){
+    const int rsize = static_cast<int>(rules.size());
+    int matched = 0;
+
+    for(int k = 0; k < rsize; k++){
+        if(rules[k].fn(c)){
+            std::string substr;
+            while(j < strsize && rules[k].fn(buffer[i][j])){
+                substr += buffer[i][j];
+                j++;
+            }
+
+            uint8_t type = rules[k].type;
+
+            if(type == GENERIC_TEXT){
+                if(identifier_string(substr) != GENERIC_TEXT){
+                    type = TYPE_DEFINITION;
+                } else if(keyword_string(substr) != GENERIC_TEXT){
+                    type = KEYWORD;
+                }
+            }
+
+            grouping.push_back({substr, type});
+            matched = 1;
+        }
     }
 
-    if(std::ispunct(c)) { return PUNCT_TOKEN; }
-    if(std::isalpha(c)) { return CHAR_TOKEN; }
-    if(std::isdigit(c)) { return NUMERIC_TOKEN; }
-    return CONTROL_TOKEN;
+    if(!matched){
+        grouping.push_back({std::string(1, buffer[i][j]), GENERIC_TEXT});
+        j++;
+    }
 }
 
-static uint8_t substr_type(const std::string& s){
-    if(keywords.count(s)) { return KEYWORD; }
-    if(types.count(s)) { return TYPE_DEFINITION; }
-    if(operators.count(s)) { return OPERATORS; }
-    return GENERIC_TEXT;
-}
 
 Buffer& Buffer::buf_tokenize(void){
-    token_buffer.clear();
+    group_buffer.clear();
     const int size = buf_get_size();
-    for(int i = 0; i < size; i++){
+
+    for(int i = 0; i < size; i++){ 
         const int strsize = buf_get_line_size(i);
-        std::vector<Token> token_line;
-
         int j = 0;
-        while(j < strsize){
-            Token t = {
-                buffer[i][j], char_type(buffer[i][j])
-            };
-            token_line.push_back(t);
-            j++;
-        }
 
-        token_buffer.push_back(token_line);
+        std::vector<Group> grouping;
+        while(j < strsize){
+            const char c = buffer[i][j];
+            semantic_grouping(c, strsize, j, i, buffer, grouping);
+        }
+        group_buffer.push_back(grouping);
     }
 
     return *this;
 }
 
-void Buffer::buf_semantic_group(void){
-    group_buffer.clear();
-    const int size = static_cast<int>(token_buffer.size());
-
-    for(int i = 0; i < size; i++){
-        std::vector<Group> groups;
-        const int vecsize = token_buffer[i].size();
-        
-        int j = 0;
-        while(j < vecsize){
-            const unsigned char current = token_buffer[i][j].identifier;
-            std::string substr;
-
-            int k = j;
-            while(k < vecsize && token_buffer[i][k].identifier == current){
-                substr += token_buffer[i][k].token;
-                k++;
-            }
-
-            Group g = {substr, substr_type(substr)};
-            groups.push_back(g);
-
-            j = k;
-        }
-
-        group_buffer.push_back(groups);
-    }
-}

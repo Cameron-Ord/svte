@@ -74,7 +74,7 @@ int Editor::ed_append_buffer(std::pair<std::string, std::vector<std::string>> co
         return ED_BAD_APPEND;
     }
     buffer->buf_copy(commit.second).buf_set_filename(commit.first);
-    buffer->buf_tokenize().buf_semantic_group();
+    buffer->buf_tokenize();
 
     bufs.insert({id, buffer});
     open.push_back(id);

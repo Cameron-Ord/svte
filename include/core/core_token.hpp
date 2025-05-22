@@ -32,6 +32,7 @@ typedef enum {
     TYPE_DEFINITION = 4,
     KEYWORD = 5,
     FUNCTION = 6,
+    IGNORE = 7
 }SUBSTR_TYPES;
 
 const uint8_t char_type(const unsigned char c);

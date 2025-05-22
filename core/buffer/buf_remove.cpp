@@ -58,6 +58,7 @@ void Buffer::buf_rmv_before(void)
 
             BufStrIt concat_line(buffer[row]);
             const size_t prev_size = buffer[row].size();
+            concat_line.offset(prev_size).valid();
 
             buf_ins_substr(concat_line, substr);
 

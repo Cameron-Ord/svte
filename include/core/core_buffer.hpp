@@ -67,7 +67,6 @@ class Buffer {
         std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
 
         Buffer& buf_tokenize(void);
-        void buf_semantic_group(void);
 
         ~Buffer(void);
     private:
@@ -76,7 +75,6 @@ class Buffer {
         int row, col, saved_col;
         std::string filename;
         std::vector<std::string> buffer;
-        std::vector<std::vector<Token>> token_buffer;
         std::vector<std::vector<Group>> group_buffer;
 };
 
