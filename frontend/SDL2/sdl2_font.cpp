@@ -4,8 +4,15 @@
 
 #include <iostream>
 
+const SDL_Color punct = {237, 135, 150, 255};
+const SDL_Color ops = {139, 213, 202, 255};
+const SDL_Color letter = {202, 211, 245, 255};
+const SDL_Color digit = {245, 169, 127, 255};
+const SDL_Color type = {198, 160, 246, 255};
+const SDL_Color keyword = {138, 173, 244, 255};
+
 VectorFont::VectorFont(SDL_Renderer *rend)
-    : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr)
+    : error(SDL2_NIL), font(nullptr), row_block(0), col_block(0), ch(nullptr), colours(punct, ops, letter, digit, type, keyword)
 {
     vec_set_err(rend != nullptr ? SDL2_NIL : SDL2_ERR);
     vec_set_err(vec_alloc_texture_array());
@@ -38,7 +45,6 @@ void VectorFont::vec_set_char(void)
     for (unsigned int i = ASCII_MIN; i < ASCII_END; i++) {
         ch[i].w = 0;
         ch[i].h = 0;
-        ch[i].texture = nullptr;
         ch[i].bad = SDL2_ERR;
     }
 }
@@ -53,7 +59,11 @@ int VectorFont::vec_create_textures(SDL_Renderer *rend)
     for (unsigned int i = ASCII_START; i < ASCII_END; i++) {
         char c = (char)i;
         const char str[2] = {c, '\0'};
-        vec_create_char_texture(rend, ch[i], vec_create_char_surface(str));
+
+        for(size_t j = 0; j < colours.vec.size(); i++){
+            vec_create_char_texture(colours.vec[i].first, rend, ch[i], vec_create_char_surface(str, colours.vec[j].second));
+        }
+
         if (ch[i].bad != SDL2_NIL) {
             return ch[i].bad;
         }
@@ -61,10 +71,9 @@ int VectorFont::vec_create_textures(SDL_Renderer *rend)
     return SDL2_NIL;
 }
 
-SDL_Surface *VectorFont::vec_create_char_surface(const char *str)
+SDL_Surface *VectorFont::vec_create_char_surface(const char *str, const SDL_Color* col)
 {
-    SDL_Color col = {255, 255, 255, 255};
-    SDL_Surface *surf = TTF_RenderText_Blended(font, str, col);
+    SDL_Surface *surf = TTF_RenderText_Blended(font, str, *col);
     if (!surf) {
         std::cerr << "Failed to create surface -> " << SDL_GetError() << std::endl;
         return nullptr;
@@ -72,12 +81,22 @@ SDL_Surface *VectorFont::vec_create_char_surface(const char *str)
     return surf;
 }
 
-void VectorFont::vec_create_char_texture(SDL_Renderer *rend, CSprite &sprite, SDL_Surface *surface)
+void VectorFont::vec_create_char_texture(const uint8_t key, SDL_Renderer *rend, CSprite &sprite, SDL_Surface *surface)
 {
     if (!surface) {
         std::cerr << "No workable surface" << std::endl;
         return;
     }
+
+    SDL_Texture *t = SDL_CreateTextureFromSurface(rend, surface);
+    sprite.tmap.insert({key, t});
+    if (!t) {
+        std::cerr << "Failed to create texture -> " << SDL_GetError() << std::endl;
+        SDL_FreeSurface(surface);
+        return;
+    }
+
+    sprite.tmap.insert({key, t});
 
     sprite.w = surface->w;
     sprite.h = surface->h;
@@ -88,13 +107,6 @@ void VectorFont::vec_create_char_texture(SDL_Renderer *rend, CSprite &sprite, SD
 
     if (surface->h > row_block) {
         row_block = surface->h;
-    }
-
-    sprite.texture = SDL_CreateTextureFromSurface(rend, surface);
-    if (!sprite.texture) {
-        std::cerr << "Failed to create texture -> " << SDL_GetError() << std::endl;
-        SDL_FreeSurface(surface);
-        return;
     }
 
     SDL_FreeSurface(surface);

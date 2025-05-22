@@ -61,13 +61,13 @@ class Buffer {
         int buf_mv_row(const int amount);
         void buf_mv_col(const int amount);
 
-        const std::vector<std::vector<Token>>& buf_get_token_buffer(void) const { return token_buffer; }
+        const std::vector<std::vector<Group>>& buf_get_group_buffer(void) const { return group_buffer; }
 
         std::string buf_get_substr_after_col_pos(ConstBufStrIt& str);
         std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
 
-        void buf_tokenize(void);
-
+        Buffer& buf_tokenize(void);
+        void buf_semantic_group(void);
 
         ~Buffer(void);
     private:
@@ -77,6 +77,7 @@ class Buffer {
         std::string filename;
         std::vector<std::string> buffer;
         std::vector<std::vector<Token>> token_buffer;
+        std::vector<std::vector<Group>> group_buffer;
 };
 
 #endif

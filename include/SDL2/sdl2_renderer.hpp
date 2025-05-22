@@ -14,13 +14,6 @@ class Buffer;
 class Editor;
 typedef struct EditorCmd EditorCmd;
 
-typedef struct
-{
-    int w, h;
-    SDL_Texture *texture;
-    int bad;
-} CSprite;
-
 struct RndrThreshold
 {
     int h_th_min, h_th_max;
@@ -76,6 +69,37 @@ struct RndrItem
 };
 typedef struct RndrItem RndrItem;
 
+struct ColourRef {
+    SDL_Color punctuation;
+    SDL_Color operators;
+    SDL_Color type;
+    SDL_Color generic_letters;
+    SDL_Color key_words;
+    SDL_Color digits;
+
+
+
+    std::vector<std::pair<uint8_t, SDL_Color*>> vec = {
+        {PUNCTUATION, &punctuation}, {OPERATORS, &operators}, 
+        {TYPE_DEFINITION, &type}, {GENERIC_TEXT, &generic_letters},
+        {KEYWORD, &key_words}, {DIGITS, &digits}
+    };
+
+    ColourRef(SDL_Color p, SDL_Color o, SDL_Color g, SDL_Color d, SDL_Color t, SDL_Color k) {
+        punctuation = p, operators = o, type = t, 
+        generic_letters = g, key_words = k, digits = d;
+    }
+
+    const SDL_Color get(const uint8_t type);
+};
+
+typedef struct
+{
+    int w, h;
+    std::unordered_map<uint8_t, SDL_Texture*> tmap;
+    int bad;
+} CSprite;
+
 class VectorFont
 {
   public:
@@ -88,8 +112,8 @@ class VectorFont
     TTF_Font *vec_get_font(void) { return font; }
     void vec_set_char(void);
     int vec_create_textures(SDL_Renderer *rend);
-    void vec_create_char_texture(SDL_Renderer *rend, CSprite &sprite, SDL_Surface *surface);
-    SDL_Surface *vec_create_char_surface(const char *str);
+    void vec_create_char_texture(const uint8_t key, SDL_Renderer *rend, CSprite &sprite, SDL_Surface *surface);
+    SDL_Surface *vec_create_char_surface(const char *str, const SDL_Color* col);
     const CSprite &vec_index_texture(const unsigned char c) const;
     const int &vec_col_block(void) const { return col_block; }
     const int &vec_row_block(void) const { return row_block; }
@@ -100,6 +124,7 @@ class VectorFont
     int row_block;
     int col_block;
     CSprite *ch;
+    ColourRef colours;
 };
 
 class Renderer
@@ -129,7 +154,7 @@ class Renderer
 
     Renderer& rndr_draw_buffer(const RndrItem *const item, const Buffer *const b);
     void rndr_put_cursor(const RndrItem *const item, const int &row, const int &col);
-    void rndr_draw_line(int& col, ConstBufStrIt &line, const RndrItem *const item, const int& y);
+    void rndr_draw_line(int& col, const uint8_t tkey, ConstBufStrIt &line, const RndrItem *const item, const int& y);
     void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
     void rndr_buf_offsets(RndrItem &item, const Buffer *const b);
     void rndr_cmd_offsets(void);

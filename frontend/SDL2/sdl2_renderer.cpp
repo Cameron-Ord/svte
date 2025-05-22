@@ -34,14 +34,14 @@ Renderer &Renderer::rndr_draw_cmd(void)
     ConstBufStrIt line(ec.cmdstr);
     line.offset(rcmd.col_offset).valid();
     int col = 0, y = 0;
-    rndr_draw_line(col, line, &rcmd, y);
+    rndr_draw_line(col, GENERIC_TEXT, line, &rcmd, y);
     return *this;
 }
 
 void Renderer::rndr_draw_filename(const std::string& fn){
     ConstBufStrIt line(fn);
     int col = 0, y = 0;
-    rndr_draw_line(col, line, &filename, y);
+    rndr_draw_line(col, GENERIC_TEXT, line, &filename, y);
 }
 
 Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
@@ -181,7 +181,7 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
 
 Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *const b)
 {
-    const std::vector<std::vector<Token>>& token_buffer = b->buf_get_token_buffer();
+    const std::vector<std::vector<Group>>& token_buffer = b->buf_get_group_buffer();
     int row = 0;
 
     for(size_t i = 0 + item->row_offset; i < token_buffer.size(); i++){
@@ -198,9 +198,9 @@ Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *c
                 return *this;
             }
 
-            ConstBufStrIt token(token_row.begin->token);
+            ConstBufStrIt token(token_row.begin->str);
             token.offset(token_offset).valid();
-            rndr_draw_line(col, token, item, y);
+            rndr_draw_line(col, token_row.begin->identifier, token, item, y);
 
             //Set it to zero once the first token is rendered.
             token_offset = 0;
@@ -212,7 +212,7 @@ Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *c
 }
 
 void Renderer::rndr_draw_line(
-    int& col,
+    int& col, const uint8_t tkey,
     ConstBufStrIt &line,
     const RndrItem *const item,
     const int& y)
@@ -228,7 +228,7 @@ void Renderer::rndr_draw_line(
         }
 
         if (c != skipchar) {
-            rndr_put_char(x, y, spr.w, spr.h, spr.texture);
+            rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(tkey));
         }
         col++;
     }

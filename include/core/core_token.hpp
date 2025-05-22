@@ -1,0 +1,39 @@
+#ifndef CORE_TOKEN_HPP
+#define CORE_TOKEN_HPP
+
+#include <string>
+#include <cstdint>
+
+struct Token {
+    unsigned char token;
+    uint8_t identifier;
+};
+
+struct Group {
+    std::string str;
+    uint8_t identifier;
+};
+
+typedef enum {
+    CHAR_TOKEN = 0,
+    OPERATOR_TOKEN = 1,
+    TAB_TOKEN = 2, 
+    PUNCT_TOKEN = 3, 
+    NUMERIC_TOKEN = 4,
+    SPACE_TOKEN = 5,
+    CONTROL_TOKEN = 6
+}TOKEN_TYPES;
+
+typedef enum {
+    GENERIC_TEXT = 0,
+    OPERATORS = 1, 
+    PUNCTUATION = 2,
+    DIGITS = 3,
+    TYPE_DEFINITION = 4,
+    KEYWORD = 5,
+    FUNCTION = 6,
+}SUBSTR_TYPES;
+
+const uint8_t char_type(const unsigned char c);
+
+#endif

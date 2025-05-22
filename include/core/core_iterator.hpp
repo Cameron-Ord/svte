@@ -4,33 +4,30 @@
 #include <vector>
 #include <string>
 
-struct Token {
-    std::string token;
-    std::string identifier;
-};
+#include "core_token.hpp"
 
 struct ConstTokenRowIt {
-    const std::vector<Token>& tokens;
+    const std::vector<Group>& groups;
     int substr_offset = 0;
 
 
-    std::vector<Token>::const_iterator end;
-    std::vector<Token>::const_iterator begin;
+    std::vector<Group>::const_iterator end;
+    std::vector<Group>::const_iterator begin;
 
-    ConstTokenRowIt(const std::vector<Token> &row) : tokens(row){
+    ConstTokenRowIt(const std::vector<Group> &row) : groups(row){
         init_iterators();
     }
 
     void init_iterators(void){
-        end = tokens.end(), begin = tokens.begin();
+        end = groups.end(), begin = groups.begin();
     }
 
     const int map_offset(const int val){
         int index = 0;
-        const int size = static_cast<int>(tokens.size());
+        const int size = static_cast<int>(groups.size());
         
         for(int i = 0; i < size; i++){
-            const int len = static_cast<int>(tokens[i].token.size());
+            const int len = static_cast<int>(groups[i].str.size());
             if(index + len > val){
                 substr_offset = val - index;
                 return static_cast<int>(i);
@@ -39,11 +36,11 @@ struct ConstTokenRowIt {
         }
 
         substr_offset = 0;
-        return static_cast<int>(tokens.size());
+        return static_cast<int>(groups.size());
     }
 
     ConstTokenRowIt& offset(const int val){    
-        begin = tokens.begin() + map_offset(val); 
+        begin = groups.begin() + map_offset(val); 
         return *this;
     }
     
