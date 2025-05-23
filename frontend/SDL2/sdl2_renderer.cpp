@@ -31,7 +31,7 @@ void Renderer::rndr_update_viewport(RndrItem& item, const WindowPartition *wp, c
 Renderer &Renderer::rndr_draw_cmd(void)
 {
     const EditorCmd &ec = ed->ed_get_cmd();
-    ColIt line(ec.cmdstr);
+    ColItConst line(ec.cmdstr);
     line.offset(rcmd.col_offset);
     int col = 0, y = 0;
     rndr_draw_tokens(col, line, &rcmd, y);
@@ -39,7 +39,7 @@ Renderer &Renderer::rndr_draw_cmd(void)
 }
 
 void Renderer::rndr_draw_filename(const std::string& fn){
-    ColIt line(fn);
+    ColItConst line(fn);
     int col = 0, y = 0;
     rndr_draw_tokens(col, line, &filename, y);
 }
@@ -181,12 +181,12 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
 
 Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *const b)
 {
-    RowIt rows(b->_buffer());
+    RowItConst rows(b->_buffer());
     rows.offset(item->row_offset);
     int row = 0;
 
-    for(; rows.cbegin != rows.cend; ++rows.cbegin){
-        ColIt col(*rows.cbegin);
+    for(; rows.begin != rows.end; ++rows.begin){
+        ColItConst col(*rows.begin);
         col.offset(item->col_offset);
 
         int column = 0;
@@ -205,12 +205,12 @@ Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *c
 }
 
 void Renderer::rndr_draw_tokens(
-    int& col, ColIt &line,
+    int& col, ColItConst &line,
     const RndrItem *const item,
     const int& y)
 {
-    for (; line.cbegin != line.cend; ++line.cbegin) {
-        const unsigned char c = line.cbegin->token;
+    for (; line.begin != line.end; ++line.begin) {
+        const unsigned char c = line.begin->token;
         const CSprite &spr = vf.vec_index_texture(c);
         const int x = item->getx(col, vf.vec_col_block(), horizontal_padding);
 
@@ -218,8 +218,8 @@ void Renderer::rndr_draw_tokens(
             return;
         }
 
-        if (line.cbegin->identifier != SPACE_TOKEN) {
-            rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(line.cbegin->identifier));
+        if (line.begin->identifier != SPACE_TOKEN && line.begin->identifier < OOB) {
+            rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(line.begin->identifier));
         }
         col++;
     }

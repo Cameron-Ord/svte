@@ -110,6 +110,7 @@ void Editor::ed_ins_char(const int32_t id, const char *c, const size_t size){
     if(b){
         for(size_t i = 0; i < size && c[i] != NULL_CHAR; i++){
             b->buf_ins_char(c[i]);
+            b->buf_mv_col(1);
         }
     }
 }

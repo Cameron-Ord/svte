@@ -2,8 +2,6 @@
 #include "../../include/core/core_defines.hpp"
 #include "../../include/core/core_token.hpp"
 
-
-
 #include <iostream>
 
 void Buffer::buf_zero_buffer(void)
@@ -41,13 +39,25 @@ void Buffer::buf_rmv_before(void)
 {
     if (buf_valid_row(row) && buf_valid_col(col)) {
         if (col > 0) {
-            std::vector<Token>& tokenline = buffer[row];
-            ColIt token_it(tokenline);
+            ColIt token_it(buffer[row]);
             token_it.offset(col - 1);
-            buf_erase_token(token_it, tokenline);
+            buf_erase_token(token_it, buffer[row]);
+            buf_mv_col(-1);
         } else if (col == 0 && row > 0) {
+            ColItConst token_line_it(buffer[row]);
+            std::vector<Token> tokens = buf_tokens_after_col(token_line_it.begin, token_line_it.end);
             
+            RowIt line(buffer);
+            line.offset(row);
+            buf_rmv_line(line);
+            buf_mv_row(-1);
 
+            ColIt concat_line_it(buffer[row]);
+            const size_t prev_size = buffer[row].size();
+
+            concat_line_it.offset(prev_size);
+            buf_ins_tokens(concat_line_it, buffer[row], tokens);
+            buf_mv_col(prev_size);
         }
     }
 }
@@ -63,6 +73,9 @@ void Buffer::buf_rmv_at(void)
             buf_mv_col(-1);
         }
 
+        ColIt line(buffer[row]);
+        line.offset(col);
+        buf_erase_token(line, buffer[row]);
 
     } else if (col == 0 && row > 0 && buf_get_line_size(row) == 0) {
         const int tmp = row;
@@ -71,5 +84,8 @@ void Buffer::buf_rmv_at(void)
             buf_mv_row(-1);
         }
 
+        RowIt rows(buffer);
+        rows.offset(tmp);
+        buf_rmv_line(rows);
     }
 }

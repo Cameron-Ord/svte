@@ -45,7 +45,6 @@ class Buffer {
         void buf_new_line(void);   
         void buf_zero_line(std::string& str);
         void buf_zero_buffer(void);     
-        void buf_append_line(const std::string line);
         void buf_update_col(const int updated_row);
         const int buf_valid_row(const int row) const;
         const int buf_valid_col(const int col) const;
@@ -66,7 +65,7 @@ class Buffer {
         int buf_mv_row(const int amount);
         void buf_mv_col(const int amount);
 
-        std::vector<Token> buf_tokens_after_col(ColIt& str);
+        std::vector<Token> buf_tokens_after_col(std::vector<Token>::const_iterator& begin, std::vector<Token>::const_iterator& end);
 
         ~Buffer(void);
     private:
