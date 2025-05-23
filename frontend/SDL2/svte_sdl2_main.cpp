@@ -73,7 +73,7 @@ int main(int argc, char **argv)
 
     while (context.sdl2_get_run_state() != NO_RUN) {
         frame_start = SDL_GetTicks64();
-        renderer->rndr_set_colour(13, 13, 13, 255);
+        renderer->rndr_set_colour(40, 42, 54, 255);
         renderer->rndr_clear();
 
         SDL_Event e;
@@ -112,7 +112,7 @@ int main(int argc, char **argv)
         }
 
         renderer->rndr_set_viewport(&item->viewport).rndr_draw_buffer(item, b);
-        renderer->rndr_set_colour(255, 255, 255, 200).rndr_put_cursor(
+        renderer->rndr_set_colour(189, 147, 249, 200).rndr_put_cursor(
             item, b->buf_get_row(), b->buf_get_col()
         );
 
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 
         renderer->rndr_set_viewport(
             &renderer->rndr_get_rcmd()->viewport
-        ).rndr_set_colour(255, 255, 255, 200).rndr_draw_cmd().rndr_cmd_cursor();
+        ).rndr_set_colour(189, 147, 249, 200).rndr_draw_cmd().rndr_cmd_cursor();
 
 
         frame_time = SDL_GetTicks64() - frame_start;

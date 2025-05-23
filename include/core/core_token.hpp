@@ -41,6 +41,4 @@ typedef enum {
     STRING = 9
 }SUBSTR_TYPES;
 
-const uint8_t char_type(const unsigned char c);
-
 #endif

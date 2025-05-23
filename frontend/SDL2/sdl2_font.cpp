@@ -4,14 +4,16 @@
 
 #include <iostream>
 
-const SDL_Color punct      = {220, 110, 130, 255};  // Slightly deeper pink
-const SDL_Color ops        = {120, 200, 190, 255};  // Teal softened
-const SDL_Color letter     = {190, 200, 230, 255};  // Soft lavender
-const SDL_Color digit      = {235, 140, 90, 255};   // Warm orange
-const SDL_Color type       = {175, 140, 220, 255};  // Muted purple
-const SDL_Color keyword    = {120, 150, 220, 255};  // Desaturated blue
-const SDL_Color string     = {170, 200, 120, 255};  // Gentle green
-const SDL_Color comment    = {100, 100, 120, 255}; 
+const SDL_Color punct      = {255, 121, 198, 255};  // Bright pink
+const SDL_Color ops        = {139, 233, 253, 255};  // Cyan
+const SDL_Color digit      = {241, 250, 140, 255};  // Yellow-green
+const SDL_Color type       = {189, 147, 249, 255};  // Purple
+const SDL_Color keyword    = {255, 85, 85, 255};    // Bright red
+const SDL_Color string     = {80, 250, 123, 255};   // Green
+const SDL_Color comment    = {98, 114, 164, 255};   // Muted gray-blue
+const SDL_Color letter     = {248, 248, 242, 255};  // White (default text)
+const SDL_Color function   = {139, 233, 253, 255};  
+
 
 void ColourRef::set_map(void){
     map.push_back(std::make_pair(PUNCTUATION, punct));
@@ -22,6 +24,7 @@ void ColourRef::set_map(void){
     map.push_back(std::make_pair(DIGITS, digit));
     map.push_back(std::make_pair(STRING, string));
     map.push_back(std::make_pair(COMMENT, comment));
+    map.push_back(std::make_pair(FUNCTION, function));
 }
 
 VectorFont::VectorFont(SDL_Renderer *rend)

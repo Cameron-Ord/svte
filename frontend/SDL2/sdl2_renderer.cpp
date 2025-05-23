@@ -25,7 +25,7 @@ void Renderer::rndr_update_viewport(RndrItem& item, const WindowPartition *wp, c
     item.vp_update(
         wp->get(i).x, wp->get(i).y, 
         wp->get(i).w, wp->get(i).h
-    ).th_update(RndrThreshold(wp->get(i).w, wp->get(i).h, 0.1, 0.8, 0.1, 0.8));
+    ).th_update(RndrThreshold(wp->get(i).w, wp->get(i).h, 0.1, 0.95, 0.1, 0.95));
 }
 
 Renderer &Renderer::rndr_draw_cmd(void)

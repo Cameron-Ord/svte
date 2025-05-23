@@ -84,7 +84,7 @@ const uint8_t TokenParser::operator_char(const char c){
 }
 
 const uint8_t TokenParser::punct_char(const char c){
-    if(std::string("!#$,-.:;?@[]`|~\\").find(c) != std::string::npos){
+    if(std::string("!#$,-.:;?@[]`|~(){}\\").find(c) != std::string::npos){
         return PUNCT_TOKEN;
     } else {
         return UNKNOWN_TOKEN;
@@ -155,6 +155,20 @@ const Group TokenParser::char_begin(std::string::const_iterator& begin, std::str
     for(; begin != end && symbol_char(*begin) != UNKNOWN_TOKEN; ++begin){
         substr += *begin;
     }
+
+    auto next = begin;
+    if(next != end && *next == '('){
+        int found = 0;
+        for(; next != end; ++next){
+            if(*next == ')'){
+                found = 1;
+            }
+        }
+
+        if(found){
+            return {substr, FUNCTION};
+        }
+    }   
 
     if(keywords.count(substr)){
         return {substr, KEYWORD};
