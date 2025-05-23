@@ -63,7 +63,7 @@ const uint16_t TokenParser::symbol_char_start(const char c){
 
 const uint16_t TokenParser::symbol_char(const char c){
     if(std::isalnum(c) || c == '_'){
-        return ALHPA_NUMERIC;
+        return ALPHA_NUMERIC;
     } else {
         return UNKNOWN_TOKEN;
     }
@@ -113,6 +113,8 @@ std::vector<Token> TokenParser::build_row(const std::string& line){
 
 //Not done here, once they are tokenized, I want to essentially evaluate and reassign the token type
 //depending on how the evaluation goes.
+
+//There are other token types that are not applied initially since they require more context.
 std::vector<std::vector<Token>> TokenParser::tokenize(void){
     std::vector<std::vector<Token>> tokenized;
     for(size_t i = 0; i < buf_ref.size(); i++){

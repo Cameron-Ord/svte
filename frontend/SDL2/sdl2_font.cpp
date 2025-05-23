@@ -21,6 +21,10 @@ void ColourRef::set_map(void){
     map.push_back(std::make_pair(CHAR_TOKEN, letter));
     map.push_back(std::make_pair(NUMERIC_TOKEN, digit));
     map.push_back(std::make_pair(QUOTATION_TOKEN, string));
+    map.push_back(std::make_pair(FUNCTION_TOKEN, function));
+    map.push_back(std::make_pair(KEYWORD_TOKEN, function));
+    map.push_back(std::make_pair(TYPE_TOKEN, function));
+    map.push_back(std::make_pair(COMMENT_TOKEN, comment));
     map.push_back(std::make_pair(UNKNOWN_TOKEN, letter));
 }
 
