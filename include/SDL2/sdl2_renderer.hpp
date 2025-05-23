@@ -4,8 +4,8 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_ttf.h>
 
-#include "../core/core_iterator.hpp"
-
+#include "../core/core_token.hpp"
+#include <vector>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
@@ -139,7 +139,7 @@ class Renderer
 
     Renderer& rndr_draw_buffer(const RndrItem *const item, const Buffer *const b);
     void rndr_put_cursor(const RndrItem *const item, const int &row, const int &col);
-    void rndr_draw_line(int& col, const uint8_t tkey, ConstBufStrIt &line, const RndrItem *const item, const int& y);
+    void rndr_draw_tokens(int& col, ColIt &line, const RndrItem *const item, const int& y);
     void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
     void rndr_buf_offsets(RndrItem &item, const Buffer *const b);
     void rndr_cmd_offsets(void);

@@ -31,17 +31,17 @@ void Renderer::rndr_update_viewport(RndrItem& item, const WindowPartition *wp, c
 Renderer &Renderer::rndr_draw_cmd(void)
 {
     const EditorCmd &ec = ed->ed_get_cmd();
-    ConstBufStrIt line(ec.cmdstr);
-    line.offset(rcmd.col_offset).valid();
+    ColIt line(ec.cmdstr);
+    line.offset(rcmd.col_offset);
     int col = 0, y = 0;
-    rndr_draw_line(col, GENERIC_TEXT, line, &rcmd, y);
+    rndr_draw_tokens(col, line, &rcmd, y);
     return *this;
 }
 
 void Renderer::rndr_draw_filename(const std::string& fn){
-    ConstBufStrIt line(fn);
+    ColIt line(fn);
     int col = 0, y = 0;
-    rndr_draw_line(col, GENERIC_TEXT, line, &filename, y);
+    rndr_draw_tokens(col, line, &filename, y);
 }
 
 Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
@@ -181,45 +181,36 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
 
 Renderer& Renderer::rndr_draw_buffer(const RndrItem *const item, const Buffer *const b)
 {
-    const std::vector<std::vector<Group>>& token_buffer = b->buf_get_group_buffer();
+    RowIt rows(b->_buffer());
+    rows.offset(item->row_offset);
     int row = 0;
 
-    for(size_t i = 0 + item->row_offset; i < token_buffer.size(); i++){
-        ConstTokenRowIt token_row(token_buffer[i]);
+    for(; rows.cbegin != rows.cend; ++rows.cbegin){
+        ColIt col(*rows.cbegin);
+        col.offset(item->col_offset);
 
-        token_row.offset(item->col_offset).valid();
-        int token_offset = token_row.substr_offset;
+        int column = 0;
+        const int y = item->gety(row, vf.vec_row_block(), vertical_padding);
 
-        int col = 0;
-        for(; token_row.begin != token_row.end; token_row.increment()){
-            const int y = item->gety(row, vf.vec_row_block(), vertical_padding);
-
-            if(y > item->viewport.h){
-                return *this;
-            }
-
-            ConstBufStrIt token(token_row.begin->str);
-            token.offset(token_offset).valid();
-            rndr_draw_line(col, token_row.begin->identifier, token, item, y);
-
-            //Set it to zero once the first token is rendered.
-            token_offset = 0;
+        if(y > item->viewport.h){
+            return *this;
         }
-        row++;
+
+        rndr_draw_tokens(column, col, item, y);
+
+      row++;
     }
 
     return *this;
 }
 
-void Renderer::rndr_draw_line(
-    int& col, const uint8_t tkey,
-    ConstBufStrIt &line,
+void Renderer::rndr_draw_tokens(
+    int& col, ColIt &line,
     const RndrItem *const item,
     const int& y)
 {
-    const unsigned char skipchar = ' ';
-    for (; line.begin != line.end; line.increment()) {
-        const unsigned char c = *line.begin;
+    for (; line.cbegin != line.cend; ++line.cbegin) {
+        const unsigned char c = line.cbegin->token;
         const CSprite &spr = vf.vec_index_texture(c);
         const int x = item->getx(col, vf.vec_col_block(), horizontal_padding);
 
@@ -227,12 +218,13 @@ void Renderer::rndr_draw_line(
             return;
         }
 
-        if (tkey != IGNORE) {
-            rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(tkey));
+        if (line.cbegin->identifier != SPACE_TOKEN) {
+            rndr_put_char(x, y, spr.w, spr.h, spr.tmap.at(line.cbegin->identifier));
         }
         col++;
     }
 }
+
 
 void Renderer::rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t)
 {

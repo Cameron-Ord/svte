@@ -19,7 +19,6 @@ src = [
         'core/buffer/buf_remove.cpp',
         'core/buffer/buf_insert.cpp',
         'core/buffer/buf_cursor.cpp',
-        'core/buffer/buf_tokens.cpp',
         'core/buffer/buf_iterator.cpp',
 
         'core/sys.cpp',

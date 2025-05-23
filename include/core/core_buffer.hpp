@@ -6,19 +6,19 @@
 #include <unordered_map>
 #include <string>
 
-#include "core_iterator.hpp"
+#include "core_token.hpp"
 
 // Maybe consider breaking this up into subclasses
 class Buffer {
     public:
         Buffer(const int32_t id);
         Buffer(const int32_t id, std::string fn);
-        //Setters
 
-        Buffer& buf_copy(std::vector<std::string> commit_vector) { 
+        Buffer& buf_copy(std::vector<std::vector<Token>> commit_vector) { 
             buffer = commit_vector; 
             return *this;
         }
+
         void buf_set_id(const int32_t id) { buffer_id = id; }
         void buf_set_filename(const std::string fn) { filename = fn; }
         void buf_set_error(const int err) { error = err; }
@@ -27,13 +27,15 @@ class Buffer {
 
         //Getters
         const int buf_get_size(void) const { return static_cast<int>(buffer.size()); }
-        const std::vector<std::string>& buf_get_buffer(void) const { return buffer; }
+        const std::vector<std::vector<Token>>& _buffer(void) const { return buffer; }
+
         const int buf_get_line_size(const int access) const {
             if(buf_valid_row(access)){
                 return static_cast<int>(buffer[access].size());
             }
             return -1;
         }
+
         const int& buf_get_row(void) const { return row; }
         const int& buf_get_col(void) const { return col; }
         const int& buf_get_error(void) { return error; }
@@ -49,24 +51,22 @@ class Buffer {
         const int buf_valid_col(const int col) const;
 
         void buf_ins_char(const unsigned char c);
-        void buf_ins_substr(BufStrIt& str, const std::string substr);
-        void buf_ins_row(const int next, const std::string substr);
+        void buf_ins_tokens(ColIt& str, std::vector<Token>& line, const std::vector<Token> sub);
+        void buf_ins_row(const int next, const std::vector<Token> sub);
 
-        void buf_erase_substr(BufStrIt& str);
-        void buf_erase_char(BufStrIt& str);
+        void buf_erase_tokens(ColIt &tokens, std::vector<Token>& line);
+        void buf_erase_token(ColIt &tokens, std::vector<Token>&line);
         void buf_rmv_before(void);
         void buf_rmv_at(void);
-        void buf_rmv_line(BufRowIt& vec);
+        void buf_rmv_line(RowIt& vec);
+        void buf_retokenize(void);
+
+        std::vector<std::vector<Token>> buf_tokenize(const std::vector<std::string> readbuffer);
 
         int buf_mv_row(const int amount);
         void buf_mv_col(const int amount);
 
-        const std::vector<std::vector<Group>>& buf_get_group_buffer(void) const { return group_buffer; }
-
-        std::string buf_get_substr_after_col_pos(ConstBufStrIt& str);
-        std::string buf_get_substr_before_col_pos(ConstBufStrIt& str);
-
-        void buf_tokenize(void);
+        std::vector<Token> buf_tokens_after_col(ColIt& str);
 
         ~Buffer(void);
     private:
@@ -74,8 +74,7 @@ class Buffer {
         int32_t buffer_id;
         int row, col, saved_col;
         std::string filename;
-        std::vector<std::string> buffer;
-        std::vector<std::vector<Group>> group_buffer;
+        std::vector<std::vector<Token>> buffer;
 };
 
 #endif

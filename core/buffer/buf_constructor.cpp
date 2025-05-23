@@ -1,7 +1,7 @@
 
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_defines.hpp"
-#include "../../include/core/core_defines.hpp"
+#include "../../include/core/core_parser.hpp"
 
 
 #include <iostream>
@@ -24,6 +24,14 @@ Buffer::Buffer(const int32_t id, std::string fn) : error(CORE_NIL)
 
     std::cout << "Buffer created with ID: " << id << " ";
     std::cout << "- Filename: " << fn << std::endl;
+}
+
+std::vector<std::vector<Token>> Buffer::buf_tokenize(const std::vector<std::string> readbuffer){
+    TokenParser tparser(readbuffer);
+    return tparser.tokenize();
+}
+
+void Buffer::buf_retokenize(void){
 }
 
 Buffer::~Buffer(void)

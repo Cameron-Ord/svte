@@ -73,8 +73,7 @@ int Editor::ed_append_buffer(std::pair<std::string, std::vector<std::string>> co
         std::cerr << "Could not allocate buffer!" << std::endl;
         return ED_BAD_APPEND;
     }
-    buffer->buf_copy(commit.second).buf_set_filename(commit.first);
-    buffer->buf_tokenize();
+    buffer->buf_copy(buffer->buf_tokenize(commit.second)).buf_set_filename(commit.first);
 
     bufs.insert({id, buffer});
     open.push_back(id);

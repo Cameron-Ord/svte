@@ -174,7 +174,7 @@ static void event_chain_update(
 
             Buffer *buf = e->ed_fetch_buffer(id);
             if(buf){
-                buf->buf_tokenize();
+                buf->buf_retokenize();
             }
         }break;
 

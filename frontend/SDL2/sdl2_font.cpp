@@ -16,15 +16,12 @@ const SDL_Color function   = {139, 233, 253, 255};
 
 
 void ColourRef::set_map(void){
-    map.push_back(std::make_pair(PUNCTUATION, punct));
-    map.push_back(std::make_pair(OPERATORS, ops));
-    map.push_back(std::make_pair(TYPE_DEFINITION, type));
-    map.push_back(std::make_pair(GENERIC_TEXT, letter));
-    map.push_back(std::make_pair(KEYWORD, keyword));
-    map.push_back(std::make_pair(DIGITS, digit));
-    map.push_back(std::make_pair(STRING, string));
-    map.push_back(std::make_pair(COMMENT, comment));
-    map.push_back(std::make_pair(FUNCTION, function));
+    map.push_back(std::make_pair(PUNCT_TOKEN, punct));
+    map.push_back(std::make_pair(OPERATOR_TOKEN, ops));
+    map.push_back(std::make_pair(CHAR_TOKEN, letter));
+    map.push_back(std::make_pair(NUMERIC_TOKEN, digit));
+    map.push_back(std::make_pair(QUOTATION_TOKEN, string));
+    map.push_back(std::make_pair(UNKNOWN_TOKEN, letter));
 }
 
 VectorFont::VectorFont(SDL_Renderer *rend)

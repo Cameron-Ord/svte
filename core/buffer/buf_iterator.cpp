@@ -1,20 +1,13 @@
 
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_defines.hpp"
-#include "../../include/core/core_defines.hpp"
+#include "../../include/core/core_token.hpp"
 
-
-std::string Buffer::buf_get_substr_after_col_pos(ConstBufStrIt &str)
+std::vector<Token> Buffer::buf_tokens_after_col(ColIt &str)
 {
-    std::string substr;
+    std::vector<Token> tokens;
     for (; str.begin != str.end; str.begin++) {
-        const unsigned char c = *str.begin;
-        substr += c;
+        tokens.push_back({str.begin->token, str.begin->identifier});
     }
-    return substr;
-}
-
-std::string Buffer::buf_get_substr_before_col_pos(ConstBufStrIt &str)
-{
-    //probably use a reverse it and --it
+    return tokens;
 }
