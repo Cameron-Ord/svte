@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "../../include/SDL2/sdl2_events.hpp"
-
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_event_mgr.hpp"
@@ -32,7 +31,7 @@ EventResult KeyEvent::ev_return(const int &keymod, Editor *e, const int32_t id)
             return EventResult(BUFFER_MUTATION, NO_OPTION, id);
         }
     } else if(e->ed_taking_cmd()){
-        return EventResult(COMMAND_COMMIT, e->ed_eval_cmd(), id);
+        return EventResult(COMMAND_COMMIT, e->ed_cmd_commit(), id);
     }
     return EventResult(NO_KEY, NO_OPTION, id);
 }

@@ -30,11 +30,21 @@ void Renderer::rndr_update_viewport(RndrItem& item, const WindowPartition *wp, c
 
 Renderer &Renderer::rndr_draw_cmd(void)
 {
-    const EditorCmd &ec = ed->ed_get_cmd();
-    ColItConst line(ec.cmdstr);
-    line.offset(rcmd.col_offset);
     int col = 0, y = 0;
-    rndr_draw_tokens(col, line, &rcmd, y);
+    const EditorCmd &ec = ed->ed_get_cmd();
+    
+    ColItConst pfx_line(ec.cmd_prefix);
+    ColItConst arg_line(ec.cmd_arg);
+    
+    pfx_line.offset(pfx.col_offset);
+    arg_line.offset(arg.col_offset);
+
+    rndr_set_viewport(&pfx.viewport);
+    rndr_draw_tokens(col, pfx_line, &pfx, y);
+    
+    col = 0;
+    rndr_set_viewport(&arg.viewport);
+    rndr_draw_tokens(col, arg_line, &arg, y);
     return *this;
 }
 
@@ -53,7 +63,8 @@ Renderer& Renderer::rndr_update_viewports(const WindowPartition *wp)
         }
     }
 
-    rndr_update_viewport(rcmd, wp, CMD_BOX);
+    rndr_update_viewport(pfx, wp, PFX_BOX);
+    rndr_update_viewport(arg, wp, ARG_BOX);
     rndr_update_viewport(filename, wp, FN_BOX);
     return *this;
 }
@@ -115,7 +126,6 @@ const RndrItem *Renderer::rndr_get_buffer_item(const int32_t id){
     }
 }
 
-
 void Renderer::rndr_update_offsets_by_id(const int32_t id)
 {
     std::unordered_map<int32_t, RndrItem>::iterator it = rndrbuffers.find(id);
@@ -137,19 +147,26 @@ Renderer& Renderer::rndr_update_offsets(void)
     return *this;
 }
 
-void Renderer::rndr_cmd_offsets(void)
+void Renderer::rndr_cmd_offsets(void){
+    const EditorCmd& ec = ed->ed_get_cmd();
+    rndr_cmd_offset_by_item(pfx, ec.pfx_cursor, ec.cmd_prefix.size());
+    rndr_cmd_offset_by_item(arg, ec.arg_cursor, ec.cmd_arg.size());
+}
+
+void Renderer::rndr_cmd_offset_by_item(RndrItem& c, const int& cursor, const int& size)
 {
-    const int line_size = ed->ed_get_cmd().cmdstr.size();
-    const int col = ed->ed_get_cmd().cursor;
+    auto getx = [&c, this, &cursor, &size]() { 
+        return c.getx(
+            cursor - c.col_offset, vf.vec_col_block(), horizontal_padding
+        ); 
+    };
 
-    auto getx = [this, &col]() { return rcmd.getx(col - rcmd.col_offset, vf.vec_col_block(), horizontal_padding); };
-
-    while (getx() < rcmd.th.w_th_min && rcmd.col_offset > 0) {
-        rcmd.col_offset--;
+    while (getx() < c.th.w_th_min && c.col_offset > 0) {
+        c.col_offset--;
     }
 
-    while (getx() > rcmd.th.w_th_max && line_size > 0 && rcmd.col_offset <= line_size) {
-        rcmd.col_offset++;
+    while (getx() > c.th.w_th_max && size > 0 && c.col_offset <= size) {
+        c.col_offset++;
     }
 }
 
@@ -158,7 +175,11 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
     const int line_size = b->buf_get_line_size(b->buf_get_row());
     const int buf_size = b->buf_get_size();
 
-    auto gety = [this, b, &item]() { return item.gety(b->buf_get_row() - item.row_offset, vf.vec_row_block(), vertical_padding); };
+    auto gety = [this, b, &item]() { 
+        return item.gety(
+            b->buf_get_row() - item.row_offset, vf.vec_row_block(), vertical_padding
+        ); 
+    };
 
     while (gety() < item.th.h_th_min && item.row_offset > 0) {
         item.row_offset--;
@@ -245,10 +266,25 @@ void Renderer::rndr_put_cursor(const RndrItem *const item, const int &row, const
 void Renderer::rndr_cmd_cursor(void)
 {
     if (ed->ed_taking_cmd()) {
-        const int c = ed->ed_get_cmd().cursor;
-        const int x = rcmd.getx(c - rcmd.col_offset, vf.vec_col_block(), horizontal_padding);
-        const int y = 0;
-        SDL_Rect rect{x, y, vf.vec_col_block(), vf.vec_row_block()};
-        SDL_RenderFillRect(rend, &rect);
+
+        switch(ed->ed_get_cmd_input_mode()){
+            case 0:{
+                rndr_set_viewport(&pfx.viewport);
+                const int c = ed->ed_get_cmd().pfx_cursor;
+                const int x = pfx.getx(c - pfx.col_offset, vf.vec_col_block(), horizontal_padding);
+                const int y = 0;
+                SDL_Rect rect{x, y, vf.vec_col_block(), vf.vec_row_block()};
+                SDL_RenderFillRect(rend, &rect);
+            }break;
+
+            case 1:{
+                rndr_set_viewport(&arg.viewport);
+                const int c = ed->ed_get_cmd().arg_cursor;
+                const int x = arg.getx(c - arg.col_offset, vf.vec_col_block(), horizontal_padding);
+                const int y = 0;
+                SDL_Rect rect{x, y, vf.vec_col_block(), vf.vec_row_block()};
+                SDL_RenderFillRect(rend, &rect);
+            }break;
+        }
     }
 }

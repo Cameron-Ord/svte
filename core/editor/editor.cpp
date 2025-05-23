@@ -2,14 +2,15 @@
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_defines.hpp"
 
-
 #include <iostream>
 #include <random>
 
-const std::vector<int32_t> &Editor::ed_get_open(void)
+Editor::Editor(void) : error(CORE_NIL), current_buffer_id(CORE_NIL), cmd_mode(0) {}
+
+Editor::~Editor(void)
 {
-    return open;
 }
+
 
 int32_t Editor::ed_next_id(void){
     for(size_t i = 0; i < open.size(); i++){

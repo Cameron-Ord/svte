@@ -19,8 +19,15 @@ Window::~Window(void)
 void Window::win_dft_partition(const int &rblock, const int &vpadding)
 {
     const int mono_line = rblock + vpadding;
-    partitions.set(CMD_BOX, 
-        vpadding, height - mono_line, width * 0.20, mono_line
+    partitions.set(PFX_BOX, 
+        vpadding, height - mono_line, (rblock * 4) + vpadding, mono_line
+    );
+
+    partitions.set(ARG_BOX,
+        (rblock * 4) + vpadding, 
+        height - mono_line, 
+        width - (rblock * 4) + vpadding, 
+        mono_line
     );
 
     partitions.set(FN_BOX,

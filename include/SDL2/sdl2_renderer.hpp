@@ -142,6 +142,7 @@ class Renderer
     void rndr_draw_tokens(int& col, ColItConst &line, const RndrItem *const item, const int& y);
     void rndr_put_char(const int x, const int y, const int w, const int h, SDL_Texture *t);
     void rndr_buf_offsets(RndrItem &item, const Buffer *const b);
+    void rndr_cmd_offset_by_item(RndrItem& c, const int& cursor, const int& size);
     void rndr_cmd_offsets(void);
 
     const int &rndr_vpad(void) const { return vertical_padding; }
@@ -149,11 +150,11 @@ class Renderer
     Renderer &rndr_draw_cmd(void);
     void rndr_cmd_cursor(void);
     void rndr_update_viewport(RndrItem& item, const WindowPartition *wp, const uint8_t i);
-
     Renderer& rndr_update_offsets(void);
     const RndrItem *rndr_get_buffer_item(const int32_t id);
 
-    const RndrItem *const rndr_get_rcmd(void) { return &rcmd; }
+    const RndrItem *const rndr_get_cpfx(void) { return &pfx; }
+    const RndrItem *const rndr_get_carg(void) { return &arg; }
     const RndrItem *const rndr_get_filename(void) { return &filename; }
 
     void rndr_draw_filename(const std::string& fn);
@@ -163,7 +164,8 @@ class Renderer
     SDL_Renderer *rend;
     std::unordered_set<int32_t> used;
     std::unordered_map<int32_t, RndrItem> rndrbuffers;
-    RndrItem rcmd;
+    RndrItem pfx;
+    RndrItem arg;
     RndrItem filename;
     std::vector<int32_t> commited_ids;
     VectorFont vf;

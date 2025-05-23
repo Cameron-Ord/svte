@@ -5,25 +5,26 @@
 #include "../vector.hpp"
 #include <array>
 
-#define CMD_BOX 0
-#define BUF_BOX 1
-#define FN_BOX 2
+#define PFX_BOX 0
+#define ARG_BOX 1
+#define BUF_BOX 2
+#define FN_BOX 3
 
 struct WindowPartition
 {
   Vec4i fnbox;
   Vec4i bufbox;
-  Vec4i cmdbox;
-  Vec4i statusbox;
+  Vec4i pfxbox;
+  Vec4i argbox;
 
-  std::array<Vec4i, 3> boxes;
+  std::array<Vec4i, 4> boxes;
 
   WindowPartition(){
     memset(&fnbox, 0, sizeof(Vec4i));
     memset(&bufbox, 0, sizeof(Vec4i));
-    memset(&cmdbox, 0, sizeof(Vec4i));
-    memset(&statusbox, 0, sizeof(Vec4i));
-    boxes = {cmdbox, bufbox, fnbox};
+    memset(&pfxbox, 0, sizeof(Vec4i));
+    memset(&argbox, 0, sizeof(Vec4i));
+    boxes = {pfxbox, argbox, bufbox, fnbox};
   }
 
   void set(const int i, const int x, const int y, const int w, const int h){

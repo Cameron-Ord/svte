@@ -8,9 +8,24 @@
 
 
 struct EditorCmd{
-    std::string cmdstr;
-    std::string sanitized;
-    int cursor;
+    std::string cmd_prefix;
+    std::string cmd_arg;
+
+    int cmd_input_mode;
+    int pfx_cursor;
+    int arg_cursor;
+
+    int CMD_VALID;
+    int CMD_INVALID;
+
+    EditorCmd(void) {
+        cmd_input_mode = 0;
+        arg_cursor = 0;
+        pfx_cursor = 0;
+
+        CMD_VALID = 1;
+        CMD_INVALID = 0;
+    }
 };
 
 //Forward declare the buffer class, must be defined in SRC files.
@@ -24,27 +39,37 @@ class Editor {
         int32_t ed_prev_id(void);
         int32_t ed_gen_id(void);
 
-        void ed_cmd_ins(const char *c, const size_t size);
+        const int ed_get_cmd_input_mode(void) const { return cmd.cmd_input_mode; }
+        void ed_set_prefix_cmd_mode(void) { cmd.cmd_input_mode = 0; }
+        void ed_set_arg_cmd_mode(void) { cmd.cmd_input_mode = 1; }
+
         void ed_ins_char(const int32_t id, const char *c, const size_t size);
+        Editor& ed_ins_cmd(const char *c, const size_t size);
 
         void ed_set_cmd_mode(const int val) { cmd_mode = val; }
         const int ed_taking_cmd(void) const { return cmd_mode; }
 
-        void ed_set_current_id(const int32_t id);
+        void ed_set_current_id(const int32_t id) { current_buffer_id = id; }
         int ed_append_buffer(std::pair<std::string, std::vector<std::string>> commit);
-        void ed_set_error(const int err);
+        void ed_set_error(const int err) { error = err; }
 
         Buffer *ed_fetch_buffer(const int32_t id);
         const Buffer* const ed_fetch_buffer_const(const int32_t id) const;
-        const std::vector<int32_t>& ed_get_open(void);
-        const int32_t& ed_get_current_id(void);
-        const int& ed_get_error(void);
+        const std::vector<int32_t>& ed_get_open(void) { return open; }
+        const int32_t& ed_get_current_id(void) { return current_buffer_id; }
+        const int& ed_get_error(void) { return error; }
         void ed_clear_cmd(void) {
-            cmd.cmdstr.clear();
-            cmd.cursor = 0;
+            cmd.cmd_prefix.clear();
+            cmd.cmd_arg.clear();
+            cmd.arg_cursor = 0;
+            cmd.pfx_cursor = 0;
+            ed_set_prefix_cmd_mode();
         }
         
-        int ed_eval_cmd(void);
+        void ed_eval_cmd(void);
+        int ed_cmd_commit(void);
+        int ed_cmd_pfx_to_int(void);
+
         const EditorCmd& ed_get_cmd(void) const { return cmd; }
         
     private:

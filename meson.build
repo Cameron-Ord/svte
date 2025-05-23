@@ -11,8 +11,7 @@ src = [
         'frontend/SDL2/sdl2_font.cpp',
         'frontend/SDL2/svte_sdl2_main.cpp',
 
-        'core/editor/ed_constructor.cpp',
-        'core/editor/ed_buffers.cpp',
+        'core/editor/editor.cpp',
         'core/editor/ed_command.cpp',
 
         'core/buffer/buf_constructor.cpp',

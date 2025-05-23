@@ -118,7 +118,7 @@ EventResult KeyEvent::ev_mainloop_text_input(const char *text, Editor *e, const 
         }break;
 
         case 1:{
-            e->ed_cmd_ins(input_buffer, len);
+            e->ed_ins_cmd(input_buffer, len).ed_eval_cmd();
             return EventResult(COMMAND_MUTATION, NO_OPTION, id);
         }break;
     }

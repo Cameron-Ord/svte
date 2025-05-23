@@ -120,10 +120,7 @@ int main(int argc, char **argv)
             &renderer->rndr_get_filename()->viewport
         ).rndr_draw_filename(b->buf_get_filename());
 
-        renderer->rndr_set_viewport(
-            &renderer->rndr_get_rcmd()->viewport
-        ).rndr_set_colour(189, 147, 249, 200).rndr_draw_cmd().rndr_cmd_cursor();
-
+        renderer->rndr_set_colour(189, 147, 249, 200).rndr_draw_cmd().rndr_cmd_cursor();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {
@@ -143,6 +140,8 @@ static void event_chain_update(
     const int32_t id = er.get_event_id();
     const uint8_t key = er.get_key();
     const uint8_t opt = er.get_opt();
+
+    //This is gross. Some ugly ass shit going on here
 
     switch(key){
         case BUFFER_CHANGED:{
@@ -187,7 +186,7 @@ static void event_chain_update(
                     Window *w = ctx->sdl2_get_win();
 
                     r->rndr_commit_buffer(
-                        e->ed_append_buffer(sys->sys_new_file(e->ed_get_cmd().sanitized)), 
+                        e->ed_append_buffer(sys->sys_new_file(e->ed_get_cmd().cmd_arg)), 
                         w->_wp()
                     );  
                     r->rndr_update_viewports(w->_wp());
@@ -196,6 +195,7 @@ static void event_chain_update(
                         cb_ptr = e->ed_fetch_buffer(e->ed_get_current_id());
                         citem_ptr = ctx->sdl2_get_rend()->rndr_get_buffer_item(e->ed_get_current_id());
                     }
+                    e->ed_clear_cmd();
                 }break;
             }
         }break;

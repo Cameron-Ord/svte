@@ -4,24 +4,7 @@
 #include <string>
 #include <cstdint>
 
-typedef enum {
-    COMMAND_COMMIT = 0,
-    BUFFER_MUTATION = 1,
-    COMMAND_MUTATION = 2,
-    BUFFER_CURSOR_MOVE = 4,
-    COMMAND_CURSOR_MOVE = 5,
-    DISPLAY_SIZE_CHANGED = 6,
-    BUFFER_CHANGED = 7,
-    NO_KEY = 9,
-} EventKeys;
-
-typedef enum {
-    NO_OPTION = 0,
-    STOP_TEXT_INPUT = 1,
-    START_TEXT_INPUT = 2,
-    NEW_BUFFER = 3,
-    DISPLAY_UPDATE = 4,
-} EventOpts;
+#include "core_defines.hpp"
 
 class EventResult
 {

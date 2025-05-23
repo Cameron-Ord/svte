@@ -111,7 +111,8 @@ std::vector<Token> TokenParser::build_row(const std::string& line){
     return row;
 }
 
-
+//Not done here, once they are tokenized, I want to essentially evaluate and reassign the token type
+//depending on how the evaluation goes.
 std::vector<std::vector<Token>> TokenParser::tokenize(void){
     std::vector<std::vector<Token>> tokenized;
     for(size_t i = 0; i < buf_ref.size(); i++){
