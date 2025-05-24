@@ -49,7 +49,8 @@ typedef enum {
     TYPE_TOKEN = 9,
     COMMENT_TOKEN = 10,
     ALPHA_NUMERIC = 11,
-    OOB = 12,
+    VARIABLE_TOKEN = 12,
+    OOB = 13,
 }TOKEN_TYPES;
 
 

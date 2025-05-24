@@ -49,7 +49,7 @@ class Buffer {
         const int buf_valid_row(const int row) const;
         const int buf_valid_col(const int col) const;
 
-        void buf_ins_char(const unsigned char c);
+        void buf_ins_char(const char c);
         void buf_ins_tokens(ColIt& str, std::vector<Token>& line, const std::vector<Token> sub);
         void buf_ins_row(const int next, const std::vector<Token> sub);
 

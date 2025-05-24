@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-void Buffer::buf_ins_char(const unsigned char c)
+void Buffer::buf_ins_char(const char c)
 {
     if (buf_valid_row(row) && buf_valid_col(col)) {
         Token t = { c, UNKNOWN_TOKEN };

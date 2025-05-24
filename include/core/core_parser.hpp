@@ -9,12 +9,27 @@
 
 #include "../core/core_token.hpp"
 
+struct ParseArg {
+    const uint16_t current, next;
+    std::vector<Token>& tb;
+    const size_t start, end;
+    const std::string& substr;
+};
+
+
 struct TokenParser {
     std::unordered_set<std::string> keywords;
     std::unordered_set<std::string> types;
     std::unordered_set<std::string> operators;
     std::unordered_set<std::string> comment;
 
+    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> charbranch;
+    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> opbranch;
+    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> quotebranch;
+    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> punctbranch;
+    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> numbranch;
+    std::array<std::unordered_map<uint16_t, std::function<void(ParseArg&)>>, 5> branches;
+    std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::function<void(ParseArg&)>>> tree;
     const std::vector<std::string>& buf_ref;
   
     TokenParser(const std::vector<std::string>& buf);
@@ -33,9 +48,9 @@ struct TokenParser {
     const uint16_t space_char(const char c);
 
     const uint16_t find_type(const char c);
-
     std::vector<Token> build_row(const std::string& line);
 
+    void char_followed_by_punct(ParseArg& info);
 
     std::vector<std::function<const uint16_t(const char)>> ch;
 };
