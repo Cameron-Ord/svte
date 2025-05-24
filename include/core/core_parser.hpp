@@ -12,7 +12,7 @@
 struct ParseArg {
     const uint16_t current, next;
     std::vector<Token>& tb;
-    const size_t start, end;
+    const int start, end;
     const std::string& substr;
 };
 
@@ -22,14 +22,7 @@ struct TokenParser {
     std::unordered_set<std::string> types;
     std::unordered_set<std::string> operators;
     std::unordered_set<std::string> comment;
-
-    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> charbranch;
-    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> opbranch;
-    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> quotebranch;
-    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> punctbranch;
-    std::unordered_map<uint16_t, std::function<void(ParseArg&)>> numbranch;
-    std::array<std::unordered_map<uint16_t, std::function<void(ParseArg&)>>, 5> branches;
-    std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::function<void(ParseArg&)>>> tree;
+    
     const std::vector<std::string>& buf_ref;
   
     TokenParser(const std::vector<std::string>& buf);
@@ -50,7 +43,8 @@ struct TokenParser {
     const uint16_t find_type(const char c);
     std::vector<Token> build_row(const std::string& line);
 
-    void char_followed_by_punct(ParseArg& info);
+    void char_before_punct(ParseArg& info);
+    void scan_set(ParseArg& info);
 
     std::vector<std::function<const uint16_t(const char)>> ch;
 };

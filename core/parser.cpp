@@ -9,20 +9,11 @@ TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
     ch = {
         [this](char c) -> const uint16_t { return space_char(c); },
         [this](char c) -> const uint16_t { return quote_char(c); },
-        [this](char c) -> const uint16_t { return symbol_char_start(c); },
         [this](char c) -> const uint16_t { return numeric_char(c); }, 
         [this](char c) -> const uint16_t { return operator_char(c); },
         [this](char c) -> const uint16_t { return punct_char(c); },
     };
 
-    charbranch = {
-        { PUNCT_TOKEN, [this](ParseArg& info) { char_followed_by_punct(info); } }
-    };
-    
-    tree = {
-        {CHAR_TOKEN, charbranch}, /* {OPERATOR_TOKEN, opbranch}, {QUOTATION_TOKEN, quotebranch}, 
-        {NUMERIC_TOKEN, numbranch}, {PUNCT_TOKEN, punctbranch}*/
-    };
 
     comment = {
         "//", "/*", "*/"
@@ -125,8 +116,24 @@ const uint16_t TokenParser::find_type(const char c){
 
 std::vector<Token> TokenParser::build_row(const std::string& line){
     std::vector<Token> row;
-    for(size_t i = 0; i < line.size(); i++){
-        row.push_back({line[i], find_type(line[i])});
+    size_t k = 0;
+    while(k < line.size()){
+        if(symbol_char_start(line[k]) != UNKNOWN_TOKEN){
+            row.push_back({line[k], CHAR_TOKEN});
+
+            size_t j = k + 1;
+            while(j < line.size() && symbol_char(line[j]) != UNKNOWN_TOKEN){
+                row.push_back({line[j], CHAR_TOKEN}); 
+                j++;
+            }
+            
+            k = j;
+            continue;
+        }
+
+
+        row.push_back({line[k], find_type(line[k])});
+        k++;
     }
     return row;
 }
@@ -135,6 +142,8 @@ std::vector<Token> TokenParser::build_row(const std::string& line){
 //depending on how the evaluation goes.
 
 //There are other token types that are not applied initially since they require more context.
+
+//Also this just assumes everything is one line.. gonna have to add logic for multiline checks too..
 std::vector<std::vector<Token>> TokenParser::tokenize(void){
     std::vector<std::vector<Token>> tokenized;
     for(size_t i = 0; i < buf_ref.size(); i++){
@@ -142,62 +151,98 @@ std::vector<std::vector<Token>> TokenParser::tokenize(void){
     }
 
     for(size_t i = 0; i < tokenized.size(); i++){
-        size_t j = 0;
-
         uint16_t prev_identifier = NULL_CHAR;
-        while(j < tokenized[i].size()){
-            const uint16_t current_identifier = tokenized[i][j].identifier;
-            const size_t start = j;
-            size_t k = j;
+        const int size = tokenized[i].size();
+        int j = 0;
 
+        while(j < size){
+            const uint16_t current_identifier = tokenized[i][j].identifier;
+            const int start = j;
+            int k = j;
             //All we are doing here is going forward at the started position until we find a different 
             //char type and filling a substr.
             std::string substr;
-            while(k < tokenized[i].size() && tokenized[i][k].identifier == current_identifier){
+            while(k < size && tokenized[i][k].identifier == current_identifier){
                 substr += tokenized[i][k].token;
                 k++;
             }
 
-            if(!(k < tokenized[i].size())){
-                j = k;
-                continue;
-            }
-            
+            j = k;
+            const uint16_t next_identifier = k >= size ? current_identifier : tokenized[i][k].identifier;
+
             ParseArg args = {
-                current_identifier, tokenized[i][k].identifier, 
+                current_identifier, next_identifier, 
                 tokenized[i],  start, k, substr
             };
 
-            auto t = tree.find(current_identifier);
-            if(t != tree.end()){
-                auto b =  t->second.find(args.next);
-                if(b != t->second.end()){
-                    b->second(args);
-                }
-            }
+            switch(args.current){
+                case CHAR_TOKEN:{
+                    scan_set(args);
+                    switch(args.next){
+                        case PUNCT_TOKEN:{
+                            char_before_punct(args);
+                        }break;  
+                    }
+                }break;
 
-            j = k;
+                case QUOTATION_TOKEN:{
+                    int broken_escape = 0;
+                    int d = start + 1; 
+                    while(d < size && quote_char(args.tb[d].token) != QUOTATION_TOKEN){
+                        if(args.tb[d].token == '\\'){
+                            int s = 0;
+                            while(s < size && quote_char(args.tb[d].token) != QUOTATION_TOKEN){
+                                if(args.tb[s].token != '\\'){
+                                    args.tb[s].identifier = QUOTATION_TOKEN;
+                                }
+                                s++;
+                            }
+                            d = s;
+                        }
+                        
+                        if(d < size && args.tb[d].token != '\\'){
+                            args.tb[d].identifier = QUOTATION_TOKEN;
+                        }
+                        d++;
+                    }
+                }break;
+            }
         }
     }
 
     return tokenized;
 }
 
+void TokenParser::scan_set(ParseArg& info){
+    if(types.count(info.substr)){
+        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
+            info.tb[d].identifier = TYPE_TOKEN;
+        }
+    } else if (keywords.count(info.substr)){
+        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
+            info.tb[d].identifier = KEYWORD_TOKEN;
+        }
+    } else if (comment.count(info.substr)){
+        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
+            info.tb[d].identifier = COMMENT_TOKEN;
+        }
+    }
+}
 
-void TokenParser::char_followed_by_punct(ParseArg& info){
+void TokenParser::char_before_punct(ParseArg& info){
     switch(info.tb[info.end].token){
         default: break;
 
         case '(':{
             //Simply walk backwards until a non alpha char is found and paint as a func
-            for(size_t i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
+            for(int i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
                 info.tb[i].identifier = FUNCTION_TOKEN;
             }
         }break;
 
         case '.':{
             // obviously I need to take into account possible chained functions and such..
-            for(size_t i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
+            for(int i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
                 if(info.tb[i].token == ')'){
                     break;
                 }
@@ -206,6 +251,17 @@ void TokenParser::char_followed_by_punct(ParseArg& info){
         }break;
 
         case ';':{
+
+        }break;
+
+        case ')': {
+        }break;
+
+        case '}': {
+
+        }break;
+
+        case ']' : {
 
         }break;
     }

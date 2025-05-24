@@ -4,16 +4,17 @@
 
 #include <iostream>
 
-const SDL_Color punct      = {255, 121, 198, 255};  // Bright pink
-const SDL_Color ops        = {139, 233, 253, 255};  // Cyan
-const SDL_Color digit      = {241, 250, 140, 255};  // Yellow-green
-const SDL_Color type       = {189, 147, 249, 255};  // Purple
-const SDL_Color keyword    = {255, 85, 85, 255};    // Bright red
-const SDL_Color string     = {80, 250, 123, 255};   // Green
-const SDL_Color comment    = {98, 114, 164, 255};   // Muted gray-blue
-const SDL_Color letter     = {248, 248, 242, 255};  // White (default text)
-const SDL_Color function   = {139, 233, 253, 255};  
-
+const SDL_Color punct      = {255, 121, 198, 255};  // Bright pink (punctuation)
+const SDL_Color ops        = {139, 233, 253, 255};  // Cyan (operators)
+const SDL_Color digit      = {241, 250, 140, 255};  // Yellow-green (digits)
+const SDL_Color type       = {189, 147, 249, 255};  // Purple (types)
+const SDL_Color keyword    = {255, 85, 85, 255};    // Bright red (keywords)
+const SDL_Color string     = {80, 250, 123, 255};   // Green (strings)
+const SDL_Color comment    = {98, 114, 164, 255};   // Muted gray-blue (comments)
+const SDL_Color letter     = {248, 248, 242, 255};  // White (identifiers, default)
+const SDL_Color function   = {139, 233, 253, 255};  // Cyan (functions — same as ops)
+const SDL_Color variable   = {255, 184, 108, 255};  // Orange (variables)
+const SDL_Color args       = {255, 203, 139, 255};  // Light orange (args)
 
 void ColourRef::set_map(void){
     map.push_back(std::make_pair(PUNCT_TOKEN, punct));
@@ -22,10 +23,11 @@ void ColourRef::set_map(void){
     map.push_back(std::make_pair(NUMERIC_TOKEN, digit));
     map.push_back(std::make_pair(QUOTATION_TOKEN, string));
     map.push_back(std::make_pair(FUNCTION_TOKEN, function));
-    map.push_back(std::make_pair(KEYWORD_TOKEN, function));
-    map.push_back(std::make_pair(TYPE_TOKEN, function));
+    map.push_back(std::make_pair(KEYWORD_TOKEN, keyword));
+    map.push_back(std::make_pair(TYPE_TOKEN, type));
     map.push_back(std::make_pair(COMMENT_TOKEN, comment));
-    map.push_back(std::make_pair(VARIABLE_TOKEN, keyword));
+    map.push_back(std::make_pair(VARIABLE_TOKEN, variable));
+    map.push_back(std::make_pair(ARGS_TOKEN, args));
     map.push_back(std::make_pair(UNKNOWN_TOKEN, letter));
 }
 

@@ -50,7 +50,8 @@ typedef enum {
     COMMENT_TOKEN = 10,
     ALPHA_NUMERIC = 11,
     VARIABLE_TOKEN = 12,
-    OOB = 13,
+    ARGS_TOKEN = 13,
+    OOB = 14,
 }TOKEN_TYPES;
 
 
