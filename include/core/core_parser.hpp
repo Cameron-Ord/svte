@@ -27,12 +27,12 @@ struct TokenParser {
     TokenParser(const std::vector<std::string>& buf);
     TokenParser(void);
     std::vector<std::vector<Token>> tokenize(void);
-    void TokenParser::lex(std::vector<std::vector<Token>>& tb);
+    void lex(std::vector<std::vector<Token>>& tb);
     //const int starts_with_comment(const std::string& substr);
     //const int matches_known_identifier(const std::string &substr);
     //const int matches_known_keyword(const std::string &substr);
 
-    void TokenParser::retokenize(std::vector<std::vector<Token>>& tb);
+    void retokenize(std::vector<std::vector<Token>>& tb);
     const uint16_t numeric_char(const char c);
     const uint16_t symbol_char_start(const char c);
     const uint16_t symbol_char(const char c);
@@ -44,7 +44,6 @@ struct TokenParser {
     const uint16_t find_type(const char c);
     std::vector<Token> build_row(const std::string& line);
 
-    void char_before_punct(ParseArg& info);
     int partial_set_match(const std::string& substr, const std::unordered_set<std::string>& set);
 
     std::vector<std::function<const uint16_t(const char)>> ch;
