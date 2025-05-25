@@ -6,7 +6,7 @@
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_editor.hpp"
 #include "../../include/core/core_event_mgr.hpp"
-
+// asd asd asd as asd sa
 EventResult KeyEvent::prev_buffer(const int &keymod, Editor *e, const int32_t id){
     if(keymod & controls.META_MOD){
         e->ed_set_current_id(e->ed_prev_id());

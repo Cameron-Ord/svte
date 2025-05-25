@@ -2,7 +2,56 @@
 #include <iostream>
 #include <array>
 
-//Right now kinda just assuming the lang is C.
+//Right now kinda just assuming the lang is C/C++. Obviously i need to make things variables and change things slightly based on the loaded file type.
+//Since other languages dont follow each others conventions 1:1 
+
+const char ROUND_PARAN_LEFT = '(';
+const char ROUND_PARAN_RIGHT = ')';
+const char CURL_PARAN_LEFT = '{';
+const char CURL_PARAN_RIGHT = '}';
+const char SQUARE_PARAN_LEFT = '[';
+const char SQUARE_PARAN_RIGHT = ']';
+const char MEMBER_ACCESS = '.';
+const char ESCAPE_CHAR = '\\';
+const char SEMICOLON = ';';
+const char FORWARD_BRACKET = '/';
+
+static const char next_char(const int start, const int end, const std::vector<Token>& t){
+    for(int d = start; d < end; d++){
+        if(t[d].token != SPACE_CHAR){
+            return t[d].token;
+        }
+    }
+    return 0;
+}
+
+static const char prev_char(const int start, const std::vector<Token>& t){
+    for(int d = start - 1; d >= 0; d--){
+        if(t[d].token != SPACE_CHAR){
+            return t[d].token;
+        }
+    }
+    return 0;
+}
+
+
+static void set_next_char_type(const int start, const int end, const int type_id, std::vector<Token>& t){
+    for(int d = start; d < end; d++){
+        if(t[d].token != SPACE_CHAR){
+            t[d].identifier = type_id;
+            return;
+        }
+    }
+}
+
+static void set_prev_char_type(const int start, const int type_id, std::vector<Token>& t){
+    for(int d = start - 1; d >= 0; d--){
+        if(t[d].token != SPACE_CHAR){
+            t[d].identifier = type_id;
+            return;
+        }
+    }
+}
 
 TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
 
@@ -31,11 +80,41 @@ TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
 
     operators = {
         "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", 
-        ">=", "&&", "||", "!", "+=", "-=", "&"
+        ">=", "&&", "||", "!", "+=", "-=", "&", "->"
     };
 
 
 }
+
+TokenParser::TokenParser(void) : buf_ref(std::vector<std::string>({""})){
+    ch = {
+        [this](char c) -> const uint16_t { return space_char(c); },
+        [this](char c) -> const uint16_t { return quote_char(c); },
+        [this](char c) -> const uint16_t { return numeric_char(c); }, 
+        [this](char c) -> const uint16_t { return operator_char(c); },
+        [this](char c) -> const uint16_t { return punct_char(c); },
+    };
+
+    comment = {
+        "//", "/*", "*/"
+    };
+
+    keywords = {
+        "if", "else", "for", "while", "return", "switch", "case", 
+        "break", "continue", "static", "const"
+    };
+
+    types = {
+        "size_t", "int", "float", "double", "char", 
+        "void", "bool", "unsigned", "long", "short"
+    };
+
+    operators = {
+        "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", 
+        ">=", "&&", "||", "!", "+=", "-=", "&", "->"
+    }; 
+}
+
 
 const uint16_t TokenParser::space_char(const char c){
     if(c == ' ' || c == '\t'){
@@ -138,135 +217,120 @@ std::vector<Token> TokenParser::build_row(const std::string& line){
     return row;
 }
 
-//Not done here, once they are tokenized, I want to essentially evaluate and reassign the token type
-//depending on how the evaluation goes.
+//This does some basic lexing per line, 
+//but at the moment it does not take in to account multiline stuff 
+//for things like quote containing strings
 
-//There are other token types that are not applied initially since they require more context.
-
-//Also this just assumes everything is one line.. gonna have to add logic for multiline checks too..
-std::vector<std::vector<Token>> TokenParser::tokenize(void){
-    std::vector<std::vector<Token>> tokenized;
-    for(size_t i = 0; i < buf_ref.size(); i++){
-        tokenized.push_back(build_row(buf_ref[i]));
-    }
-
-    for(size_t i = 0; i < tokenized.size(); i++){
-        uint16_t prev_identifier = NULL_CHAR;
-        const int size = tokenized[i].size();
+void TokenParser::lex(std::vector<std::vector<Token>>& tb){
+    for(size_t i = 0; i < tb.size(); i++){
         int j = 0;
-
+        const int size = tb[i].size();
         while(j < size){
-            const uint16_t current_identifier = tokenized[i][j].identifier;
-            const int start = j;
-            int k = j;
-            //All we are doing here is going forward at the started position until we find a different 
-            //char type and filling a substr.
+            const uint16_t current_identifier = tb[i][j].identifier;
             std::string substr;
-            while(k < size && tokenized[i][k].identifier == current_identifier){
-                substr += tokenized[i][k].token;
-                k++;
+            const int start = j;
+            int end = start;
+
+            for(int k = j; k < size && tb[i][k].identifier == current_identifier; k++){
+                substr += tb[i][k].token;
+                end++;
             }
 
-            j = k;
-            const uint16_t next_identifier = k >= size ? current_identifier : tokenized[i][k].identifier;
+            switch(current_identifier){
+                default: break;
 
-            ParseArg args = {
-                current_identifier, next_identifier, 
-                tokenized[i],  start, k, substr
-            };
+                case OPERATOR_TOKEN:{
+                    if(comment.count(substr)){
+                        for(int d = start; d < size; d++){
+                            tb[i][d].identifier = COMMENT_TOKEN;
+                        }
+                    }
+                };
 
-            switch(args.current){
+                case PUNCT_TOKEN:{
+                }break;
+
+                case NUMERIC_TOKEN:{
+                }break;
+
                 case CHAR_TOKEN:{
-                    scan_set(args);
-                    switch(args.next){
-                        case PUNCT_TOKEN:{
-                            char_before_punct(args);
-                        }break;  
+                    if(partial_set_match(substr, types)){
+                        for(int d = start; d < end; d++){
+                            tb[i][d].identifier = TYPE_TOKEN;   
+                        }
+                    } else if (partial_set_match(substr, keywords)){
+                        for(int d = start; d < end; d++){
+                            tb[i][d].identifier = KEYWORD_TOKEN;   
+                        }
+                    }
+
+                    if(next_char(end, size, tb[i]) == '>' && prev_char(start, tb[i]) == '<'){
+                        set_prev_char_type(start, CHAR_TOKEN, tb[i]);
+                        set_next_char_type(end, size, CHAR_TOKEN, tb[i]);
+                    }
+
+                    switch(next_char(end, size, tb[i])){
+                        case ROUND_PARAN_LEFT:{
+                            for(int d = end - 1; d >= start && d >= 0; d--){
+                                tb[i][d].identifier = FUNCTION_TOKEN;
+                            }
+                        }break;
+
+                        case MEMBER_ACCESS: {
+                            for(int d = end - 1; d >= start && d >= 0; d--){
+                                tb[i][d].identifier = VARIABLE_TOKEN;
+                            }
+                        }break;
                     }
                 }break;
 
                 case QUOTATION_TOKEN:{
-                    int broken_escape = 0;
                     int d = start + 1; 
-                    while(d < size && quote_char(args.tb[d].token) != QUOTATION_TOKEN){
-                        if(args.tb[d].token == '\\'){
+                    while(d < size && quote_char(tb[i][d].identifier) != QUOTATION_TOKEN){
+                   
+                        if(tb[i][d].token == ESCAPE_CHAR){
                             int s = 0;
-                            while(s < size && quote_char(args.tb[d].token) != QUOTATION_TOKEN){
-                                if(args.tb[s].token != '\\'){
-                                    args.tb[s].identifier = QUOTATION_TOKEN;
+                            while(s < size && quote_char(tb[i][d].token) != QUOTATION_TOKEN){
+                                if(tb[i][d].token != ESCAPE_CHAR){
+                                    tb[i][d].identifier = QUOTATION_TOKEN;
                                 }
                                 s++;
                             }
                             d = s;
                         }
                         
-                        if(d < size && args.tb[d].token != '\\'){
-                            args.tb[d].identifier = QUOTATION_TOKEN;
+                        if(d < size && tb[i][d].token != ESCAPE_CHAR){
+                            tb[i][d].identifier = QUOTATION_TOKEN;
                         }
                         d++;
                     }
                 }break;
             }
+
+            j += substr.size();
         }
     }
+}
 
+std::vector<std::vector<Token>> TokenParser::tokenize(void){
+    std::vector<std::vector<Token>> tokenized;
+    for(size_t i = 0; i < buf_ref.size(); i++){
+        tokenized.push_back(build_row(buf_ref[i]));
+    }
+    lex(tokenized);
     return tokenized;
 }
 
-void TokenParser::scan_set(ParseArg& info){
-    if(types.count(info.substr)){
-        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
-            info.tb[d].identifier = TYPE_TOKEN;
-        }
-    } else if (keywords.count(info.substr)){
-        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
-            info.tb[d].identifier = KEYWORD_TOKEN;
-        }
-    } else if (comment.count(info.substr)){
-        for(int d = info.end - 1; d >= info.start && d >= 0; d--){
-            info.tb[d].identifier = COMMENT_TOKEN;
-        }
-    }
+
+void TokenParser::retokenize(std::vector<std::vector<Token>>& tb){
+    lex(tb);
 }
 
-void TokenParser::char_before_punct(ParseArg& info){
-    switch(info.tb[info.end].token){
-        default: break;
-
-        case '(':{
-            //Simply walk backwards until a non alpha char is found and paint as a func
-            for(int i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
-                info.tb[i].identifier = FUNCTION_TOKEN;
-            }
-        }break;
-
-        case '.':{
-            // obviously I need to take into account possible chained functions and such..
-            for(int i = info.end - 1; i >= 0 && info.tb[i].identifier == info.current; i--){
-                if(info.tb[i].token == ')'){
-                    break;
-                }
-                info.tb[i].identifier = VARIABLE_TOKEN;
-            }
-        }break;
-
-        case ';':{
-
-        }break;
-
-        case ')': {
-        }break;
-
-        case '}': {
-
-        }break;
-
-        case ']' : {
-
-        }break;
+int TokenParser::partial_set_match(const std::string& substr, const std::unordered_set<std::string>& set){
+    for(const auto& val : set){
+        if(substr.size() >= val.size() && substr.compare(0, val.size(), val) == 0){
+            return 1;
+        }
     }
-}   
-
-void type_char_untiL_space(std::vector<Token>& tb, const size_t start, const size_t end){
-
+    return 0;
 }

@@ -32,6 +32,8 @@ std::vector<std::vector<Token>> Buffer::buf_tokenize(const std::vector<std::stri
 }
 
 void Buffer::buf_retokenize(void){
+    TokenParser tparser;
+    tparser.retokenize(buffer);
 }
 
 Buffer::~Buffer(void)
