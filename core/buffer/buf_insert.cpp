@@ -1,6 +1,6 @@
 #include "../../include/core/core_buffer.hpp"
 #include "../../include/core/core_defines.hpp"
-#include "../../include/core/core_token.hpp"
+#include "../../include/core/core_parser.hpp"
 
 #include <iostream>
 
@@ -19,6 +19,7 @@ void Buffer::buf_new_line(void)
         ColItConst token_it_const(tokenline);
         token_it_const.offset(col);
         const std::vector<Token> tokens = buf_tokens_after_col(token_it_const.begin, token_it_const.end);
+
         if (!tokens.empty()) {
             ColIt token_it(tokenline);
             token_it.reset(tokenline);

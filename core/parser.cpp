@@ -5,6 +5,8 @@
 //Right now kinda just assuming the lang is C/C++. Obviously i need to make things variables and change things slightly based on the loaded file type.
 //Since other languages dont follow each others conventions 1:1 
 
+//Also at this will need to be optimized in some ways later on... but I dont care about that right now.
+
 const char ROUND_PARAN_LEFT = '(';
 const char ROUND_PARAN_RIGHT = ')';
 const char CURL_PARAN_LEFT = '{';
@@ -15,6 +17,17 @@ const char MEMBER_ACCESS = '.';
 const char ESCAPE_CHAR = '\\';
 const char SEMICOLON = ';';
 const char FORWARD_BRACKET = '/';
+
+std::vector<std::function<const uint16_t(const char)>> ch = {
+    TokenParser::numeric_char,
+    TokenParser::symbol_char_start,
+    TokenParser::symbol_char,
+    TokenParser::operator_char,
+    TokenParser::punct_char,
+    TokenParser::quote_char,
+    TokenParser::space_char,
+    TokenParser::find_type,
+};
 
 static const char next_char(const int start, const int end, const std::vector<Token>& t){
     for(int d = start; d < end; d++){
@@ -54,65 +67,85 @@ static void set_prev_char_type(const int start, const int type_id, std::vector<T
 }
 
 TokenParser::TokenParser(const std::vector<std::string>& buf) : buf_ref(buf){
-
-    ch = {
-        [this](char c) -> const uint16_t { return space_char(c); },
-        [this](char c) -> const uint16_t { return quote_char(c); },
-        [this](char c) -> const uint16_t { return numeric_char(c); }, 
-        [this](char c) -> const uint16_t { return operator_char(c); },
-        [this](char c) -> const uint16_t { return punct_char(c); },
-    };
-
-
     comment = {
         "//", "/*", "*/"
     };
 
     keywords = {
-        "if", "else", "for", "while", "return", "switch", "case", 
-        "break", "continue", "static", "const"
-    };
+        "if", "else", "for", "while", "do", "return", "switch", "case", 
+        "break", "continue", "goto", "default",
 
+        "static", "const", "volatile", "inline", "extern", "register", 
+        "typedef", "sizeof", "alignof",
+
+        "namespace", "using", "new", "delete", "class", "struct", "union", 
+        "public", "private", "protected", "template", "typename", 
+
+        "try", "catch", "throw", "noexcept", 
+
+        "this", "nullptr", "true", "false"
+    };
+    
     types = {
-        "size_t", "int", "float", "double", "char", 
-        "void", "bool", "unsigned", "long", "short"
-    };
+        "void", "bool", "char", "short", "int", "long", "float", "double", 
 
+        "signed", "unsigned", "size_t", "ptrdiff_t", "int8_t", "int16_t", 
+        "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", 
+
+        "wchar_t", "char16_t", "char32_t", 
+
+        "auto", "decltype", 
+    };
+    
     operators = {
-        "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", 
-        ">=", "&&", "||", "!", "+=", "-=", "&", "->"
+        "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", ">=",
+        "&&", "||", "!", "~", "^", "&", "|", "<<", ">>", "++", "--",
+
+        "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=",
+
+        ".", "->", "?:", "::", "##", "#", "..."
     };
-
-
 }
 
 TokenParser::TokenParser(void) : buf_ref(std::vector<std::string>({""})){
-    ch = {
-        [this](char c) -> const uint16_t { return space_char(c); },
-        [this](char c) -> const uint16_t { return quote_char(c); },
-        [this](char c) -> const uint16_t { return numeric_char(c); }, 
-        [this](char c) -> const uint16_t { return operator_char(c); },
-        [this](char c) -> const uint16_t { return punct_char(c); },
-    };
-
     comment = {
         "//", "/*", "*/"
     };
 
     keywords = {
-        "if", "else", "for", "while", "return", "switch", "case", 
-        "break", "continue", "static", "const"
-    };
+        "if", "else", "for", "while", "do", "return", "switch", "case", 
+        "break", "continue", "goto", "default",
 
+        "static", "const", "volatile", "inline", "extern", "register", 
+        "typedef", "sizeof", "alignof",
+
+        "namespace", "using", "new", "delete", "class", "struct", "union", 
+        "public", "private", "protected", "template", "typename", 
+
+        "try", "catch", "throw", "noexcept", 
+
+        "this", "nullptr", "true", "false"
+    };
+    
     types = {
-        "size_t", "int", "float", "double", "char", 
-        "void", "bool", "unsigned", "long", "short"
+        "void", "bool", "char", "short", "int", "long", "float", "double", 
+
+        "signed", "unsigned", "size_t", "ptrdiff_t", "int8_t", "int16_t", 
+        "int32_t", "int64_t", "uint8_t", "uint16_t", "uint32_t", "uint64_t", 
+
+        "wchar_t", "char16_t", "char32_t", 
+
+        "auto", "decltype", 
     };
 
     operators = {
-        "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", 
-        ">=", "&&", "||", "!", "+=", "-=", "&", "->"
-    }; 
+        "+", "-", "*", "/", "%", "=", "==", "!=", "<", ">", "<=", ">=",
+        "&&", "||", "!", "~", "^", "&", "|", "<<", ">>", "++", "--",
+
+        "+=", "-=", "*=", "/=", "%=", "&=", "|=", "^=", "<<=", ">>=",
+
+        ".", "->", "?:", "::", "##", "#", "..."
+    };
 }
 
 
@@ -182,17 +215,6 @@ const uint16_t TokenParser::find_type(const char c){
     return UNKNOWN_TOKEN;
 }
 
-//std::array<std::unordered_map<uint16_t, std::function<void(std::vector<Token>&, const size_t, const size_t)>>, 5> branches = {
-//    charbranch = {{PUNCT_TOKEN, char_followed_by_punct}}, opbranch, quotebranch, punctbranch, numbranch
-//};
-
-//std::unordered_map<uint16_t, std::unordered_map<uint16_t, std::function<void(std::vector<Token>&, const size_t, const size_t)>>> tree = {
-//    {CHAR_TOKEN, charbranch}, {OPERATOR_TOKEN, opbranch}, {QUOTATION_TOKEN, quotebranch}, 
-//    {NUMERIC_TOKEN, numbranch}, {PUNCT_TOKEN, punctbranch}
-//};
-
-
-
 std::vector<Token> TokenParser::build_row(const std::string& line){
     std::vector<Token> row;
     size_t k = 0;
@@ -215,6 +237,30 @@ std::vector<Token> TokenParser::build_row(const std::string& line){
         k++;
     }
     return row;
+}
+
+void TokenParser::token_update(std::vector<std::vector<Token>>& tb){
+    for(size_t i = 0; i < tb.size(); i++){
+        
+        size_t j = 0;
+        while(j < tb[i].size()){
+            if(symbol_char_start(tb[i][j].token) != UNKNOWN_TOKEN){
+                tb[i][j].identifier = CHAR_TOKEN;
+                size_t k = j + 1;        
+
+                while(k < tb[i].size() && symbol_char(tb[i][k].token) != UNKNOWN_TOKEN){
+                    tb[i][k].identifier = CHAR_TOKEN;
+                    k++;
+                }
+
+                j = k;
+                continue;
+            }
+            
+            tb[i][j].identifier = find_type(tb[i][j].token);
+            j++;
+        }
+    }
 }
 
 //This does some basic lexing per line, 
@@ -262,11 +308,6 @@ void TokenParser::lex(std::vector<std::vector<Token>>& tb){
                         for(int d = start; d < end; d++){
                             tb[i][d].identifier = KEYWORD_TOKEN;   
                         }
-                    }
-
-                    if(next_char(end, size, tb[i]) == '>' && prev_char(start, tb[i]) == '<'){
-                        set_prev_char_type(start, CHAR_TOKEN, tb[i]);
-                        set_next_char_type(end, size, CHAR_TOKEN, tb[i]);
                     }
 
                     switch(next_char(end, size, tb[i])){
@@ -323,6 +364,7 @@ std::vector<std::vector<Token>> TokenParser::tokenize(void){
 
 
 void TokenParser::retokenize(std::vector<std::vector<Token>>& tb){
+    token_update(tb);
     lex(tb);
 }
 

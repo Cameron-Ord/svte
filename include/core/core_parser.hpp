@@ -16,7 +16,6 @@ struct ParseArg {
     const std::string& substr;
 };
 
-
 struct TokenParser {
     std::unordered_set<std::string> keywords;
     std::unordered_set<std::string> types;
@@ -27,27 +26,22 @@ struct TokenParser {
     TokenParser(const std::vector<std::string>& buf);
     TokenParser(void);
     std::vector<std::vector<Token>> tokenize(void);
-    void lex(std::vector<std::vector<Token>>& tb);
-    //const int starts_with_comment(const std::string& substr);
-    //const int matches_known_identifier(const std::string &substr);
-    //const int matches_known_keyword(const std::string &substr);
-
     void retokenize(std::vector<std::vector<Token>>& tb);
-    const uint16_t numeric_char(const char c);
-    const uint16_t symbol_char_start(const char c);
-    const uint16_t symbol_char(const char c);
-    const uint16_t operator_char(const char c);
-    const uint16_t punct_char(const char c);
-    const uint16_t quote_char(const char c);
-    const uint16_t space_char(const char c);
+    void lex(std::vector<std::vector<Token>>& tb);
+    void token_update(std::vector<std::vector<Token>>& tb);
+    static const uint16_t numeric_char(const char c);
+    static const uint16_t symbol_char_start(const char c);
+    static const uint16_t symbol_char(const char c);
+    static const uint16_t operator_char(const char c);
+    static const uint16_t punct_char(const char c);
+    static const uint16_t quote_char(const char c);
+    static const uint16_t space_char(const char c);
+    static const uint16_t find_type(const char c);
 
-    const uint16_t find_type(const char c);
     std::vector<Token> build_row(const std::string& line);
-
     int partial_set_match(const std::string& substr, const std::unordered_set<std::string>& set);
-
-    std::vector<std::function<const uint16_t(const char)>> ch;
 };
+
 
 
 #endif

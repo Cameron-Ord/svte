@@ -26,9 +26,9 @@ Buffer::Buffer(const int32_t id, std::string fn) : error(CORE_NIL)
     std::cout << "- Filename: " << fn << std::endl;
 }
 
-std::vector<std::vector<Token>> Buffer::buf_tokenize(const std::vector<std::string> readbuffer){
+void Buffer::buf_tokenize(const std::vector<std::string> readbuffer){
     TokenParser tparser(readbuffer);
-    return tparser.tokenize();
+    buffer = tparser.tokenize();
 }
 
 void Buffer::buf_retokenize(void){

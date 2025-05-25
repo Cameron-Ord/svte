@@ -4,17 +4,17 @@
 
 #include <iostream>
 
-const SDL_Color punct      = {255, 121, 198, 255};  // Bright pink (punctuation)
-const SDL_Color ops        = {139, 233, 253, 255};  // Cyan (operators)
-const SDL_Color digit      = {241, 250, 140, 255};  // Yellow-green (digits)
-const SDL_Color type       = {189, 147, 249, 255};  // Purple (types)
-const SDL_Color keyword    = {255, 85, 85, 255};    // Bright red (keywords)
-const SDL_Color string     = {80, 250, 123, 255};   // Green (strings)
-const SDL_Color comment    = {98, 114, 164, 255};   // Muted gray-blue (comments)
-const SDL_Color letter     = {248, 248, 242, 255};  // White (identifiers, default)
-const SDL_Color function   = {139, 233, 253, 255};  // Cyan (functions — same as ops)
-const SDL_Color variable   = {255, 184, 108, 255};  // Orange (variables)
-const SDL_Color args       = {255, 203, 139, 255};  // Light orange (args)
+
+const SDL_Color punct       = {144, 144, 144, 255}; 
+const SDL_Color ops         = {255, 85, 114, 255};  
+const SDL_Color digit       = {174, 129, 255, 255};  
+const SDL_Color type        = {255, 203, 139, 255};  
+const SDL_Color comment     = {100, 100, 100, 255};  
+const SDL_Color variable    = {137, 221, 255, 255};  
+const SDL_Color letter      = {240, 240, 240, 255};  
+const SDL_Color function    = {166, 226, 46, 255};   
+const SDL_Color string      = {255, 216, 102, 255};  
+const SDL_Color keyword     = {255, 85, 114, 255}; 
 
 void ColourRef::set_map(void){
     map.push_back(std::make_pair(PUNCT_TOKEN, punct));
@@ -27,7 +27,6 @@ void ColourRef::set_map(void){
     map.push_back(std::make_pair(TYPE_TOKEN, type));
     map.push_back(std::make_pair(COMMENT_TOKEN, comment));
     map.push_back(std::make_pair(VARIABLE_TOKEN, variable));
-    map.push_back(std::make_pair(ARGS_TOKEN, args));
     map.push_back(std::make_pair(UNKNOWN_TOKEN, letter));
 }
 

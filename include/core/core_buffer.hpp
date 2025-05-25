@@ -13,12 +13,7 @@ class Buffer {
     public:
         Buffer(const int32_t id);
         Buffer(const int32_t id, std::string fn);
-
-        Buffer& buf_copy(std::vector<std::vector<Token>> commit_vector) { 
-            buffer = commit_vector; 
-            return *this;
-        }
-
+        
         void buf_set_id(const int32_t id) { buffer_id = id; }
         void buf_set_filename(const std::string fn) { filename = fn; }
         void buf_set_error(const int err) { error = err; }
@@ -59,8 +54,7 @@ class Buffer {
         void buf_rmv_at(void);
         void buf_rmv_line(RowIt& vec);
         void buf_retokenize(void);
-
-        std::vector<std::vector<Token>> buf_tokenize(const std::vector<std::string> readbuffer);
+        void buf_tokenize(const std::vector<std::string> readbuffer);
 
         int buf_mv_row(const int amount);
         void buf_mv_col(const int amount);

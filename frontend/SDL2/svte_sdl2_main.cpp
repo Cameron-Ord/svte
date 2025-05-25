@@ -66,6 +66,8 @@ int main(int argc, char **argv)
     uint64_t frame_start;
     int frame_time;
 
+    SDL_Color bg = {22, 20, 28, 255};
+
     SDL_StartTextInput();
     renderer->rndr_set_blendmode(SDL_BLENDMODE_BLEND);
     window->win_show_window();
@@ -73,7 +75,7 @@ int main(int argc, char **argv)
 
     while (context.sdl2_get_run_state() != NO_RUN) {
         frame_start = SDL_GetTicks64();
-        renderer->rndr_set_colour(40, 42, 54, 255);
+        renderer->rndr_set_colour(bg.r, bg.g, bg.b, bg.a);
         renderer->rndr_clear();
 
         SDL_Event e;
@@ -112,7 +114,7 @@ int main(int argc, char **argv)
         }
 
         renderer->rndr_set_viewport(&item->viewport).rndr_draw_buffer(item, b);
-        renderer->rndr_set_colour(189, 147, 249, 200).rndr_put_cursor(
+        renderer->rndr_set_colour(248, 248, 242, 100).rndr_put_cursor(
             item, b->buf_get_row(), b->buf_get_col()
         );
 
@@ -120,7 +122,7 @@ int main(int argc, char **argv)
             &renderer->rndr_get_filename()->viewport
         ).rndr_draw_filename(b->buf_get_filename());
 
-        renderer->rndr_set_colour(189, 147, 249, 200).rndr_draw_cmd().rndr_cmd_cursor();
+        renderer->rndr_set_colour(248, 248, 242, 100).rndr_draw_cmd().rndr_cmd_cursor();
 
         frame_time = SDL_GetTicks64() - frame_start;
         if (tpf > frame_time) {

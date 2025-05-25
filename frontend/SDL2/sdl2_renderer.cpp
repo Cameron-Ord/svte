@@ -181,22 +181,24 @@ void Renderer::rndr_buf_offsets(RndrItem &item, const Buffer *const b)
         ); 
     };
 
+    const int move_amount = 12;
+
     while (gety() < item.th.h_th_min && item.row_offset > 0) {
-        item.row_offset--;
+        item.row_offset = item.row_offset - move_amount >= 0 ? item.row_offset - move_amount : item.row_offset - 1;
     }
 
     while (gety() > item.th.h_th_max && item.row_offset < buf_size) {
-        item.row_offset++;
+        item.row_offset = item.row_offset + move_amount < buf_size ? item.row_offset + move_amount : item.row_offset + 1;
     }
 
     auto getx = [this, b, &item]() { return item.getx(b->buf_get_col() - item.col_offset, vf.vec_col_block(), horizontal_padding); };
 
     while (getx() < item.th.w_th_min && item.col_offset > 0) {
-        item.col_offset--;
+        item.col_offset = item.col_offset - move_amount >= 0 ? item.col_offset - move_amount : item.col_offset - 1;
     }
 
     while (getx() > item.th.w_th_max && line_size > 0 && item.col_offset <= line_size) {
-        item.col_offset++;
+        item.col_offset = item.col_offset + move_amount < line_size ? item.col_offset + move_amount : item.col_offset + 1;
     }
 }
 
