@@ -2,3 +2,5 @@ build/
 .cache/
 main
 svte_log.txt
+win64/
+linux64/
