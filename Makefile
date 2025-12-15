@@ -1,16 +1,16 @@
 SRCS = src/main.cpp src/io.cpp src/util.cpp src/buffer.cpp src/events.cpp
 TARGET = svte
-BDIR = build
+BUILD_ROOT = build
+BDIR = linux64
 
-all: linux
-
+all: linux 
 
 linux: CC = g++
 linux: TARGET = svte
 linux: LIBS = -lSDL2 -lSDL2_ttf -lm
 linux: CFLAGS = -Wall -Wextra -Wpedantic -g
 linux: BDIR = linux64
-linux: clean
+linux: $(BUILD_ROOT)
 linux: $(BDIR)
 linux: $(TARGET)
 
@@ -19,15 +19,18 @@ win64: TARGET = svte.exe
 win64: LIBS = -lSDL2 -lSDL2main -lSDL2_ttf -mwindows -lm
 win64: CFLAGS = -Wall -Wextra -Wpedantic -g 
 win64: BDIR = win64
-win64: clean
+win64: $(BUILD_ROOT)
 win64: $(BDIR)
 win64: $(TARGET)
 
+$(BUILD_ROOT):
+	mkdir -p $(BUILD_ROOT)
+
 $(BDIR): 
-	mkdir -p $(BDIR)
+	mkdir -p $(BUILD_ROOT)/$(BDIR)
 
 $(TARGET): $(SRCS)
-	$(CC) $(CFLAGS) -o $(BDIR)/$(TARGET) $(SRCS) $(LIBS)
+	$(CC) $(CFLAGS) -o $(BUILD_ROOT)/$(BDIR)/$(TARGET) $(SRCS) $(LIBS)
 
 clean:
-	rm -r $(BDIR)
+	rm -r $(BUILD_ROOT)

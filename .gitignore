@@ -4,3 +4,4 @@ main
 svte_log.txt
 win64/
 linux64/
+build/
