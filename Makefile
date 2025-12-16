@@ -1,4 +1,14 @@
-SRCS = src/main.cpp src/io.cpp src/util.cpp src/buffer.cpp src/events.cpp
+SRCS = src/core/main.cpp 
+SRCS += src/core/io.cpp  
+SRCS += src/core/util.cpp 
+SRCS += src/core/buffer.cpp 
+SRCS += src/core/events.cpp 
+SRCS += src/core/find.cpp 
+SRCS += src/core/font.cpp 
+SRCS += src/core/parser.cpp 
+SRCS += src/core/renderer.cpp 
+SRCS += src/core/window.cpp
+
 TARGET = svte
 BUILD_ROOT = build
 BDIR = linux64

@@ -1,4 +1,4 @@
-#include "util.hpp"
+#include "../util.hpp"
 
 enum SHIFTS {
   S18 = 18,
@@ -49,9 +49,9 @@ char utf_handler::utf8_byte_count(const char ch) {
   return 0;
 }
 
-std::vector<unsigned char> utf_handler::encode_utf8(uint32_t cp) {
+std::vector<char> utf_handler::encode_utf8(uint32_t cp) {
   auto cont_append = [](uint32_t cp, int bytecount) {
-    std::vector<unsigned char> bytes(bytecount);
+    std::vector<char> bytes(bytecount);
     for (int i = bytecount - 1; i >= 0; i--) {
       bytes[i] = CONT_SIG | (cp & CONT_MASK);
       cp >>= 6;
@@ -61,24 +61,24 @@ std::vector<unsigned char> utf_handler::encode_utf8(uint32_t cp) {
   };
 
   if (cp <= UTF8_1B_MAX) {
-    return std::vector<unsigned char>{static_cast<unsigned char>(cp), NULLCHAR};
+    return std::vector<char>{static_cast<char>(cp), NULLCHAR};
   } else if (cp <= UTF8_2B_MAX) {
-    unsigned char front = UTF8_2B_SIG | ((cp >> S6) & UTF8_2B_VMASK);
-    std::vector<unsigned char> b = cont_append(cp, 1);
+    char front = UTF8_2B_SIG | ((cp >> S6) & UTF8_2B_VMASK);
+    std::vector<char> b = cont_append(cp, 1);
     b.insert(b.begin(), front);
     return b;
   } else if (cp <= UTF8_3B_MAX) {
-    unsigned char front = UTF8_3B_SIG | ((cp >> S12) & UTF8_3B_VMASK);
-    std::vector<unsigned char> b = cont_append(cp, 2);
+    char front = UTF8_3B_SIG | ((cp >> S12) & UTF8_3B_VMASK);
+    std::vector<char> b = cont_append(cp, 2);
     b.insert(b.begin(), front);
     return b;
   } else if (cp <= UTF8_4B_MAX) {
-    unsigned char front = UTF8_4B_SIG | ((cp >> S18) & UTF8_4B_VMASK);
-    std::vector<unsigned char> b = cont_append(cp, 3);
+    char front = UTF8_4B_SIG | ((cp >> S18) & UTF8_4B_VMASK);
+    std::vector<char> b = cont_append(cp, 3);
     b.insert(b.begin(), front);
     return b;
   } else {
-    return std::vector<unsigned char>{NULLCHAR};
+    return std::vector<char>{NULLCHAR};
   }
 }
 

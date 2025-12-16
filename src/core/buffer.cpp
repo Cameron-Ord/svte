@@ -1,5 +1,5 @@
-#include "buffer.hpp"
-#include "util.hpp"
+#include "../buffer.hpp"
+#include "../util.hpp"
 
 static bool yfits(int y, size_t bufsize) {
   int sbufsize = static_cast<int>(bufsize);

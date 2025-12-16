@@ -1,14 +1,48 @@
-#include "buffer.hpp"
-#include "input.hpp"
-#include "util.hpp"
-
-#include <cstdlib>
+#include "../buffer.hpp"
+#include "../input.hpp"
+#include "../util.hpp"
 #include <random>
 #include <unordered_set>
+#include <SDL2/SDL.h>
 
-static const int MIN_BUFFER_SIZE = 1;
 std::unordered_set<int> used_ids;
 std::vector<unsigned int> ids(0);
+
+static int random_num(void);
+static std::shared_ptr<buffer> create_buffer(int argc, char **argv);
+static int
+init_buffer_map(std::unordered_map<int, std::shared_ptr<buffer>> &bufmap,
+                int argc, char **argv);
+
+static bool sdl_init(void);
+
+static bool sdl_init(void){
+  if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0){
+      return false;
+  }
+  return true;
+}
+
+int main(int argc, char *argv[]) {
+  if(!sdl_init()){
+    logger::log("Failed to initialize SDL");
+    return 1;
+  }
+  
+
+
+  std::unordered_map<int, std::shared_ptr<buffer>> bufmap;
+  int current_id;
+  if ((current_id = init_buffer_map(bufmap, argc, argv) < 0)) {
+    return 1;
+  }
+    
+
+  input_tree input = input_tree();
+
+  // ⏻ ☹ 😄
+  return 0;
+}
 
 static std::vector<std::string> parse_args(int argc, char *argv[]) {
   std::vector<std::string> argbuf(argc - 1);
@@ -63,16 +97,3 @@ init_buffer_map(std::unordered_map<int, std::shared_ptr<buffer>> &bufmap,
   return buf->get_id();
 }
 
-int main(int argc, char *argv[]) {
-  setlocale(LC_ALL, "");
-  std::unordered_map<int, std::shared_ptr<buffer>> bufmap;
-  int current_id = init_buffer_map(bufmap, argc, argv);
-  if (current_id < 0) {
-    return 1;
-  }
-
-  input_tree input = input_tree();
-
-  // ⏻ ☹ 😄
-  return 0;
-}

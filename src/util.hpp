@@ -11,7 +11,7 @@
 struct utf_handler {
   static uint32_t decode_utf8(std::vector<unsigned char>);
   static char utf8_byte_count(char c);
-  static std::vector<unsigned char> encode_utf8(uint32_t cp);
+  static std::vector<char> encode_utf8(uint32_t cp);
 };
 
 struct line_searcher {

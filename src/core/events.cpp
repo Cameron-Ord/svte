@@ -1,6 +1,6 @@
-#include "buffer.hpp"
-#include "input.hpp"
-#include "util.hpp"
+#include "../buffer.hpp"
+#include "../input.hpp"
+#include "../util.hpp"
 
 
 key_mapping::key_mapping(unsigned int setmod, unsigned int ckey,
