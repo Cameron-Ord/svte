@@ -1,5 +1,6 @@
 #include "../svte.hpp"
 #include "../util.hpp"
+#include "../buffer.hpp"
 #include <SDL3/SDL.h>
 
 renderer_container::renderer_container(std::string fontpath, int fontsize)
@@ -32,8 +33,22 @@ void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
   }
 }
 
+void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer){
+  const uint32_t *root_char = buffer->char_at_cursor();
+  if(root_char){
+    glyph *glyph_data = fc.get_font_map()->map_find(*root_char);
+    if(glyph_data){
+      const float posx = buffer->get_curs_x() * glyph_data->w;
+      const float posy = buffer->get_curs_y() * glyph_data->h;
+      SDL_FRect box = { posx, posy, (float)glyph_data->w, (float)glyph_data->h };
+      set_col(255, 255, 255, 255);
+      SDL_RenderFillRect(r, &box);
+    }
+  }
+}
+
 void renderer_container::clear(void) { SDL_RenderClear(r); }
 
-void renderer_container::set_col(void) { SDL_SetRenderDrawColor(r, 10, 0, 21, 255); }
+void renderer_container::set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8) { SDL_SetRenderDrawColor(r, r8, g8, b8,a8); }
 
 void renderer_container::present(void) { SDL_RenderPresent(r); }

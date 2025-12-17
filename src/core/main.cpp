@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
   SDL_ShowWindow(window.get_window());
   while (running) {
     const uint32_t start = SDL_GetTicks();
-    renderer.set_col();
+    renderer.set_col(0,0,0,255);
     renderer.clear();
 
     SDL_Event ev;
@@ -145,6 +145,7 @@ int main(int argc, char *argv[]) {
 
     if(current){
       renderer.draw_text(current->const_buf());
+      renderer.draw_cursor(current);
     } 
 
     renderer.present();

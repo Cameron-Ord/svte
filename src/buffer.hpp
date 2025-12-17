@@ -14,10 +14,10 @@ public:
   buf_mutator(void);
   ~buf_mutator() = default;
   // operates using copy on write, makes tracking history easy
-  vec_2d_ptr char_insert(int &x, int &y, uint32_t character, vec_2d_ptr contents);
-  vec_2d_ptr char_replace(int &x, int &y, uint32_t character, vec_2d_ptr contents);
-  vec_2d_ptr char_delete(int &x, int &y, vec_2d_ptr contents);
-  vec_2d_ptr char_remove(int &x, int &y, vec_2d_ptr contents);
+  std::vector<uint32_t> char_insert(int &x, uint32_t character, std::vector<uint32_t> line);
+  std::vector<uint32_t> char_replace(const int &x, uint32_t character, std::vector<uint32_t> line);
+  std::vector<uint32_t> char_delete(const int &x, std::vector<uint32_t> line);
+  std::vector<uint32_t> char_remove(int &x, std::vector<uint32_t> line);
 
   const char &get_insertion_mode(void) const { return mode; }
   void set_insertion_mode(char set) { mode = set; }
@@ -47,10 +47,19 @@ public:
   bool buf_delete(void);
   bool buf_remove(void);
 
+  const uint32_t *char_at_cursor(void) const;
+
   const vec_2d_ptr const_buf(void) const { 
-    assert(contents != nullptr);
     return contents; 
   }
+
+  bool yfits_arg(int y, size_t bufsize);
+  bool xfits_arg(int x, size_t linesize);
+  bool yfits(size_t bufsize) const;
+  bool xfits(size_t linesize) const;
+
+  int get_curs_y(void) { return cursor_y; }
+  int get_curs_x(void) { return cursor_x; }
 
   const buf_mutator &get_mutator(void) const { return mutator; }
   const buf_history &get_history(void) const { return history; }

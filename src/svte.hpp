@@ -9,6 +9,8 @@ typedef struct SDL_Renderer SDL_Renderer;
 typedef struct TTF_Font TTF_Font;
 typedef struct SDL_Texture SDL_Texture;
 
+class buffer;
+
 class window_container {
 public:
   window_container(std::string title, int bwidth, int bheight);
@@ -63,8 +65,9 @@ class renderer_container {
 public:
   renderer_container(std::string fontpath, int fontsize);
   void draw_text(const vec_2d_ptr textbuffer);
+  void draw_cursor(const std::shared_ptr<buffer> buffer); 
   void clear(void);
-  void set_col(void);
+  void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);
   bool init_renderer(SDL_Window *w);
   font_container *get_font_container(void) { return &fc; }
