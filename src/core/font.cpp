@@ -1,7 +1,7 @@
 #include "../svte.hpp"
 #include "../util.hpp"
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
   const uint32_t ASCII_START = 32;
@@ -16,9 +16,9 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
     const char *encoded = str.data();
     glyph g = { 0, 0, nullptr };
 
-    SDL_Surface *surf = TTF_RenderUTF8_Blended(font, encoded, col);
+    SDL_Surface *surf = TTF_RenderText_Blended(font, encoded, 0, col);
     if (!surf) {
-      logger::log_var("Failed to render char: ", TTF_GetError());
+      logger::log_var("Failed to render char: ", SDL_GetError());
       continue;
     }
     g.w = surf->w;
@@ -26,12 +26,12 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(r, surf);
     if (!texture) {
-      logger::log_var("Failed to create texture: ", TTF_GetError());
-      SDL_FreeSurface(surf);
+      logger::log_var("Failed to create texture: ", SDL_GetError());
+      SDL_DestroySurface(surf);
       continue;
     }
     g.texture = texture;
-    SDL_FreeSurface(surf);
+    SDL_DestroySurface(surf);
 
     glyphs[c] = g;
   }

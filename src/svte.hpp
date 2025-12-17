@@ -66,7 +66,7 @@ public:
   void clear(void);
   void set_col(void);
   void present(void);
-  bool init_renderer(int flags, SDL_Window *w);
+  bool init_renderer(SDL_Window *w);
   font_container *get_font_container(void) { return &fc; }
   SDL_Renderer *get_renderer(void) { return r; }
 

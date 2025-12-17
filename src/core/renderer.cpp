@@ -1,13 +1,13 @@
 #include "../svte.hpp"
 #include "../util.hpp"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 
 renderer_container::renderer_container(std::string fontpath, int fontsize)
     : r(nullptr), fc(font_container(fontpath, fontsize)) {}
-bool renderer_container::init_renderer(int flags, SDL_Window *w) {
-  SDL_Renderer *tmp = SDL_CreateRenderer(w, -1, flags);
+bool renderer_container::init_renderer(SDL_Window *w) {
+  SDL_Renderer *tmp = SDL_CreateRenderer(w, nullptr);
   if (!tmp) {
-    logger::log_var("Failed to set renderer: ", SDL_GetError);
+    logger::log_var("Failed to set renderer: ", SDL_GetError());
     return false;
   }
 
@@ -22,9 +22,10 @@ void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
       for(size_t x = 0; x < line.size(); x++){
         glyph *glyph_data = fc.get_font_map()->map_find(line[x]);
         if(glyph_data && glyph_data->texture){
-          const int posx = x * glyph_data->w, posy = y * glyph_data->h;
-          SDL_Rect box = { posx, posy, glyph_data->w, glyph_data->h };
-          SDL_RenderCopy(r, glyph_data->texture, nullptr, &box);
+          const float posx = x * glyph_data->w;
+          const float posy = y * glyph_data->h;
+          const SDL_FRect box = { posx, posy, (float)glyph_data->w, (float)glyph_data->h };
+          SDL_RenderTexture(r, glyph_data->texture, nullptr, &box);
         }
       }
     }

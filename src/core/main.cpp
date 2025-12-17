@@ -4,12 +4,12 @@
 #include "../svte.hpp"
 
 #define SDL_MAIN_HANDLED
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_version.h>
+#include <SDL3_ttf/SDL_ttf.h>
 
 #include <random>
 #include <unordered_set>
-#include <iostream>
 
 std::unordered_set<int> used_ids;
 
@@ -20,26 +20,14 @@ static int init_buffer_map(std::unordered_map<int, std::shared_ptr<buffer>> &buf
 static bool sdl_init(void);
 
 static bool sdl_init(void) {
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
+  if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
+    return false;
+  }
+ 
+  if (!TTF_Init()) {
     return false;
   }
 
-  SDL_version linked, compiled;
-  SDL_VERSION(&compiled);
-  SDL_GetVersion(&linked);
-  printf("Compiled against SDL ver: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
-  printf("Running with SDL ver: %d.%d.%d\n", linked.major, linked.minor, linked.patch);
-
-  if (TTF_Init() < 0) {
-    return false;
-  }
-
-  SDL_version tcompiled;
-  TTF_VERSION(&tcompiled);
-  const SDL_version *tlinked = TTF_Linked_Version();
-
-  printf("Compiled against SDL TTF ver: %d.%d.%d\n", tcompiled.major, tcompiled.minor, tcompiled.patch);
-  printf("Running with SDL TTF ver: %d.%d.%d\n", tlinked->major, tlinked->minor, tlinked->patch);
   return true;
 }
 
@@ -85,9 +73,9 @@ int main(int argc, char *argv[]) {
   }
 
 
-
+  //Maybe implement a keyboard grab that can be switched on and off later?
   window_container window = window_container("SVTE", 400, 300);
-  if (!(window.init_window(SDL_WINDOW_HIDDEN))) {
+  if (!(window.init_window(SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE))) {
     SDL_Quit();
     return 1;
   }
@@ -95,7 +83,7 @@ int main(int argc, char *argv[]) {
   // Eventually want to have multiple font options, but just regular is fine for
   // dev
   renderer_container renderer = renderer_container("IosevkaNerdFont-Regular.ttf", 12);
-  if (!renderer.init_renderer(SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC, window.get_window())) {
+  if (!renderer.init_renderer(window.get_window())) {
     SDL_DestroyWindow(window.get_window());
     SDL_Quit();
     return 1;
@@ -117,14 +105,14 @@ int main(int argc, char *argv[]) {
   }
   std::shared_ptr<buffer> current = bufmap[current_id];
 
-  input_tree input = input_tree(SDLK_q, SDLK_ESCAPE, SDLK_r, SDLK_s, KMOD_ALT);
+  input_tree input = input_tree(SDLK_Q, SDLK_ESCAPE, SDLK_R, SDLK_S, SDL_KMOD_ALT);
   bool running = true;
   const uint32_t dtime = 1000 / 30;
 
-  SDL_StartTextInput();
+  SDL_StartTextInput(window.get_window());
   SDL_ShowWindow(window.get_window());
   while (running) {
-    const uint32_t start = SDL_GetTicks64();
+    const uint32_t start = SDL_GetTicks();
     renderer.set_col();
     renderer.clear();
 
@@ -134,7 +122,7 @@ int main(int argc, char *argv[]) {
       default:
         break;
 
-      case SDL_TEXTINPUT: {
+      case SDL_EVENT_TEXT_INPUT: {
           if(current){
             std::vector<uint32_t> ret = read_text_in(ev.text.text);
             for(size_t i = 0; i < ret.size(); i++){
@@ -143,13 +131,13 @@ int main(int argc, char *argv[]) {
           }
       }break;
 
-      case SDL_KEYDOWN:
+      case SDL_EVENT_KEY_DOWN:
         break;
 
-      case SDL_WINDOWEVENT:
+      case SDL_EVENT_WINDOW_RESIZED:
         break;
 
-      case SDL_QUIT:
+      case SDL_EVENT_QUIT:
         running = false;
         break;
       }
@@ -160,7 +148,7 @@ int main(int argc, char *argv[]) {
     } 
 
     renderer.present();
-    const uint32_t frametime = SDL_GetTicks64() - start;
+    const uint32_t frametime = SDL_GetTicks() - start;
     if (frametime < dtime) {
       SDL_Delay(dtime - frametime);
     }

@@ -1,7 +1,7 @@
 #include "../buffer.hpp"
 #include "../input.hpp"
 
-#include <SDL2/SDL_keycode.h>
+#include <SDL3/SDL_keycode.h>
 
 key_mapping::key_mapping(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey , unsigned int mod)
     : quit_key(qkey), cancel_key(ckey), replace_key(rkey), search_key(skey), mod_key(mod) {}
@@ -25,7 +25,7 @@ input_return input_tree::parse_input(uint32_t character, unsigned int modmask, s
 bool input_tree::has_modifier(unsigned int modmask) { return (modmask & maps.get_mod()) != 0; }
 
 bool input_tree::is_control_code(uint32_t character) {
-  return character == SDLK_RETURN || character == SDLK_DELETE || character == SDLK_BACKSPACE;
+  return character == SDLK_RETURN || character == SDLK_DELETE || character == SDLK_BACKSPACE || character == SDLK_ESCAPE;
 }
 
 bool input_tree::is_movement_code(uint32_t character) {

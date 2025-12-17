@@ -17,7 +17,7 @@ all: linux
 
 linux: CC = g++
 linux: TARGET = svte
-linux: LIBS = -lSDL2 -lSDL2_ttf -lm
+linux: LIBS = -lSDL3 -lSDL3_ttf -lm
 linux: CFLAGS = -Wall -Wextra -Wpedantic -g
 linux: BDIR = linux64
 linux: $(BUILD_ROOT)
@@ -26,7 +26,7 @@ linux: $(TARGET)
 
 win64: CC = x86_64-w64-mingw32-g++
 win64: TARGET = svte.exe
-win64: LIBS = -lSDL2main -lSDL2 -lSDL2_ttf -lm -mconsole
+win64: LIBS = -lSDL3 -lSDL3_ttf -lm -mconsole
 win64: CFLAGS = -Wall -Wextra -Wpedantic -g 
 win64: BDIR = win64
 win64: $(BUILD_ROOT)
