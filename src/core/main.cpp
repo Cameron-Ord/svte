@@ -45,13 +45,13 @@ std::vector<uint32_t> read_text_in(const char *text){
       continue;
     }
 
-   if(p + seq_len >= end) {
+   if(p + seq_len > end) {
      break;
    }
 
    std::vector<char> bytes(seq_len);
    for(size_t i = 0; i < bytes.size() && p < end; i++){
-      if(p + i >= end){
+      if(p + i > end){
          break;
       }
        bytes[i] = p[i];
