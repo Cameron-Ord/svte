@@ -9,22 +9,20 @@
 #define UTF8_MAX_BYTES 4
 
 struct utf_handler {
-  static uint32_t decode_utf8(std::vector<unsigned char>);
+  static uint32_t decode_utf8(std::vector<char>);
   static char utf8_byte_count(char c);
   static std::vector<char> encode_utf8(uint32_t cp);
 };
 
 struct line_searcher {
-  template <typename T>
-  std::enable_if_t<std::is_arithmetic_v<T>, void> static swap(T *a, T *b) {
+  template <typename T> std::enable_if_t<std::is_arithmetic_v<T>, void> static swap(T *a, T *b) {
     T *temp = a;
     a = b;
     b = temp;
   }
 
   template <typename T>
-  std::enable_if_t<std::is_arithmetic_v<T>, int> static partition(
-      std::vector<T> &arr, int low, int high) {
+  std::enable_if_t<std::is_arithmetic_v<T>, int> static partition(std::vector<T> &arr, int low, int high) {
     const T p = arr[low];
     int i = low;
     int j = high;
@@ -47,8 +45,7 @@ struct line_searcher {
   }
 
   template <typename T>
-  std::enable_if_t<std::is_arithmetic_v<T>, void> static quicksort(
-      std::vector<T> &arr, int low, int high) {
+  std::enable_if_t<std::is_arithmetic_v<T>, void> static quicksort(std::vector<T> &arr, int low, int high) {
     if (low < high) {
       const int pi = partition(arr, low, high);
       quicksort(arr, low, pi - 1);
@@ -57,8 +54,8 @@ struct line_searcher {
   }
 
   template <typename T>
-  std::enable_if_t<std::is_arithmetic_v<T>, int> static binary_search(
-      std::vector<T> &sorted, int left, int right, T key) {
+  std::enable_if_t<std::is_arithmetic_v<T>, int> static binary_search(std::vector<T> &sorted, int left, int right,
+                                                                      T key) {
     while (left <= right) {
       const int mid = left + (right - left) / 2;
       if (sorted[mid] == key) {
@@ -77,9 +74,8 @@ struct line_searcher {
 };
 
 struct text_io {
-  static vec_2d_ptr read_text_file(const std::string &file_path);
-  static size_t write_text_file(const std::string &file_path,
-                                const vec_2d_ptr buf);
+  static vec_2d_ptr read_text_file(const std::string &file_path, vec_2d_ptr buf);
+  static size_t write_text_file(const std::string &file_path, const vec_2d_ptr buf);
 };
 
 struct logger {

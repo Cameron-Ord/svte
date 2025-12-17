@@ -1,11 +1,11 @@
 #include "../util.hpp"
 const char NEWLINE = '\n';
 
-vec_2d_ptr text_io::read_text_file(const std::string &file_path) {
-  vec_2d_ptr buf = std::make_shared<vec_2d>(1);
+vec_2d_ptr text_io::read_text_file(const std::string &file_path, vec_2d_ptr buf) {
+  vec_2d_ptr copy = std::make_shared<vec_2d>(*buf);
   std::ifstream file(file_path);
   if (!file) {
-    return buf;
+    return copy;
   }
 
   file.seekg(0, std::ios::end);
@@ -15,13 +15,13 @@ vec_2d_ptr text_io::read_text_file(const std::string &file_path) {
   std::vector<char> rawbuf(size);
   if (!file.read(rawbuf.data(), size)) {
     file.close();
-    return buf;
+    return copy;
   }
 
   size_t i = 0, k = 0;
   while (i < rawbuf.size()) {
     const char bytecount = utf_handler::utf8_byte_count(rawbuf[i]);
-    std::vector<unsigned char> bytes(bytecount);
+    std::vector<char> bytes(bytecount);
     for (char j = 0; j < bytecount && (i + j) < rawbuf.size(); j++) {
       bytes[j] = rawbuf[i + j];
     }
@@ -29,10 +29,10 @@ vec_2d_ptr text_io::read_text_file(const std::string &file_path) {
     const uint32_t cp = utf_handler::decode_utf8(bytes);
     switch (cp) {
     default:
-      (*buf)[k].push_back(cp);
+      (*copy)[k].push_back(cp);
       break;
     case NEWLINE:
-      buf->push_back(std::vector<uint32_t>(0));
+      copy->push_back(std::vector<uint32_t>(0));
       k++;
       break;
     }
@@ -41,7 +41,7 @@ vec_2d_ptr text_io::read_text_file(const std::string &file_path) {
   }
 
   file.close();
-  return buf;
+  return copy;
 }
 
 size_t text_io::write_text_file(const std::string &file_path, vec_2d_ptr buf) {

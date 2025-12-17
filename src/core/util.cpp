@@ -34,11 +34,9 @@ enum MASKS {
 };
 
 const char NULLCHAR = '\0';
-static const uint8_t MASKS[] = {UTF8_1B_MASK, UTF8_2B_MASK, UTF8_3B_MASK,
-                                UTF8_4B_MASK};
+static const uint8_t MASKS[] = {UTF8_1B_MASK, UTF8_2B_MASK, UTF8_3B_MASK, UTF8_4B_MASK};
 
-static const uint8_t SIGS[] = {UTF8_1B_SIG, UTF8_2B_SIG, UTF8_3B_SIG,
-                               UTF8_4B_SIG};
+static const uint8_t SIGS[] = {UTF8_1B_SIG, UTF8_2B_SIG, UTF8_3B_SIG, UTF8_4B_SIG};
 
 char utf_handler::utf8_byte_count(const char ch) {
   for (int i = 0; i < UTF8_MAX_BYTES; i++) {
@@ -82,22 +80,18 @@ std::vector<char> utf_handler::encode_utf8(uint32_t cp) {
   }
 }
 
-uint32_t utf_handler::decode_utf8(std::vector<unsigned char> bytes) {
+uint32_t utf_handler::decode_utf8(std::vector<char> bytes) {
   switch (bytes.size()) {
   default:
     return 0;
   case 4:
-    return ((uint32_t)(bytes[0] & UTF8_4B_VMASK) << S18) |
-           ((uint32_t)(bytes[1] & CONT_MASK) << S12) |
-           ((uint32_t)(bytes[2] & CONT_MASK) << S6) |
-           (uint32_t)(bytes[3] & CONT_MASK);
+    return ((uint32_t)(bytes[0] & UTF8_4B_VMASK) << S18) | ((uint32_t)(bytes[1] & CONT_MASK) << S12) |
+           ((uint32_t)(bytes[2] & CONT_MASK) << S6) | (uint32_t)(bytes[3] & CONT_MASK);
   case 3:
-    return ((uint32_t)(bytes[0] & UTF8_3B_VMASK) << S12) |
-           ((uint32_t)(bytes[1] & CONT_MASK) << S6) |
+    return ((uint32_t)(bytes[0] & UTF8_3B_VMASK) << S12) | ((uint32_t)(bytes[1] & CONT_MASK) << S6) |
            (uint32_t)(bytes[2] & CONT_MASK);
   case 2:
-    return ((uint32_t)(bytes[0] & UTF8_2B_VMASK) << S6) |
-           (uint32_t)(bytes[1] & CONT_MASK);
+    return ((uint32_t)(bytes[0] & UTF8_2B_VMASK) << S6) | (uint32_t)(bytes[1] & CONT_MASK);
   case 1:
     return (uint32_t)bytes[0];
   }

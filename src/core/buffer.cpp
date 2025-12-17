@@ -14,12 +14,9 @@ static bool xfits(int x, size_t linesize) {
 buf_mutator::buf_mutator(void) : mode(INSERT_MODE) {}
 
 buffer::buffer(int set_id, std::string relative_path, vec_2d_ptr data)
-    : id(set_id), filepath(relative_path), cursor_x(0), cursor_y(0),
-      mutator(buf_mutator()), contents(data) {}
+    : id(set_id), filepath(relative_path), cursor_x(0), cursor_y(0), mutator(buf_mutator()), contents(data) {}
 
-void buffer::save_buffer_file(void) {
-  text_io::write_text_file(filepath, contents);
-}
+void buffer::save_buffer_file(void) { text_io::write_text_file(filepath, contents); }
 
 bool buffer::buf_insert(uint32_t character) {
   history.history_push(contents);
@@ -45,8 +42,7 @@ bool buffer::buf_remove(void) {
   return contents != nullptr;
 }
 
-vec_2d_ptr buf_mutator::char_insert(int &x, int &y, uint32_t character,
-                                    vec_2d_ptr contents) {
+vec_2d_ptr buf_mutator::char_insert(int &x, int &y, uint32_t character, vec_2d_ptr contents) {
   vec_2d_ptr copy = std::make_shared<vec_2d>(*contents);
   if (yfits(y, copy->size())) {
     std::vector<uint32_t> *line = &(*copy)[y];
@@ -58,8 +54,7 @@ vec_2d_ptr buf_mutator::char_insert(int &x, int &y, uint32_t character,
   return copy;
 }
 
-vec_2d_ptr buf_mutator::char_replace(int &x, int &y, uint32_t character,
-                                     vec_2d_ptr contents) {
+vec_2d_ptr buf_mutator::char_replace(int &x, int &y, uint32_t character, vec_2d_ptr contents) {
   vec_2d_ptr copy = std::make_shared<vec_2d>(*contents);
   if (yfits(y, copy->size())) {
     std::vector<uint32_t> *line = &(*copy)[y];
