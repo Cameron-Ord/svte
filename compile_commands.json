@@ -1,0 +1,28 @@
+[
+ {
+  "directory": "/home/cameron/svte",
+  "arguments": [
+   "g++",
+   "-Wall",
+   "-Wextra",
+   "-Wpedantic",
+   "-g",
+   "-o",
+   "build/linux64/svte",
+   "src/core/main.cpp",
+   "src/core/io.cpp",
+   "src/core/util.cpp",
+   "src/core/buffer.cpp",
+   "src/core/events.cpp",
+   "src/core/find.cpp",
+   "src/core/font.cpp",
+   "src/core/parser.cpp",
+   "src/core/renderer.cpp",
+   "src/core/window.cpp",
+   "-lSDL3",
+   "-lSDL3_ttf",
+   "-lm"
+  ],
+  "file": "src/core/window.cpp"
+ }
+]
