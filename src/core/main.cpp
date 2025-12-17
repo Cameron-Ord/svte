@@ -1,15 +1,15 @@
 #include "../buffer.hpp"
 #include "../input.hpp"
 #include "../util.hpp"
-
 #include "../svte.hpp"
 
 #define SDL_MAIN_HANDLED
-
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
+
 #include <random>
 #include <unordered_set>
+#include <iostream>
 
 std::unordered_set<int> used_ids;
 
@@ -24,9 +24,22 @@ static bool sdl_init(void) {
     return false;
   }
 
+  SDL_version linked, compiled;
+  SDL_VERSION(&compiled);
+  SDL_GetVersion(&linked);
+  printf("Compiled against SDL ver: %d.%d.%d\n", compiled.major, compiled.minor, compiled.patch);
+  printf("Running with SDL ver: %d.%d.%d\n", linked.major, linked.minor, linked.patch);
+
   if (TTF_Init() < 0) {
     return false;
   }
+
+  SDL_version tcompiled;
+  TTF_VERSION(&tcompiled);
+  const SDL_version *tlinked = TTF_Linked_Version();
+
+  printf("Compiled against SDL TTF ver: %d.%d.%d\n", tcompiled.major, tcompiled.minor, tcompiled.patch);
+  printf("Running with SDL TTF ver: %d.%d.%d\n", tlinked->major, tlinked->minor, tlinked->patch);
   return true;
 }
 
@@ -70,6 +83,8 @@ int main(int argc, char *argv[]) {
     logger::log("Failed to initialize SDL");
     return 1;
   }
+
+
 
   window_container window = window_container("SVTE", 400, 300);
   if (!(window.init_window(SDL_WINDOW_HIDDEN))) {
