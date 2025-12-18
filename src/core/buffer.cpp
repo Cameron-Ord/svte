@@ -54,7 +54,7 @@ bool buffer::mv_up(unsigned int amount){
   int x = cursor_x, y = cursor_y;
   const int sbufsize = static_cast<int>(contents->size());
   if(yfits(sbufsize)){
-    for(unsigned int i = 0; i < amount && y > 0; i++){
+    for(unsigned int i = 0; i < amount && y - 1 >= 0; i++){
         y--;
     }
     const std::vector<uint32_t> *line = &(*contents)[y];
@@ -68,11 +68,12 @@ bool buffer::mv_up(unsigned int amount){
   }
   return true;
 }
+
 bool buffer::mv_down(unsigned int amount){
   int x = cursor_x, y = cursor_y;
   const int sbufsize = static_cast<int>(contents->size());
   if(yfits(sbufsize)){
-    for(unsigned int i = 0; i < amount && y < sbufsize; i++){
+    for(unsigned int i = 0; i < amount && y + 1 < sbufsize; i++){
         y++;
     }
     const std::vector<uint32_t> *line = &(*contents)[y];

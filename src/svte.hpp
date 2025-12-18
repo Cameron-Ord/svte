@@ -70,6 +70,7 @@ public:
   renderer_container(std::string fontpath, int fontsize);
   void draw_text(const vec_2d_ptr textbuffer);
   void draw_cursor(const std::shared_ptr<buffer> buffer);
+  void query_cursor_position(const std::shared_ptr<buffer> buffer);
   void clear(void);
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);
@@ -78,6 +79,7 @@ public:
   SDL_Renderer *get_renderer(void) { return r; }
 
 private:
+  int start;
   SDL_Renderer *r;
   font_container fc;
 };

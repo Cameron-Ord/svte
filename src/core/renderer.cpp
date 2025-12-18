@@ -3,6 +3,8 @@
 #include "../util.hpp"
 #include <SDL3/SDL.h>
 
+const int cursor_width = 1;
+
 renderer_container::renderer_container(std::string fontpath, int fontsize)
     : r(nullptr), fc(font_container(fontpath, fontsize)) {}
 bool renderer_container::init_renderer(SDL_Window *w) {
@@ -22,9 +24,10 @@ void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
       const std::vector<uint32_t> &line = (*textbuffer)[y];
       for (size_t x = 0; x < line.size(); x++) {
         glyph *glyph_data = fc.get_font_map()->map_find(line[x]);
+        const int max_h = fc.get_font_map()->get_max_glyph_h();
         if (glyph_data && glyph_data->texture) {
           const float posx = x * glyph_data->w;
-          const float posy = y * glyph_data->h;
+          const float posy = y * max_h;
           const SDL_FRect box = {posx, posy, (float)glyph_data->w, (float)glyph_data->h};
           SDL_RenderTexture(r, glyph_data->texture, nullptr, &box);
         }
@@ -34,24 +37,26 @@ void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
 }
 
 void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer) {
-  const uint32_t *root_char = buffer->char_at_cursor();
-  glyph *glyph_data = nullptr;
-  if (root_char && (glyph_data = fc.get_font_map()->map_find(*root_char))) {
-    const int posx = buffer->get_curs_x() * glyph_data->w;
-    const int posy = buffer->get_curs_y() * glyph_data->h;
-    SDL_FRect box = {(float)posx, (float)posy, (float)glyph_data->w, (float)glyph_data->h};
-    set_col(255, 255, 255, 255);
-    SDL_RenderFillRect(r, &box);
-  } else {
-    const int h = fc.get_font_map()->get_max_glyph_h();
-    const int w = fc.get_font_map()->get_max_glyph_w();
+    const uint32_t *root_char = buffer->char_at_cursor();
+    glyph *g = nullptr;
 
-    const int posx = buffer->get_curs_x() * w;
-    const int posy = buffer->get_curs_y() * h;
-    SDL_FRect box = {(float)posx, (float)posy, (float)w, (float)h};
+    const int x = buffer->get_curs_x();
+    const int y = buffer->get_curs_y();
+    const int max_w = fc.get_font_map()->get_max_glyph_w();
+    const int max_h = fc.get_font_map()->get_max_glyph_h();
+
     set_col(255, 255, 255, 255);
-    SDL_RenderFillRect(r, &box);
-  }
+    if(root_char && (g = fc.get_font_map()->map_find(*root_char))){
+      const float posx = x * g->w;
+      const float posy = y * g->h;
+      SDL_FRect box = { posx, posy, (float)cursor_width, (float)g->h };
+      SDL_RenderFillRect(r, &box);
+    } else {
+      const float posx = x * max_w;
+      const float posy = y * max_h;
+      SDL_FRect box = { posx, posy, (float)cursor_width, (float)max_h};
+      SDL_RenderFillRect(r, &box);
+    }
 }
 
 void renderer_container::clear(void) { SDL_RenderClear(r); }
