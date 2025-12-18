@@ -14,7 +14,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
     SDL_Color col = {255, 255, 255, 255};
     std::vector<char> str = utf_handler::encode_utf8(c);
     const char *encoded = str.data();
-    glyph g = { 0, 0, nullptr };
+    glyph g = {0, 0, nullptr};
 
     SDL_Surface *surf = TTF_RenderText_Blended(font, encoded, 0, col);
     if (!surf) {
@@ -23,6 +23,14 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
     }
     g.w = surf->w;
     g.h = surf->h;
+
+    if (surf->w > max_w) {
+      max_w = surf->w;
+    }
+
+    if (surf->h > max_h) {
+      max_h = surf->w;
+    }
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(r, surf);
     if (!texture) {
@@ -37,9 +45,9 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
   }
 }
 
-glyph *font_map::map_find(uint32_t character){
+glyph *font_map::map_find(uint32_t character) {
   auto it = glyphs.find(character);
-  if(it != glyphs.end()){
+  if (it != glyphs.end()) {
     return &it->second;
   } else {
     return nullptr;

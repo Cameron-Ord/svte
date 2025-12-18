@@ -1,7 +1,7 @@
 #include "../buffer.hpp"
 #include "../input.hpp"
-#include "../util.hpp"
 #include "../svte.hpp"
+#include "../util.hpp"
 
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL.h>
@@ -23,7 +23,7 @@ static bool sdl_init(void) {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS)) {
     return false;
   }
- 
+
   if (!TTF_Init()) {
     return false;
   }
@@ -33,32 +33,32 @@ static bool sdl_init(void) {
 
 uint32_t read_text_in(void);
 
-std::vector<uint32_t> read_text_in(const char *text){
+std::vector<uint32_t> read_text_in(const char *text) {
   std::vector<uint32_t> retrieved(0);
   const size_t text_len = strlen(text);
   const char *p = text;
   const char *end = p + text_len;
-  while(p < end){
-     int seq_len = utf_handler::utf8_byte_count(static_cast<char>(*p));
-    if(seq_len <= 0){
+  while (p < end) {
+    int seq_len = utf_handler::utf8_byte_count(static_cast<char>(*p));
+    if (seq_len <= 0) {
       ++p;
       continue;
     }
 
-   if(p + seq_len > end) {
-     break;
-   }
+    if (p + seq_len > end) {
+      break;
+    }
 
-   std::vector<char> bytes(seq_len);
-   for(size_t i = 0; i < bytes.size() && p < end; i++){
-      if(p + i > end){
-         break;
+    std::vector<char> bytes(seq_len);
+    for (size_t i = 0; i < bytes.size() && p < end; i++) {
+      if (p + i > end) {
+        break;
       }
-       bytes[i] = p[i];
-     }
+      bytes[i] = p[i];
+    }
 
     const uint32_t cp = utf_handler::decode_utf8(bytes);
-    if(cp != 0){
+    if (cp != 0) {
       retrieved.push_back(cp);
     }
     p += seq_len;
@@ -72,8 +72,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-
-  //Maybe implement a keyboard grab that can be switched on and off later?
+  // Maybe implement a keyboard grab that can be switched on and off later?
   window_container window = window_container("SVTE", 400, 300);
   if (!(window.init_window(SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE))) {
     SDL_Quit();
@@ -100,7 +99,7 @@ int main(int argc, char *argv[]) {
 
   std::unordered_map<int, std::shared_ptr<buffer>> bufmap;
   int current_id = init_buffer_map(bufmap, argc, argv);
-  if (current_id < 0){ 
+  if (current_id < 0) {
     return 1;
   }
   std::shared_ptr<buffer> current = bufmap[current_id];
@@ -113,7 +112,7 @@ int main(int argc, char *argv[]) {
   SDL_ShowWindow(window.get_window());
   while (running) {
     const uint32_t start = SDL_GetTicks();
-    renderer.set_col(0,0,0,255);
+    renderer.set_col(0, 0, 0, 255);
     renderer.clear();
 
     SDL_Event ev;
@@ -123,13 +122,13 @@ int main(int argc, char *argv[]) {
         break;
 
       case SDL_EVENT_TEXT_INPUT: {
-          if(current){
-            std::vector<uint32_t> ret = read_text_in(ev.text.text);
-            for(size_t i = 0; i < ret.size(); i++){
-              current->buf_insert(ret[i]);
-            }
+        if (current) {
+          std::vector<uint32_t> ret = read_text_in(ev.text.text);
+          for (size_t i = 0; i < ret.size(); i++) {
+            current->buf_insert(ret[i]);
           }
-      }break;
+        }
+      } break;
 
       case SDL_EVENT_KEY_DOWN:
         break;
@@ -143,10 +142,10 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    if(current){
+    if (current) {
       renderer.draw_text(current->const_buf());
       renderer.draw_cursor(current);
-    } 
+    }
 
     renderer.present();
     const uint32_t frametime = SDL_GetTicks() - start;

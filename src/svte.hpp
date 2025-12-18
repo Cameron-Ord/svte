@@ -1,8 +1,8 @@
 #pragma once
+#include "alias.hpp"
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-#include "alias.hpp"
 
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
@@ -39,11 +39,15 @@ struct glyph {
 
 class font_map {
 public:
-  font_map(void) = default;
+  font_map(void) : max_w(0), max_h(0) {}
   void map_insert_defaults(TTF_Font *const font, SDL_Renderer *r);
   glyph *map_find(uint32_t ch);
 
+  int get_max_glyph_h(void) { return max_h; }
+  int get_max_glyph_w(void) { return max_w; }
+
 private:
+  int max_w, max_h;
   std::unordered_map<uint32_t, glyph> glyphs;
 };
 
@@ -65,7 +69,7 @@ class renderer_container {
 public:
   renderer_container(std::string fontpath, int fontsize);
   void draw_text(const vec_2d_ptr textbuffer);
-  void draw_cursor(const std::shared_ptr<buffer> buffer); 
+  void draw_cursor(const std::shared_ptr<buffer> buffer);
   void clear(void);
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);

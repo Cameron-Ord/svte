@@ -1,7 +1,7 @@
 #pragma once
 #include "alias.hpp"
-#include <string>
 #include <cassert>
+#include <string>
 
 enum EDITOR_CONSTANTS {
   INSERT_MODE = 0,
@@ -49,12 +49,9 @@ public:
 
   const uint32_t *char_at_cursor(void) const;
 
-  const vec_2d_ptr const_buf(void) const { 
-    return contents; 
-  }
+  const vec_2d_ptr const_buf(void) const { return contents; }
 
-  bool yfits_arg(int y, size_t bufsize);
-  bool xfits_arg(int x, size_t linesize);
+  bool fits(int val, size_t max) const;
   bool yfits(size_t bufsize) const;
   bool xfits(size_t linesize) const;
 
