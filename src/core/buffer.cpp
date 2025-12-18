@@ -1,50 +1,61 @@
 #include "../buffer.hpp"
 #include "../util.hpp"
 
-bool buffer::yfits(size_t bufsize) const {
-  int sbufsize = static_cast<int>(bufsize);
-  return cursor_y < sbufsize && cursor_y >= 0 && sbufsize > 0;
+bool buffer::yfits(int bufsize) const {
+  return cursor_y < bufsize && cursor_y >= 0 && bufsize > 0;
 }
 
-bool buffer::xfits(size_t linesize) const {
-  int slinesize = static_cast<int>(linesize);
-  return cursor_x <= slinesize && cursor_x >= 0;
+bool buffer::xfits(int linesize) const {
+  return cursor_x <= linesize && cursor_x >= 0;
 }
 
-bool buffer::fits(int val, size_t max) const {
-  int smax = static_cast<int>(max);
-  return val < smax && val >= 0;
+bool buffer::fits(int val, int max) const {
+  return val < max && val >= 0;
 }
 
 
 bool buffer::mv_left(unsigned int amount){
-  unsigned int x = cursor_x, y = cursor_y;
-  if(yfits(contents->size()) && xfits((*contents)[y].size())){
-    for(unsigned int i = 0; i < amount && x >= 0; i++){
-      x--;
+  int x = cursor_x;
+  const int y = cursor_y;
+  const int sbufsize = static_cast<int>(contents->size());
+  if(yfits(sbufsize)){
+    const std::vector<uint32_t> *line = &(*contents)[y];
+    const int slinesize = static_cast<int>(line->size());
+    if(xfits(slinesize)){
+        for(unsigned int i = 0; i < amount && x > 0; i++){
+          x--;
+        }
+        cursor_x = x;
+        return true;
     }
-    cursor_x = x;
-    return true;
   }
   return false;
 }
 
 bool buffer::mv_right(unsigned int amount){
-  unsigned int x = cursor_y, y = cursor_y;
-  if(yfits(contents->size()) && xfits((*contents)[y].size())){
-    for(size_t i = 0; i < amount && x < (*contents)[y].size(); i++){
-      x++;
+  int x = cursor_x;
+  const int y = cursor_y;
+  const int sbufsize = static_cast<int>(contents->size());
+  if(yfits(sbufsize)){
+    const std::vector<uint32_t> *line = &(*contents)[y];
+    const int slinesize = static_cast<int>(line->size());
+    if(xfits(slinesize)){
+        for(size_t i = 0; i < amount && x < slinesize; i++){
+          x++;
+        }
+        cursor_x = x;
+        return true;
     }
-    cursor_x = x;
-    return true;
   }
   return false;
 }
 
 bool buffer::mv_up(unsigned int amount){
+  int x = cursor_x, y = cursor_y;
   return true;
 }
 bool buffer::mv_down(unsigned int amount){
+  int x = cursor_x, y = cursor_y;
   return true;
 }
 

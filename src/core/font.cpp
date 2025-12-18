@@ -2,6 +2,7 @@
 #include "../util.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
+#include <iostream>
 
 void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
   const uint32_t ASCII_START = 32;
@@ -29,7 +30,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
     }
 
     if (surf->h > max_h) {
-      max_h = surf->w;
+      max_h = surf->h;
     }
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(r, surf);
@@ -43,6 +44,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     glyphs[c] = g;
   }
+
 }
 
 glyph *font_map::map_find(uint32_t character) {

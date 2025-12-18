@@ -51,9 +51,9 @@ public:
 
   const vec_2d_ptr const_buf(void) const { return contents; }
 
-  bool fits(int val, size_t max) const;
-  bool yfits(size_t bufsize) const;
-  bool xfits(size_t linesize) const;
+  bool fits(int val, int max) const;
+  bool yfits(int bufsize) const;
+  bool xfits(int linesize) const;
 
   int get_curs_y(void) { return cursor_y; }
   int get_curs_x(void) { return cursor_x; }

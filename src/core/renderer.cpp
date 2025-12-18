@@ -37,18 +37,18 @@ void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer) {
   const uint32_t *root_char = buffer->char_at_cursor();
   glyph *glyph_data = nullptr;
   if (root_char && (glyph_data = fc.get_font_map()->map_find(*root_char))) {
-    const float posx = buffer->get_curs_x() * glyph_data->w;
-    const float posy = buffer->get_curs_y() * glyph_data->h;
-    SDL_FRect box = {posx, posy, (float)glyph_data->w, (float)glyph_data->h};
+    const int posx = buffer->get_curs_x() * glyph_data->w;
+    const int posy = buffer->get_curs_y() * glyph_data->h;
+    SDL_FRect box = {(float)posx, (float)posy, (float)glyph_data->w, (float)glyph_data->h};
     set_col(255, 255, 255, 255);
     SDL_RenderFillRect(r, &box);
   } else {
     const int h = fc.get_font_map()->get_max_glyph_h();
     const int w = fc.get_font_map()->get_max_glyph_w();
 
-    const float posx = buffer->get_curs_x() * w;
-    const float posy = buffer->get_curs_y() * h;
-    SDL_FRect box = {posx, posy, (float)w, (float)h};
+    const int posx = buffer->get_curs_x() * w;
+    const int posy = buffer->get_curs_y() * h;
+    SDL_FRect box = {(float)posx, (float)posy, (float)w, (float)h};
     set_col(255, 255, 255, 255);
     SDL_RenderFillRect(r, &box);
   }
