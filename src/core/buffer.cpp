@@ -40,7 +40,7 @@ bool buffer::mv_right(unsigned int amount){
     const std::vector<uint32_t> *line = &(*contents)[y];
     const int slinesize = static_cast<int>(line->size());
     if(xfits(slinesize)){
-        for(size_t i = 0; i < amount && x < slinesize; i++){
+        for(unsigned int i = 0; i < amount && x < slinesize; i++){
           x++;
         }
         cursor_x = x;
@@ -52,10 +52,38 @@ bool buffer::mv_right(unsigned int amount){
 
 bool buffer::mv_up(unsigned int amount){
   int x = cursor_x, y = cursor_y;
+  const int sbufsize = static_cast<int>(contents->size());
+  if(yfits(sbufsize)){
+    for(unsigned int i = 0; i < amount && y > 0; i++){
+        y--;
+    }
+    const std::vector<uint32_t> *line = &(*contents)[y];
+    const int slinesize = static_cast<int>(line->size());
+    if(!xfits(slinesize)){
+        x = slinesize;
+    }
+    cursor_x = x;
+    cursor_y = y;
+    return true;
+  }
   return true;
 }
 bool buffer::mv_down(unsigned int amount){
   int x = cursor_x, y = cursor_y;
+  const int sbufsize = static_cast<int>(contents->size());
+  if(yfits(sbufsize)){
+    for(unsigned int i = 0; i < amount && y < sbufsize; i++){
+        y++;
+    }
+    const std::vector<uint32_t> *line = &(*contents)[y];
+    const int slinesize = static_cast<int>(line->size());
+    if(!xfits(slinesize)){
+        x = slinesize;
+    }
+    cursor_y = y;
+    cursor_x = x;
+    return true;
+  }
   return true;
 }
 
