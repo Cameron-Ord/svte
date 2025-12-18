@@ -130,8 +130,11 @@ int main(int argc, char *argv[]) {
         }
       } break;
 
-      case SDL_EVENT_KEY_DOWN:
-        break;
+      case SDL_EVENT_KEY_DOWN:{
+          unsigned int keysym = ev.key.key;
+          unsigned int keymod = ev.key.mod;
+          input.parse_input(keysym, keymod, current);
+      }break;
 
       case SDL_EVENT_WINDOW_RESIZED:
         break;

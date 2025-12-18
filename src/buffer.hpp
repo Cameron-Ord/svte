@@ -62,6 +62,11 @@ public:
   const buf_history &get_history(void) const { return history; }
   unsigned int get_id(void) { return id; }
 
+  bool mv_left(unsigned int amount);
+  bool mv_right(unsigned int amount);
+  bool mv_up(unsigned int amount);
+  bool mv_down(unsigned int amount);
+
 private:
   const unsigned int id;
   const std::string filepath;

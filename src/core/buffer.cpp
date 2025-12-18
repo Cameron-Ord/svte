@@ -16,6 +16,39 @@ bool buffer::fits(int val, size_t max) const {
   return val < smax && val >= 0;
 }
 
+
+bool buffer::mv_left(unsigned int amount){
+  unsigned int x = cursor_x, y = cursor_y;
+  if(yfits(contents->size()) && xfits((*contents)[y].size())){
+    for(unsigned int i = 0; i < amount && x >= 0; i++){
+      x--;
+    }
+    cursor_x = x;
+    return true;
+  }
+  return false;
+}
+
+bool buffer::mv_right(unsigned int amount){
+  unsigned int x = cursor_y, y = cursor_y;
+  if(yfits(contents->size()) && xfits((*contents)[y].size())){
+    for(size_t i = 0; i < amount && x < (*contents)[y].size(); i++){
+      x++;
+    }
+    cursor_x = x;
+    return true;
+  }
+  return false;
+}
+
+bool buffer::mv_up(unsigned int amount){
+  return true;
+}
+bool buffer::mv_down(unsigned int amount){
+  return true;
+}
+
+
 buf_mutator::buf_mutator(void) : mode(INSERT_MODE) {}
 
 buffer::buffer(int set_id, std::string relative_path, vec_2d_ptr data)

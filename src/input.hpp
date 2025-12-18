@@ -31,15 +31,15 @@ class input_tree {
 public:
   input_tree(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod);
   ~input_tree() = default;
-  input_return parse_input(uint32_t character, unsigned int modmask, std::shared_ptr<buffer> buf);
+  input_return parse_input(unsigned int keysym, unsigned int modmask, std::shared_ptr<buffer> buf);
   bool has_modifier(unsigned int modmask);
-  bool is_control_code(uint32_t character);
-  bool is_movement_code(uint32_t character);
+  bool is_control_code(unsigned int keysym);
+  bool is_movement_code(unsigned int keysym);
 
-  input_return control_exec(uint32_t character, std::shared_ptr<buffer> buf);
-  input_return modifier_exec(uint32_t character, std::shared_ptr<buffer> buf);
-  input_return movement_exec(uint32_t character, std::shared_ptr<buffer> buf);
-  input_return default_exec(uint32_t character, std::shared_ptr<buffer> buf);
+  input_return control_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
+  input_return modifier_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
+  input_return movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
+  input_return default_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
 
 private:
   key_mapping maps;
