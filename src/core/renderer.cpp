@@ -37,26 +37,26 @@ void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
 }
 
 void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer) {
-    const uint32_t *root_char = buffer->char_at_cursor();
-    glyph *g = nullptr;
-
-    const int x = buffer->get_curs_x();
-    const int y = buffer->get_curs_y();
-    const int max_w = fc.get_font_map()->get_max_glyph_w();
-    const int max_h = fc.get_font_map()->get_max_glyph_h();
-
-    set_col(255, 255, 255, 255);
-    if(root_char && (g = fc.get_font_map()->map_find(*root_char))){
-      const float posx = x * g->w;
-      const float posy = y * g->h;
-      SDL_FRect box = { posx, posy, (float)cursor_width, (float)g->h };
-      SDL_RenderFillRect(r, &box);
-    } else {
-      const float posx = x * max_w;
-      const float posy = y * max_h;
-      SDL_FRect box = { posx, posy, (float)cursor_width, (float)max_h};
-      SDL_RenderFillRect(r, &box);
-    }
+     //const uint32_t *root_char = buffer->char_at_cursor();
+     //glyph *g = nullptr;
+ //
+     //const int x = buffer->get_curs_x();
+     //const int y = buffer->get_curs_y();
+     //const int max_w = fc.get_font_map()->get_max_glyph_w();
+     //const int max_h = fc.get_font_map()->get_max_glyph_h();
+ //
+     //set_col(255, 255, 255, 255);
+     //if(root_char && (g = fc.get_font_map()->map_find(*root_char))){
+       //const float posx = x * g->w;
+       //const float posy = y * g->h;
+       //SDL_FRect box = { posx, posy, (float)cursor_width, (float)g->h };
+       //SDL_RenderFillRect(r, &box);
+     //} else {
+       //const float posx = x * max_w;
+       //const float posy = y * max_h;
+       //SDL_FRect box = { posx, posy, (float)cursor_width, (float)max_h};
+       //SDL_RenderFillRect(r, &box);
+     //}
 }
 
 void renderer_container::clear(void) { SDL_RenderClear(r); }

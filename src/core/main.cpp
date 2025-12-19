@@ -125,7 +125,7 @@ int main(int argc, char *argv[]) {
         if (current) {
           std::vector<uint32_t> ret = read_text_in(ev.text.text);
           for (size_t i = 0; i < ret.size(); i++) {
-            current->buf_insert(ret[i]);
+            input.send_insert_request(ret[i], current);
           }
         }
       } break;

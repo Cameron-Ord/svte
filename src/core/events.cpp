@@ -62,13 +62,13 @@ input_return input_tree::modifier_exec(unsigned int keysym, std::shared_ptr<buff
 input_return input_tree::movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
   switch (keysym) {
   case SDLK_RIGHT:
-    return input_return(false, buf->mv_right(1));
+ //   return input_return(false, buf->mv_right(1));
   case SDLK_LEFT:
-    return input_return(false, buf->mv_left(1));
+ //   return input_return(false, buf->mv_left(1));
   case SDLK_UP:
-    return input_return(false, buf->mv_up(1));
+ //   return input_return(false, buf->mv_up(1));
   case SDLK_DOWN:
-    return input_return(false, buf->mv_down(1));
+ //   return input_return(false, buf->mv_down(1));
   default:
     return input_return(false, false);
   }

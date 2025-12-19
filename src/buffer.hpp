@@ -10,6 +10,7 @@ enum EDITOR_CONSTANTS {
 };
 
 struct coordinates {
+  coordinates(int cx, int cy) : x(cx), y(cy) {}
   int x, y;
 };
 
@@ -28,6 +29,7 @@ private:
 
 class buf_cursor {
   public:
+    buf_cursor(int cx, int cy) : c(cx, cy) {}
     void x_move_left(int amount);
     void x_move_right(int amount);
     void y_move_down(int amount);
