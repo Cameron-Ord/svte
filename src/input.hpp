@@ -40,6 +40,7 @@ public:
   input_return modifier_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
   input_return movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
   input_return default_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
+  void send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf);
 
 private:
   key_mapping maps;

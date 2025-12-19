@@ -9,6 +9,18 @@ key_mapping::key_mapping(unsigned int qkey, unsigned int ckey, unsigned int rkey
 input_tree::input_tree(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod)
     : maps(qkey, ckey, skey, rkey, mod) {}
 
+
+void input_tree::send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf){
+  switch(buf->get_mutator().get_insertion_mode()){
+    default: 
+      break;
+    case REPLACE_MODE:
+      break;
+    case INSERT_MODE:
+      
+      break;
+  }
+}
 input_return input_tree::parse_input(unsigned int keysym, unsigned int modmask, std::shared_ptr<buffer> buf) {
   // Just doing this to break up the switch statements,
   // and keep the input loop in main() as generic as possible.
