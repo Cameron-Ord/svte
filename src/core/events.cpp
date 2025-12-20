@@ -15,9 +15,10 @@ void input_tree::send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf){
     default: 
       break;
     case REPLACE_MODE:
+      buf->overwrite_contents(buf->get_mutator().char_insert(ch, buf->const_buf()));
       break;
     case INSERT_MODE:
-      
+      buf->overwrite_contents(buf->get_mutator().char_insert(ch, buf->const_buf()));
       break;
   }
 }
