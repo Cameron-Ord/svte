@@ -18,7 +18,7 @@ bool renderer_container::init_renderer(SDL_Window *w) {
   return true;
 }
 
-void renderer_container::draw_text(const vec_2d_ptr textbuffer) {
+void renderer_container::draw_text(const_vec_2d_ptr textbuffer) {
   if (textbuffer) {
     for (size_t y = 0; y < textbuffer->size(); y++) {
       const std::vector<uint32_t> &line = (*textbuffer)[y];

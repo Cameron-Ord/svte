@@ -35,10 +35,13 @@ class buf_cursor {
     bool within_x(int x, int max);
     bool within_y(int y, int max);
 
-    void x_move_left(int amount, const_vec_2d_ptr contents);
-    void x_move_right(int amount, const_vec_2d_ptr contents);
-    void y_move_down(int amount, const_vec_2d_ptr contents);
-    void y_move_up(int amount, const_vec_2d_ptr contents);
+    void update_x(int new_x) { c.x = new_x; }
+    void update_y(int new_y) { c.y = new_y; }
+
+    bool x_move_left(int amount, const_vec_2d_ptr contents);
+    bool x_move_right(int amount, const_vec_2d_ptr contents);
+    bool y_move_down(int amount, const_vec_2d_ptr contents);
+    bool y_move_up(int amount, const_vec_2d_ptr contents);
 
     const coordinates& get_positions(void) {return c;}
   private:
@@ -54,12 +57,14 @@ public:
   vec_2d_ptr char_replace(uint32_t character, const_vec_2d_ptr contents);
   vec_2d_ptr char_delete(const_vec_2d_ptr contents);
   vec_2d_ptr char_remove(const_vec_2d_ptr contents);
+  vec_2d_ptr create_newline(const_vec_2d_ptr contents);
 
   const char &get_insertion_mode(void) const { return mode; }
   void set_insertion_mode(char set) { mode = set; }
 
-  const buf_cursor &get_cursor(void) { return curs; }
-  const buf_history &get_hist(void) { return hist; }
+  buf_cursor &mutable_cursor(void) { return curs; }
+  const buf_cursor &const_cursor(void) { return curs; }
+  const buf_history &const_history(void) { return hist; }
 
 private:
   char mode;
@@ -72,11 +77,11 @@ class buffer {
 public:
   buffer(int set_id, std::string relative_path, vec_2d_ptr data);
   void save_buffer_file(void);
-  const uint32_t *char_at_cursor(void) const;
+  void overwrite_contents(vec_2d_ptr new_content) { contents = new_content; }
+
+  buf_mutator &mutable_mutator(void) { return mutator; }
+  const buf_mutator &const_mutator(void) const { return mutator; }
   const_vec_2d_ptr const_buf(void) const { return contents; }
-  void overwrite_contents(vec_2d_ptr new_content);
-  bool inserter(uint32_t c);
-  const buf_mutator &get_mutator(void) const { return mutator; }
   unsigned int get_id(void) { return id; }
 private:
   const unsigned int id;

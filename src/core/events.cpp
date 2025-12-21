@@ -11,14 +11,14 @@ input_tree::input_tree(unsigned int qkey, unsigned int ckey, unsigned int rkey, 
 
 
 void input_tree::send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf){
-  switch(buf->get_mutator().get_insertion_mode()){
+  switch(buf->const_mutator().get_insertion_mode()){
     default: 
       break;
     case REPLACE_MODE:
-      buf->overwrite_contents(buf->get_mutator().char_insert(ch, buf->const_buf()));
+      buf->overwrite_contents(buf->mutable_mutator().char_insert(ch, buf->const_buf()));
       break;
     case INSERT_MODE:
-      buf->overwrite_contents(buf->get_mutator().char_insert(ch, buf->const_buf()));
+      buf->overwrite_contents(buf->mutable_mutator().char_insert(ch, buf->const_buf()));
       break;
   }
 }
@@ -31,8 +31,9 @@ input_return input_tree::parse_input(unsigned int keysym, unsigned int modmask, 
     return modifier_exec(keysym, buf);
   } else if (is_movement_code(keysym)) {
     return movement_exec(keysym, buf);
+  } else {
+    return input_return(false, false);
   }
-  return input_return(false, false);
 }
 
 bool input_tree::has_modifier(unsigned int modmask) { return (modmask & maps.get_mod()) != 0; }
@@ -61,15 +62,16 @@ input_return input_tree::modifier_exec(unsigned int keysym, std::shared_ptr<buff
 }
 
 input_return input_tree::movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
+  buf_mutator& mtr = buf->mutable_mutator();
   switch (keysym) {
   case SDLK_RIGHT:
- //   return input_return(false, buf->mv_right(1));
+    return input_return(false, mtr.mutable_cursor().x_move_right(1, buf->const_buf()));
   case SDLK_LEFT:
- //   return input_return(false, buf->mv_left(1));
+    return input_return(false, mtr.mutable_cursor().x_move_left(1, buf->const_buf()));
   case SDLK_UP:
- //   return input_return(false, buf->mv_up(1));
+    return input_return(false, mtr.mutable_cursor().y_move_up(1, buf->const_buf()));
   case SDLK_DOWN:
- //   return input_return(false, buf->mv_down(1));
+    return input_return(false, mtr.mutable_cursor().y_move_down(1, buf->const_buf()));
   default:
     return input_return(false, false);
   }

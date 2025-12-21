@@ -68,7 +68,7 @@ private:
 class renderer_container {
 public:
   renderer_container(std::string fontpath, int fontsize);
-  void draw_text(const vec_2d_ptr textbuffer);
+  void draw_text(const_vec_2d_ptr textbuffer);
   void draw_cursor(const std::shared_ptr<buffer> buffer);
   void query_cursor_position(const std::shared_ptr<buffer> buffer);
   void clear(void);
