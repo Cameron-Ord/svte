@@ -77,7 +77,7 @@ class buffer {
 public:
   buffer(int set_id, std::string relative_path, vec_2d_ptr data);
   void save_buffer_file(void);
-  void overwrite_contents(vec_2d_ptr new_content) { contents = new_content; }
+  bool overwrite_contents(vec_2d_ptr new_content);
 
   buf_mutator &mutable_mutator(void) { return mutator; }
   const buf_mutator &const_mutator(void) const { return mutator; }

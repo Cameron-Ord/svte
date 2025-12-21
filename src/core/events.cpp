@@ -48,7 +48,10 @@ bool input_tree::is_movement_code(unsigned int keysym) {
 }
 
 input_return input_tree::control_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
+  buf_mutator& mtr = buf->mutable_mutator();
   switch (keysym) {
+  case SDLK_RETURN:
+    return input_return(false, buf->overwrite_contents(mtr.create_newline(buf->const_buf()))); 
   default:
     return input_return(false, false);
   }

@@ -8,6 +8,17 @@ buf_mutator::buf_mutator(void) : mode(INSERT_MODE), hist(buf_history()), curs(0,
 buffer::buffer(int set_id, std::string relative_path, vec_2d_ptr data)
     : id(set_id), filepath(relative_path), mutator(buf_mutator()), contents(data) {}
 
+
+bool buffer::overwrite_contents(vec_2d_ptr cptr) {
+  if(!cptr){
+    return false;
+  }
+
+  if(cptr){
+    contents = cptr;
+  }
+  return contents != cptr;
+}
 void buffer::save_buffer_file(void) { text_io::write_text_file(filepath, contents); }
 
 bool buf_cursor::x_move_left(int amount, const_vec_2d_ptr contents){
@@ -70,6 +81,7 @@ bool buf_cursor::y_move_down(int amount, const_vec_2d_ptr contents){
 }
 
 bool buf_cursor::x_move_right(int amount, const_vec_2d_ptr contents){
+
   const int bufmax = contents->size();
   if(within_y(c.y, bufmax)){
     const_bufline_ptr line = &(*contents)[c.y];
