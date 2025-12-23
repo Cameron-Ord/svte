@@ -1,5 +1,6 @@
-#include "../buffer.hpp"
-#include "../input.hpp"
+
+#include "../core/buffer.hpp"
+#include "events.hpp"
 
 #include <SDL3/SDL_keycode.h>
 

@@ -1,36 +1,15 @@
-#pragma once
-#include "alias.hpp"
-#include <cstdint>
 #include <string>
 #include <unordered_map>
+#include <cstdint>
+#include <memory>
+#include "../util/alias.hpp"
 
+typedef struct SDL_Texture SDL_Texture;
 typedef struct SDL_Window SDL_Window;
 typedef struct SDL_Renderer SDL_Renderer;
 typedef struct TTF_Font TTF_Font;
-typedef struct SDL_Texture SDL_Texture;
 
 class buffer;
-
-class window_container {
-public:
-  window_container(std::string title, int bwidth, int bheight);
-  bool init_window(int flags);
-  void update_window_dim(void);
-  SDL_Window *get_window(void) { return w; }
-
-private:
-  std::string title;
-  SDL_Window *w;
-  int width, height;
-};
-
-//  Gonna essentially decode input from SDL text input into 32 bit unsigned ints
-//  and use that as the lookup. Obviously dont want memory usage to explode so
-//  i'll just default to ASCII code to begin with, and then if the user inputs
-//  a char that isnt recognized after decoding, then add it to the map for
-//  lookup. Cant really think of a better way right now, but I think this is
-//  good. Atleast SDL handles the hard part for me and I can just decode the
-//  information from textinputs utf8 str.
 
 struct glyph {
   int w, h;
@@ -68,9 +47,8 @@ private:
 class renderer_container {
 public:
   renderer_container(std::string fontpath, int fontsize);
-  void draw_text(const_vec_2d_ptr textbuffer);
+  void draw_text(const_char_mat_ptr textbuffer);
   void draw_cursor(const std::shared_ptr<buffer> buffer);
-  void query_cursor_position(const std::shared_ptr<buffer> buffer);
   void clear(void);
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);

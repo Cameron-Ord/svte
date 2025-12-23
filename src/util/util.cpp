@@ -1,4 +1,5 @@
-#include "../util.hpp"
+
+#include "util.hpp"
 
 enum SHIFTS {
   S18 = 18,
@@ -37,6 +38,59 @@ const char NULLCHAR = '\0';
 static const uint8_t MASKS[] = {UTF8_1B_MASK, UTF8_2B_MASK, UTF8_3B_MASK, UTF8_4B_MASK};
 
 static const uint8_t SIGS[] = {UTF8_1B_SIG, UTF8_2B_SIG, UTF8_3B_SIG, UTF8_4B_SIG};
+
+int line_searcher::search(char_mat &sorted, int left, int right, uint32_t key){
+    while (left <= right) {
+      const int mid = left + (right - left) / 2;
+      if (sorted[mid] == key) {
+        return mid;
+      }
+
+      if (sorted[mid] < key) {
+        left = mid + 1;
+      } else {
+        right = mid - 1;
+      }
+    }
+    return -1;
+}
+
+void line_searcher::quicksort(char_mat& arr, int low, int high){
+  if(low < high){
+      const int pi = partition(arr, low, high);
+      quicksort(arr, low, pi - 1);
+      quicksort(arr, pi + 1, high);
+  }
+}
+
+int line_searcher::partition(char_mat& arr, int low, int high){
+    const uint32_t p = arr[low];
+    int i = low;
+    int j = high;
+
+    while (i < j) {
+      while (arr[i] <= p && i <= high - 1) {
+        i++;
+      }
+
+      while (arr[j] > p && j >= low + 1) {
+        j--;
+      }
+
+      if (i < j) {
+        swap(&arr[i], &arr[j]);
+      }
+    }
+    swap(&arr[low], &arr[j]);
+    return j;
+}
+
+void line_searcher::swap(uint32_t *a, uint32_t *b){
+  uint32_t *tmp = a;
+  a = b;
+  b = tmp;
+}
+
 
 char utf_handler::utf8_byte_count(const char ch) {
   for (int i = 0; i < UTF8_MAX_BYTES; i++) {
@@ -106,3 +160,22 @@ bool logger::log(std::string msg) {
   file << msg << std::endl;
   return true;
 }
+
+bool log_str(std::string msg, std::string val){
+  std::ofstream file("svte_log.txt", std::ios::app);
+  if (!file.is_open()) {
+    return false;
+  }
+  file << msg << val <<std::endl;
+  return true;
+}
+
+bool log_int(std::string msg, int64_t val){
+  std::ofstream file("svte_log.txt", std::ios::app);
+  if (!file.is_open()) {
+    return false;
+  }
+  file << msg << val << std::endl;
+  return true;
+}
+

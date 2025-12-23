@@ -1,11 +1,11 @@
-#include "../buffer.hpp"
-#include "../input.hpp"
-#include "../svte.hpp"
-#include "../util.hpp"
+#include "core/buffer.hpp"
+#include "events/events.hpp"
+#include "renderer/renderer.hpp"
+#include "window/window.hpp"
+#include "util/util.hpp"
 
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_version.h>
 #include <SDL3_ttf/SDL_ttf.h>
 
 #include <random>
@@ -178,7 +178,7 @@ static int random_num(void) {
   for (int i = 0; i < attempts; i++) {
     const int generated = dist(gen);
     if (used_ids.insert(generated).second) {
-      logger::log_var("Generated ID: ", generated);
+      logger::log_int("Generated ID: ", generated);
       return generated;
     }
   }
@@ -198,7 +198,7 @@ static std::shared_ptr<buffer> create_buffer(int argc, char **argv) {
     fp = argbuf[0];
   }
 
-  vec_2d_ptr contents = std::make_shared<vec_2d>(1);
+  char_mat_ptr contents = std::make_shared<char_mat>(1);
   contents = text_io::read_text_file(fp, contents);
   std::shared_ptr<buffer> buf = std::make_shared<buffer>(id, fp, contents);
 

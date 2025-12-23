@@ -1,5 +1,6 @@
-#include "../svte.hpp"
-#include "../util.hpp"
+
+#include "window.hpp"
+#include "../util/util.hpp"
 #include <SDL3/SDL.h>
 
 window_container::window_container(std::string btitle, int bwidth, int bheight)
