@@ -10,12 +10,6 @@ enum EDITOR_CONSTANTS {
   MAX_HISTORY = 12,
 };
 
-struct coordinates {
-  coordinates(int cx, int cy) : x(cx), y(cy) {}
-  int x, y;
-  int xoffset, yoffset;
-};
-
 class buf_history {
 public:
   ~buf_history() = default;
@@ -29,20 +23,31 @@ private:
 
 class buf_cursor {
   public:
-    buf_cursor(int cx, int cy) : c(cx, cy) {}
- 
+    buf_cursor(int pos, int off) : cursor(pos), offset(off)  {}
     bool within_bounds(int pos, int max);
-    void update_x(int new_x) { c.x = new_x; }
-    void update_y(int new_y) { c.y = new_y; }
+
+    int rewind_by_new_line(int start_pos, const_char_mat_ptr contents);
+    int advance_by_new_line(int start_pos, const_char_mat_ptr contents);
+
+    int line_skip_backwards(int skip_count, const_char_mat_ptr contents);
+    int line_skip_forwards(int skip_count, const_char_mat_ptr contents);
+
+    int line_x_offset(const_char_mat_ptr contents);
+
+    int current_line_start(const_char_mat_ptr contents);
+    int current_line_end(const_char_mat_ptr contents);
 
     bool x_move_left(int amount, const_char_mat_ptr contents);
     bool x_move_right(int amount, const_char_mat_ptr contents);
     bool y_move_down(int amount, const_char_mat_ptr contents);
     bool y_move_up(int amount, const_char_mat_ptr contents);
 
-    const coordinates& get_positions(void) {return c;}
+    int get_offset(void) { return offset; }
+    int gt_cursor(void) { return cursor; }
+
   private:
-    coordinates c;
+    int cursor;
+    int offset;
 };
 
 class buf_mutator {
