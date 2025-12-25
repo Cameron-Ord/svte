@@ -103,7 +103,7 @@ i32 buf_cursor::line_skip_forwards(i32 skip_count, const_char_mat_ptr contents) 
 
 bool buf_cursor::x_move_left(i32 amount, const_char_mat_ptr contents) {
   const i32 bufmax = static_cast<i32>(contents->size());
-  if (within_bounds(cursor - 1, bufmax) || amount < 1) {
+  if (within_bounds(cursor - amount, bufmax)) {
     cursor -= amount;
     return true;
   }
@@ -112,7 +112,7 @@ bool buf_cursor::x_move_left(i32 amount, const_char_mat_ptr contents) {
 
 bool buf_cursor::x_move_right(i32 amount, const_char_mat_ptr contents) {
   const i32 bufmax = static_cast<i32>(contents->size());
-  if (within_bounds(cursor + amount, bufmax) || amount < 1) {
+  if (within_bounds(cursor + amount, bufmax)) {
     cursor += amount;
     return true;
   }
