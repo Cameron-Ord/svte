@@ -1,5 +1,5 @@
-#include "renderer.hpp"
 #include "../util/util.hpp"
+#include "renderer.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
@@ -44,7 +44,6 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     glyphs[c] = g;
   }
-
 }
 
 glyph *font_map::map_find(uint32_t character) {

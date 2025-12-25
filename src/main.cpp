@@ -1,8 +1,8 @@
 #include "core/buffer.hpp"
 #include "events/events.hpp"
 #include "renderer/renderer.hpp"
-#include "window/window.hpp"
 #include "util/util.hpp"
+#include "window/window.hpp"
 
 #define SDL_MAIN_HANDLED
 #include <SDL3/SDL.h>
@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
   }
 
   renderer.get_font_container().get_font_map().map_insert_defaults(renderer.get_font_container().get_font(),
-                                                                     renderer.get_renderer());
+                                                                   renderer.get_renderer());
 
   std::unordered_map<int, std::shared_ptr<buffer>> bufmap;
   int current_id = init_buffer_map(bufmap, argc, argv);
@@ -130,11 +130,11 @@ int main(int argc, char *argv[]) {
         }
       } break;
 
-      case SDL_EVENT_KEY_DOWN:{
-          unsigned int keysym = ev.key.key;
-          unsigned int keymod = ev.key.mod;
-          input.parse_input(keysym, keymod, current);
-      }break;
+      case SDL_EVENT_KEY_DOWN: {
+        unsigned int keysym = ev.key.key;
+        unsigned int keymod = ev.key.mod;
+        input.parse_input(keysym, keymod, current);
+      } break;
 
       case SDL_EVENT_WINDOW_RESIZED:
         break;

@@ -22,32 +22,32 @@ private:
 };
 
 class buf_cursor {
-  public:
-    buf_cursor(int pos, int off) : cursor(pos), offset(off)  {}
-    bool within_bounds(int pos, int max);
+public:
+  buf_cursor(int pos, int off) : cursor(pos), offset(off) {}
+  bool within_bounds(int pos, int max);
 
-    int rewind_by_new_line(int start_pos, const_char_mat_ptr contents);
-    int advance_by_new_line(int start_pos, const_char_mat_ptr contents);
+  int rewind_by_new_line(int start_pos, const_char_mat_ptr contents);
+  int advance_by_new_line(int start_pos, const_char_mat_ptr contents);
 
-    int line_skip_backwards(int skip_count, const_char_mat_ptr contents);
-    int line_skip_forwards(int skip_count, const_char_mat_ptr contents);
+  int line_skip_backwards(int skip_count, const_char_mat_ptr contents);
+  int line_skip_forwards(int skip_count, const_char_mat_ptr contents);
 
-    int line_x_offset(const_char_mat_ptr contents);
+  int line_x_offset(const_char_mat_ptr contents);
 
-    int current_line_start(const_char_mat_ptr contents);
-    int current_line_end(const_char_mat_ptr contents);
+  int current_line_start(const_char_mat_ptr contents);
+  int current_line_end(const_char_mat_ptr contents);
 
-    bool x_move_left(int amount, const_char_mat_ptr contents);
-    bool x_move_right(int amount, const_char_mat_ptr contents);
-    bool y_move_down(int amount, const_char_mat_ptr contents);
-    bool y_move_up(int amount, const_char_mat_ptr contents);
+  bool x_move_left(int amount, const_char_mat_ptr contents);
+  bool x_move_right(int amount, const_char_mat_ptr contents);
+  bool y_move_down(int amount, const_char_mat_ptr contents);
+  bool y_move_up(int amount, const_char_mat_ptr contents);
 
-    int get_offset(void) const { return offset; }
-    int get_cursor(void) const { return cursor; }
+  int get_offset(void) const { return offset; }
+  int get_cursor(void) const { return cursor; }
 
-  private:
-    int cursor;
-    int offset;
+private:
+  int cursor;
+  int offset;
 };
 
 class buf_mutator {
@@ -74,7 +74,6 @@ private:
   buf_cursor curs;
 };
 
-
 class buffer {
 public:
   buffer(int set_id, std::string relative_path, char_mat_ptr data);
@@ -85,6 +84,7 @@ public:
   const buf_mutator &const_mutator(void) const { return mutator; }
   const_char_mat_ptr const_buf(void) const { return contents; }
   unsigned int get_id(void) const { return id; }
+
 private:
   const unsigned int id;
   const std::string filepath;

@@ -3,7 +3,6 @@
 
 typedef struct SDL_Window SDL_Window;
 
-
 class window_container {
 public:
   window_container(std::string title, int bwidth, int bheight);
