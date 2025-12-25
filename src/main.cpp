@@ -11,11 +11,11 @@
 #include <random>
 #include <unordered_set>
 
-std::unordered_set<int> used_ids;
+std::unordered_set<i32> used_ids;
 
-static int random_num(void);
-static std::shared_ptr<buffer> create_buffer(int argc, char **argv);
-static int init_buffer_map(std::unordered_map<int, std::shared_ptr<buffer>> &bufmap, int argc, char **argv);
+static i32 random_num(void);
+static std::shared_ptr<buffer> create_buffer(i32 argc, char **argv);
+static i32 init_buffer_map(std::unordered_map<i32, std::shared_ptr<buffer>> &bufmap, i32 argc, char **argv);
 
 static bool sdl_init(void);
 
@@ -31,15 +31,15 @@ static bool sdl_init(void) {
   return true;
 }
 
-uint32_t read_text_in(void);
+u32 read_text_in(void);
 
-std::vector<uint32_t> read_text_in(const char *text) {
-  std::vector<uint32_t> retrieved(0);
+std::vector<u32> read_text_in(const char *text) {
+  std::vector<u32> retrieved(0);
   const size_t text_len = strlen(text);
   const char *p = text;
   const char *end = p + text_len;
   while (p < end) {
-    int seq_len = utf_handler::utf8_byte_count(static_cast<char>(*p));
+    i32 seq_len = utf_handler::utf8_byte_count(static_cast<char>(*p));
     if (seq_len <= 0) {
       ++p;
       continue;
@@ -49,7 +49,7 @@ std::vector<uint32_t> read_text_in(const char *text) {
       break;
     }
 
-    std::vector<char> bytes(seq_len);
+    std::vector<char> bytes(ucast(seq_len));
     for (size_t i = 0; i < bytes.size() && p < end; i++) {
       if (p + i > end) {
         break;
@@ -57,7 +57,7 @@ std::vector<uint32_t> read_text_in(const char *text) {
       bytes[i] = p[i];
     }
 
-    const uint32_t cp = utf_handler::decode_utf8(bytes);
+    const u32 cp = utf_handler::decode_utf8(bytes);
     if (cp != 0) {
       retrieved.push_back(cp);
     }
@@ -66,7 +66,7 @@ std::vector<uint32_t> read_text_in(const char *text) {
   return retrieved;
 }
 
-int main(int argc, char *argv[]) {
+i32 main(i32 argc, char *argv[]) {
   if (!sdl_init()) {
     logger::log("Failed to initialize SDL");
     return 1;
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
   // Eventually want to have multiple font options, but just regular is fine for
   // dev
-  renderer_container renderer = renderer_container("IosevkaNerdFont-Regular.ttf", 12);
+  renderer_container renderer = renderer_container("IosevkaNerdFont-Regular.ttf", 16.0f);
   if (!renderer.init_renderer(window.get_window())) {
     SDL_DestroyWindow(window.get_window());
     SDL_Quit();
@@ -97,8 +97,8 @@ int main(int argc, char *argv[]) {
   renderer.get_font_container().get_font_map().map_insert_defaults(renderer.get_font_container().get_font(),
                                                                    renderer.get_renderer());
 
-  std::unordered_map<int, std::shared_ptr<buffer>> bufmap;
-  int current_id = init_buffer_map(bufmap, argc, argv);
+  std::unordered_map<i32, std::shared_ptr<buffer>> bufmap;
+  i32 current_id = init_buffer_map(bufmap, argc, argv);
   if (current_id < 0) {
     return 1;
   }
@@ -106,12 +106,12 @@ int main(int argc, char *argv[]) {
 
   input_tree input = input_tree(SDLK_Q, SDLK_ESCAPE, SDLK_R, SDLK_S, SDL_KMOD_ALT);
   bool running = true;
-  const uint32_t dtime = 1000 / 30;
+  const u32 dtime = 1000 / 30;
 
   SDL_StartTextInput(window.get_window());
   SDL_ShowWindow(window.get_window());
   while (running) {
-    const uint32_t start = SDL_GetTicks();
+    const u64 start = SDL_GetTicks();
     renderer.set_col(0, 0, 0, 255);
     renderer.clear();
 
@@ -123,7 +123,7 @@ int main(int argc, char *argv[]) {
 
       case SDL_EVENT_TEXT_INPUT: {
         if (current) {
-          std::vector<uint32_t> ret = read_text_in(ev.text.text);
+          std::vector<u32> ret = read_text_in(ev.text.text);
           for (size_t i = 0; i < ret.size(); i++) {
             input.send_insert_request(ret[i], current);
           }
@@ -131,8 +131,8 @@ int main(int argc, char *argv[]) {
       } break;
 
       case SDL_EVENT_KEY_DOWN: {
-        unsigned int keysym = ev.key.key;
-        unsigned int keymod = ev.key.mod;
+        u32 keysym = ev.key.key;
+        u32 keymod = ev.key.mod;
         input.parse_input(keysym, keymod, current);
       } break;
 
@@ -151,42 +151,52 @@ int main(int argc, char *argv[]) {
     }
 
     renderer.present();
-    const uint32_t frametime = SDL_GetTicks() - start;
+    const u64 frametime = SDL_GetTicks() - start;
     if (frametime < dtime) {
-      SDL_Delay(dtime - frametime);
+      u32 delay = static_cast<u32>(dtime - frametime);
+      SDL_Delay(delay);
     }
   }
+
+  // cleanup (mainly just for SDLs allocations)
+  renderer.get_font_container().get_font_map().free_glyph_textures();
+  renderer.get_font_container().free_font();
+  renderer.free_renderer();
+  window.free_window();
+
+  TTF_Quit();
+  SDL_Quit();
 
   // ⏻ ☹ 😄
   return 0;
 }
 
-static std::vector<std::string> parse_args(int argc, char *argv[]) {
-  std::vector<std::string> argbuf(argc - 1);
-  for (int i = 0; i < argc - 1; i++) {
-    argbuf[i] = argv[i + 1];
+static std::vector<std::string> parse_args(i32 argc, char *argv[]) {
+  std::vector<std::string> argbuf(ucast(argc - 1));
+  for (i32 i = 0; i < argc - 1; i++) {
+    argbuf[ucast(i)] = argv[i + 1];
   }
   return argbuf;
 }
 
-static int random_num(void) {
+static i32 random_num(void) {
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::uniform_int_distribution<int> dist(0, std::numeric_limits<int>::max());
+  std::uniform_int_distribution<i32> dist(0, std::numeric_limits<i32>::max());
 
-  const int attempts = 50;
-  for (int i = 0; i < attempts; i++) {
-    const int generated = dist(gen);
+  const i32 attempts = 50;
+  for (i32 i = 0; i < attempts; i++) {
+    const i32 generated = dist(gen);
     if (used_ids.insert(generated).second) {
-      logger::log_int("Generated ID: ", generated);
+      logger::log_int_signed("Generated ID: ", generated);
       return generated;
     }
   }
   return -1;
 }
 
-static std::shared_ptr<buffer> create_buffer(int argc, char **argv) {
-  int id = random_num();
+static std::shared_ptr<buffer> create_buffer(i32 argc, char **argv) {
+  i32 id = random_num();
   if (id < 0) {
     logger::log("Failed to generate an ID");
     return nullptr;
@@ -205,13 +215,13 @@ static std::shared_ptr<buffer> create_buffer(int argc, char **argv) {
   return buf;
 }
 
-static int init_buffer_map(std::unordered_map<int, std::shared_ptr<buffer>> &bufmap, int argc, char **argv) {
+static i32 init_buffer_map(std::unordered_map<i32, std::shared_ptr<buffer>> &bufmap, i32 argc, char **argv) {
   std::shared_ptr<buffer> buf = create_buffer(argc, argv);
   if (!buf) {
     logger::log("Failed to allocate buffer");
     return -1;
   }
-  const int id = buf->get_id();
+  const i32 id = buf->get_id();
   bufmap.insert({id, buf});
   return id;
 }

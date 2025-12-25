@@ -1,7 +1,6 @@
-
 #pragma once
-#include <cstdint>
-#include <memory>
+#include "../util/alias.hpp"
+
 class buffer;
 
 struct input_return {
@@ -12,36 +11,36 @@ struct input_return {
 
 class key_mapping {
 public:
-  key_mapping(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod);
+  key_mapping(u32 qkey, u32 ckey, u32 rkey, u32 skey, u32 mod);
 
-  unsigned int get_quit(void) { return quit_key; }
-  unsigned int get_cancel(void) { return cancel_key; }
-  unsigned int get_replace(void) { return replace_key; }
-  unsigned int get_search(void) { return search_key; }
-  unsigned int get_mod(void) { return mod_key; }
+  u32 get_quit(void) { return quit_key; }
+  u32 get_cancel(void) { return cancel_key; }
+  u32 get_replace(void) { return replace_key; }
+  u32 get_search(void) { return search_key; }
+  u32 get_mod(void) { return mod_key; }
 
 private:
-  unsigned int quit_key;
-  unsigned int cancel_key;
-  unsigned int replace_key;
-  unsigned int search_key;
-  unsigned int mod_key;
+  u32 quit_key;
+  u32 cancel_key;
+  u32 replace_key;
+  u32 search_key;
+  u32 mod_key;
 };
 
 class input_tree {
 public:
-  input_tree(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod);
+  input_tree(u32 qkey, u32 ckey, u32 rkey, u32 skey, u32 mod);
   ~input_tree() = default;
-  input_return parse_input(unsigned int keysym, unsigned int modmask, std::shared_ptr<buffer> buf);
-  bool has_modifier(unsigned int modmask);
-  bool is_control_code(unsigned int keysym);
-  bool is_movement_code(unsigned int keysym);
+  input_return parse_input(u32 keysym, u32 modmask, std::shared_ptr<buffer> buf);
+  bool has_modifier(u32 modmask);
+  bool is_control_code(u32 keysym);
+  bool is_movement_code(u32 keysym);
 
-  input_return control_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
-  input_return modifier_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
-  input_return movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
-  input_return default_exec(unsigned int keysym, std::shared_ptr<buffer> buf);
-  void send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf);
+  input_return control_exec(u32 keysym, std::shared_ptr<buffer> buf);
+  input_return modifier_exec(u32 keysym, std::shared_ptr<buffer> buf);
+  input_return movement_exec(u32 keysym, std::shared_ptr<buffer> buf);
+  input_return default_exec(u32 keysym, std::shared_ptr<buffer> buf);
+  void send_insert_request(u32 ch, std::shared_ptr<buffer> buf);
 
 private:
   key_mapping maps;

@@ -4,11 +4,26 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
 
-void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
-  const uint32_t ASCII_START = 32;
-  const uint32_t ASCII_END = 127;
+void font_container::free_font(void) {
+  if (font) {
+    TTF_CloseFont(font);
+  }
+}
 
-  for (uint32_t c = ASCII_START; c < ASCII_END; c++) {
+void font_map::free_glyph_textures(void) {
+  for (auto it = glyphs.begin(); it != glyphs.end(); it++) {
+    glyph *g = &it->second;
+    if (g && g->texture) {
+      SDL_DestroyTexture(g->texture);
+    }
+  }
+}
+
+void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
+  const u32 ASCII_START = 32;
+  const u32 ASCII_END = 127;
+
+  for (u32 c = ASCII_START; c < ASCII_END; c++) {
     // Only enabling white text until I get to parsing later on
     // Get this stuff working first
 
@@ -46,7 +61,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
   }
 }
 
-glyph *font_map::map_find(uint32_t character) {
+glyph *font_map::map_find(u32 character) {
   auto it = glyphs.find(character);
   if (it != glyphs.end()) {
     return &it->second;
@@ -55,10 +70,10 @@ glyph *font_map::map_find(uint32_t character) {
   }
 }
 
-font_container::font_container(std::string fontpath, int fontsize)
+font_container::font_container(std::string fontpath, f32 fontsize)
     : font(nullptr), name(fontpath), size(fontsize), map(font_map()) {
   logger::log_str("Font path: ", name);
-  logger::log_int("Font size: ", size);
+  logger::log_float("Font size: ", size);
 }
 
 bool font_container::font_open(void) {

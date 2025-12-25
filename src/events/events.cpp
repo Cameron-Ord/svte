@@ -4,13 +4,12 @@
 
 #include <SDL3/SDL_keycode.h>
 
-key_mapping::key_mapping(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod)
+key_mapping::key_mapping(u32 qkey, u32 ckey, u32 rkey, u32 skey, u32 mod)
     : quit_key(qkey), cancel_key(ckey), replace_key(rkey), search_key(skey), mod_key(mod) {}
 
-input_tree::input_tree(unsigned int qkey, unsigned int ckey, unsigned int rkey, unsigned int skey, unsigned int mod)
-    : maps(qkey, ckey, skey, rkey, mod) {}
+input_tree::input_tree(u32 qkey, u32 ckey, u32 rkey, u32 skey, u32 mod) : maps(qkey, ckey, skey, rkey, mod) {}
 
-void input_tree::send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf) {
+void input_tree::send_insert_request(u32 ch, std::shared_ptr<buffer> buf) {
   switch (buf->const_mutator().get_insertion_mode()) {
   default:
     break;
@@ -22,7 +21,7 @@ void input_tree::send_insert_request(uint32_t ch, std::shared_ptr<buffer> buf) {
     break;
   }
 }
-input_return input_tree::parse_input(unsigned int keysym, unsigned int modmask, std::shared_ptr<buffer> buf) {
+input_return input_tree::parse_input(u32 keysym, u32 modmask, std::shared_ptr<buffer> buf) {
   // Just doing this to break up the switch statements,
   // and keep the input loop in main() as generic as possible.
   if (is_control_code(keysym)) {
@@ -36,17 +35,17 @@ input_return input_tree::parse_input(unsigned int keysym, unsigned int modmask, 
   }
 }
 
-bool input_tree::has_modifier(unsigned int modmask) { return (modmask & maps.get_mod()) != 0; }
+bool input_tree::has_modifier(u32 modmask) { return (modmask & maps.get_mod()) != 0; }
 
-bool input_tree::is_control_code(unsigned int keysym) {
+bool input_tree::is_control_code(u32 keysym) {
   return keysym == SDLK_RETURN || keysym == SDLK_DELETE || keysym == SDLK_BACKSPACE || keysym == SDLK_ESCAPE;
 }
 
-bool input_tree::is_movement_code(unsigned int keysym) {
+bool input_tree::is_movement_code(u32 keysym) {
   return keysym == SDLK_DOWN || keysym == SDLK_UP || keysym == SDLK_LEFT || keysym == SDLK_RIGHT;
 }
 
-input_return input_tree::control_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
+input_return input_tree::control_exec(u32 keysym, std::shared_ptr<buffer> buf) {
   buf_mutator &mtr = buf->mutable_mutator();
   switch (keysym) {
   case SDLK_RETURN:
@@ -56,14 +55,14 @@ input_return input_tree::control_exec(unsigned int keysym, std::shared_ptr<buffe
   }
 }
 
-input_return input_tree::modifier_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
+input_return input_tree::modifier_exec(u32 keysym, std::shared_ptr<buffer> buf) {
   switch (keysym) {
   default:
     return input_return(false, false);
   }
 }
 
-input_return input_tree::movement_exec(unsigned int keysym, std::shared_ptr<buffer> buf) {
+input_return input_tree::movement_exec(u32 keysym, std::shared_ptr<buffer> buf) {
   buf_mutator &mtr = buf->mutable_mutator();
   switch (keysym) {
   case SDLK_RIGHT:

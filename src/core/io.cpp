@@ -7,10 +7,10 @@ char_mat_ptr text_io::read_text_file(const std::string &file_path, char_mat_ptr 
   }
 
   file.seekg(0, std::ios::end);
-  std::streamsize size = file.tellg();
+  long size = file.tellg();
   file.seekg(0, std::ios::beg);
 
-  std::vector<char> rawbuf(size);
+  std::vector<char> rawbuf(static_cast<size_t>(size));
   if (!file.read(rawbuf.data(), size)) {
     file.close();
     return buf;
@@ -18,9 +18,9 @@ char_mat_ptr text_io::read_text_file(const std::string &file_path, char_mat_ptr 
 
   size_t i = 0;
   while (i < rawbuf.size()) {
-    const char bytecount = utf_handler::utf8_byte_count(rawbuf[i]);
+    const u8 bytecount = utf_handler::utf8_byte_count(rawbuf[i]);
     std::vector<char> bytes(bytecount);
-    for (char j = 0; j < bytecount && (i + j) < rawbuf.size(); j++) {
+    for (u8 j = 0; j < bytecount && (i + j) < rawbuf.size(); j++) {
       bytes[j] = rawbuf[i + j];
     }
 
@@ -28,7 +28,7 @@ char_mat_ptr text_io::read_text_file(const std::string &file_path, char_mat_ptr 
     i += bytecount;
   }
 
-  logger::log_int("Read bytes: ", i);
+  logger::log_int_unsigned("Read bytes: ", i);
   file.close();
   return buf;
 }

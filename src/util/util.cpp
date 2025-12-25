@@ -35,18 +35,20 @@ enum MASKS {
 };
 
 const char NULLCHAR = '\0';
-static const uint8_t MASKS[] = {UTF8_1B_MASK, UTF8_2B_MASK, UTF8_3B_MASK, UTF8_4B_MASK};
+static const u8 MASKS[] = {UTF8_1B_MASK, UTF8_2B_MASK, UTF8_3B_MASK, UTF8_4B_MASK};
 
-static const uint8_t SIGS[] = {UTF8_1B_SIG, UTF8_2B_SIG, UTF8_3B_SIG, UTF8_4B_SIG};
+static const u8 SIGS[] = {UTF8_1B_SIG, UTF8_2B_SIG, UTF8_3B_SIG, UTF8_4B_SIG};
 
-int line_searcher::search(char_mat &sorted, int left, int right, uint32_t key) {
+size_t ucast(i32 sint) { return static_cast<size_t>(sint); }
+
+i32 line_searcher::search(char_mat &sorted, i32 left, i32 right, u32 key) {
   while (left <= right) {
-    const int mid = left + (right - left) / 2;
-    if (sorted[mid] == key) {
+    const i32 mid = left + (right - left) / 2;
+    if (sorted[ucast(mid)] == key) {
       return mid;
     }
 
-    if (sorted[mid] < key) {
+    if (sorted[ucast(mid)] < key) {
       left = mid + 1;
     } else {
       right = mid - 1;
@@ -55,44 +57,44 @@ int line_searcher::search(char_mat &sorted, int left, int right, uint32_t key) {
   return -1;
 }
 
-void line_searcher::quicksort(char_mat &arr, int low, int high) {
+void line_searcher::quicksort(char_mat &arr, i32 low, i32 high) {
   if (low < high) {
-    const int pi = partition(arr, low, high);
+    const i32 pi = partition(arr, low, high);
     quicksort(arr, low, pi - 1);
     quicksort(arr, pi + 1, high);
   }
 }
 
-int line_searcher::partition(char_mat &arr, int low, int high) {
-  const uint32_t p = arr[low];
-  int i = low;
-  int j = high;
+i32 line_searcher::partition(char_mat &arr, i32 low, i32 high) {
+  const u32 p = arr[static_cast<size_t>(low)];
+  i32 i = low;
+  i32 j = high;
 
   while (i < j) {
-    while (arr[i] <= p && i <= high - 1) {
+    while (arr[ucast(i)] <= p && i <= high - 1) {
       i++;
     }
 
-    while (arr[j] > p && j >= low + 1) {
+    while (arr[ucast(j)] > p && j >= low + 1) {
       j--;
     }
 
     if (i < j) {
-      swap(&arr[i], &arr[j]);
+      swap(&arr[ucast(i)], &arr[ucast(j)]);
     }
   }
-  swap(&arr[low], &arr[j]);
+  swap(&arr[ucast(low)], &arr[ucast(j)]);
   return j;
 }
 
-void line_searcher::swap(uint32_t *a, uint32_t *b) {
-  uint32_t *tmp = a;
+void line_searcher::swap(u32 *a, u32 *b) {
+  u32 *tmp = a;
   a = b;
   b = tmp;
 }
 
-char utf_handler::utf8_byte_count(const char ch) {
-  for (int i = 0; i < UTF8_MAX_BYTES; i++) {
+u8 utf_handler::utf8_byte_count(const char ch) {
+  for (u8 i = 0; i < UTF8_MAX_BYTES; i++) {
     if ((ch & MASKS[i]) == SIGS[i]) {
       return i + 1;
     }
@@ -100,11 +102,11 @@ char utf_handler::utf8_byte_count(const char ch) {
   return 0;
 }
 
-std::vector<char> utf_handler::encode_utf8(uint32_t cp) {
-  auto cont_append = [](uint32_t val, int bytecount) {
-    std::vector<char> bytes(bytecount);
-    for (int i = bytecount - 1; i >= 0; i--) {
-      bytes[i] = CONT_SIG | (val & CONT_MASK);
+std::vector<char> utf_handler::encode_utf8(u32 cp) {
+  auto cont_append = [](u32 val, i8 bytecount) {
+    std::vector<char> bytes(ucast(bytecount));
+    for (i8 i = bytecount - 1; i >= 0; i--) {
+      bytes[ucast(i)] = static_cast<char>(CONT_SIG | (val & CONT_MASK));
       val >>= 6;
     }
     bytes.push_back(NULLCHAR);
@@ -114,17 +116,17 @@ std::vector<char> utf_handler::encode_utf8(uint32_t cp) {
   if (cp <= UTF8_1B_MAX) {
     return std::vector<char>{static_cast<char>(cp), NULLCHAR};
   } else if (cp <= UTF8_2B_MAX) {
-    char front = UTF8_2B_SIG | ((cp >> S6) & UTF8_2B_VMASK);
+    char front = static_cast<char>(UTF8_2B_SIG | ((cp >> S6) & UTF8_2B_VMASK));
     std::vector<char> b = cont_append(cp, 1);
     b.insert(b.begin(), front);
     return b;
   } else if (cp <= UTF8_3B_MAX) {
-    char front = UTF8_3B_SIG | ((cp >> S12) & UTF8_3B_VMASK);
+    char front = static_cast<char>(UTF8_3B_SIG | ((cp >> S12) & UTF8_3B_VMASK));
     std::vector<char> b = cont_append(cp, 2);
     b.insert(b.begin(), front);
     return b;
   } else if (cp <= UTF8_4B_MAX) {
-    char front = UTF8_4B_SIG | ((cp >> S18) & UTF8_4B_VMASK);
+    char front = static_cast<char>(UTF8_4B_SIG | ((cp >> S18) & UTF8_4B_VMASK));
     std::vector<char> b = cont_append(cp, 3);
     b.insert(b.begin(), front);
     return b;
@@ -133,20 +135,19 @@ std::vector<char> utf_handler::encode_utf8(uint32_t cp) {
   }
 }
 
-uint32_t utf_handler::decode_utf8(std::vector<char> bytes) {
+u32 utf_handler::decode_utf8(std::vector<char> bytes) {
   switch (bytes.size()) {
   default:
     return 0;
   case 4:
-    return ((uint32_t)(bytes[0] & UTF8_4B_VMASK) << S18) | ((uint32_t)(bytes[1] & CONT_MASK) << S12) |
-           ((uint32_t)(bytes[2] & CONT_MASK) << S6) | (uint32_t)(bytes[3] & CONT_MASK);
+    return ((u32)(bytes[0] & UTF8_4B_VMASK) << S18) | ((u32)(bytes[1] & CONT_MASK) << S12) |
+           ((u32)(bytes[2] & CONT_MASK) << S6) | (u32)(bytes[3] & CONT_MASK);
   case 3:
-    return ((uint32_t)(bytes[0] & UTF8_3B_VMASK) << S12) | ((uint32_t)(bytes[1] & CONT_MASK) << S6) |
-           (uint32_t)(bytes[2] & CONT_MASK);
+    return ((u32)(bytes[0] & UTF8_3B_VMASK) << S12) | ((u32)(bytes[1] & CONT_MASK) << S6) | (u32)(bytes[2] & CONT_MASK);
   case 2:
-    return ((uint32_t)(bytes[0] & UTF8_2B_VMASK) << S6) | (uint32_t)(bytes[1] & CONT_MASK);
+    return ((u32)(bytes[0] & UTF8_2B_VMASK) << S6) | (u32)(bytes[1] & CONT_MASK);
   case 1:
-    return (uint32_t)bytes[0];
+    return (u32)bytes[0];
   }
 }
 
@@ -169,7 +170,25 @@ bool logger::log_str(std::string msg, std::string val) {
   return true;
 }
 
-bool logger::log_int(std::string msg, int64_t val) {
+bool logger::log_float(std::string msg, f32 val) {
+  std::ofstream file("svte_log.txt", std::ios::app);
+  if (!file.is_open()) {
+    return false;
+  }
+  file << msg << val << std::endl;
+  return true;
+}
+
+bool logger::log_int_unsigned(std::string msg, u64 val) {
+  std::ofstream file("svte_log.txt", std::ios::app);
+  if (!file.is_open()) {
+    return false;
+  }
+  file << msg << val << std::endl;
+  return true;
+}
+
+bool logger::log_int_signed(std::string msg, i64 val) {
   std::ofstream file("svte_log.txt", std::ios::app);
   if (!file.is_open()) {
     return false;
