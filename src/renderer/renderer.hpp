@@ -53,7 +53,7 @@ public:
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);
   bool init_renderer(SDL_Window *w);
-  font_container get_font_container(void) { return fc; }
+  font_container& get_font_container(void) { return fc; }
   SDL_Renderer *get_renderer(void) { return r; }
 
 private:

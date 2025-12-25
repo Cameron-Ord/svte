@@ -19,7 +19,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     SDL_Surface *surf = TTF_RenderText_Blended(font, encoded, 0, col);
     if (!surf) {
-      logger::log_str("Failed to render char: ", SDL_GetError());
+      logger::log_str("Failed to render char {(map_insert_defaults)}: ", SDL_GetError());
       continue;
     }
     g.w = surf->w;
@@ -35,7 +35,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(r, surf);
     if (!texture) {
-      logger::log_str("Failed to create texture: ", SDL_GetError());
+      logger::log_str("Failed to create texture {(map_insert_defaults)}: ", SDL_GetError());
       SDL_DestroySurface(surf);
       continue;
     }

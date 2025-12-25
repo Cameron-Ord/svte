@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 
     if (current) {
       renderer.draw_text(current->const_buf());
-      renderer.draw_cursor(current);
+      //renderer.draw_cursor(current);
     }
 
     renderer.present();
@@ -198,7 +198,7 @@ static std::shared_ptr<buffer> create_buffer(int argc, char **argv) {
     fp = argbuf[0];
   }
 
-  char_mat_ptr contents = std::make_shared<char_mat>(1);
+  char_mat_ptr contents = std::make_shared<char_mat>();
   contents = text_io::read_text_file(fp, contents);
   std::shared_ptr<buffer> buf = std::make_shared<buffer>(id, fp, contents);
 

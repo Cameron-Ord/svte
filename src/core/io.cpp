@@ -27,7 +27,8 @@ char_mat_ptr text_io::read_text_file(const std::string &file_path, char_mat_ptr 
     buf->push_back(utf_handler::decode_utf8(bytes));
     i += bytecount;
   }
-
+ 
+  logger::log_int("Read bytes: ", i);
   file.close();
   return buf;
 }
