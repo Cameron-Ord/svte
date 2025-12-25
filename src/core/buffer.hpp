@@ -42,8 +42,8 @@ class buf_cursor {
     bool y_move_down(int amount, const_char_mat_ptr contents);
     bool y_move_up(int amount, const_char_mat_ptr contents);
 
-    int get_offset(void) { return offset; }
-    int gt_cursor(void) { return cursor; }
+    int get_offset(void) const { return offset; }
+    int get_cursor(void) const { return cursor; }
 
   private:
     int cursor;
@@ -65,8 +65,8 @@ public:
   void set_insertion_mode(char set) { mode = set; }
 
   buf_cursor &mutable_cursor(void) { return curs; }
-  const buf_cursor &const_cursor(void) { return curs; }
-  const buf_history &const_history(void) { return hist; }
+  const buf_cursor &const_cursor(void) const { return curs; }
+  const buf_history &const_history(void) const { return hist; }
 
 private:
   char mode;
@@ -84,7 +84,7 @@ public:
   buf_mutator &mutable_mutator(void) { return mutator; }
   const buf_mutator &const_mutator(void) const { return mutator; }
   const_char_mat_ptr const_buf(void) const { return contents; }
-  unsigned int get_id(void) { return id; }
+  unsigned int get_id(void) const { return id; }
 private:
   const unsigned int id;
   const std::string filepath;

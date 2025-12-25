@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 
     if (current) {
       renderer.draw_text(current->const_buf());
-      //renderer.draw_cursor(current);
+      renderer.draw_cursor(current);
     }
 
     renderer.present();

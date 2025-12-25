@@ -115,12 +115,6 @@ bool buf_cursor::x_move_left(int amount, const_char_mat_ptr contents){
     return false;
 }
 
-bool buf_cursor::y_move_up(int amount, const_char_mat_ptr contents){
-}
-
-bool buf_cursor::y_move_down(int amount, const_char_mat_ptr contents){
-}
-
 bool buf_cursor::x_move_right(int amount, const_char_mat_ptr contents){
     const int bufmax = contents->size();
     if(within_bounds(cursor + amount, bufmax) || amount < 1){
@@ -130,20 +124,38 @@ bool buf_cursor::x_move_right(int amount, const_char_mat_ptr contents){
     return false;
 }
 
+bool buf_cursor::y_move_up(int amount, const_char_mat_ptr contents){
+    return false;
+}
+
+bool buf_cursor::y_move_down(int amount, const_char_mat_ptr contents){
+    return false;
+}
+
 char_mat_ptr buf_mutator::create_newline(const_char_mat_ptr contents){
+    char_mat_ptr mutated = std::make_shared<char_mat>(*contents);
+    return mutated;
 }
 
 char_mat_ptr buf_mutator::char_insert(uint32_t character, const_char_mat_ptr contents) {
+    char_mat_ptr mutated = std::make_shared<char_mat>(*contents);
+    return mutated;
 }
 
 char_mat_ptr buf_mutator::char_replace(uint32_t character, const_char_mat_ptr contents) {
+    char_mat_ptr mutated = std::make_shared<char_mat>(*contents);
+    return mutated;
 }
 
 // not impl
 char_mat_ptr buf_mutator::char_remove(const_char_mat_ptr contents) {
+    char_mat_ptr mutated = std::make_shared<char_mat>(*contents);
+    return mutated;
 }
 
 char_mat_ptr buf_mutator::char_delete(const_char_mat_ptr contents) {
+    char_mat_ptr mutated = std::make_shared<char_mat>(*contents);
+    return mutated;
 }
 
 void buf_history::history_push(const_char_mat_ptr contents)  {

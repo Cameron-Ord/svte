@@ -48,7 +48,7 @@ class renderer_container {
 public:
   renderer_container(std::string fontpath, int fontsize);
   void draw_text(const_char_mat_ptr textbuffer);
-  void draw_cursor(const std::shared_ptr<buffer> buffer);
+  void draw_cursor(std::shared_ptr<const buffer> buffer);
   void clear(void);
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);

@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#define SPACE_CHAR ' '
 #define NEW_LINE '\n'
 
 typedef uint32_t u32;

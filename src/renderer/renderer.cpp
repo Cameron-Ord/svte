@@ -26,19 +26,49 @@ void renderer_container::draw_text(const_char_mat_ptr textbuffer) {
       x = 0, y++;
       continue;
     }
-    glyph *g = fc.get_font_map().map_find(*it);
-    if(g){
-      const float pos_x = g->w * x;
-      const float pos_y = g->h * y;
-      SDL_FRect box = { pos_x, pos_y, (float)g->w, (float)g->h };
-      SDL_RenderTexture(r, g->texture, NULL, &box);
-      x++;
+    if(*it != NEW_LINE && *it != SPACE_CHAR){
+        glyph *g = fc.get_font_map().map_find(*it);
+        if(g){
+          const float pos_x = g->w * x;
+          const float pos_y = g->h * y;
+          SDL_FRect box = { pos_x, pos_y, (float)g->w, (float)g->h };
+          SDL_RenderTexture(r, g->texture, NULL, &box);
+        }
     }
+    x++;
   }
 }
 
-void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer) {
-  return;
+void renderer_container::draw_cursor(std::shared_ptr<const buffer> buffer) {
+  int y = 0, x = 0;
+  const_char_mat_ptr text_buffer = buffer->const_buf();
+  const int cursor = buffer->const_mutator().const_cursor().get_cursor();
+  for(auto it = text_buffer->begin(); it != text_buffer->begin() + cursor; it++){
+      if(*it == NEW_LINE){
+          x = 0, y++;
+          continue;
+      }
+      x++;
+  }
+
+  u32 character = *(text_buffer->begin() + cursor);
+  int c_width = fc.get_font_map().get_max_glyph_w();
+  int c_height = fc.get_font_map().get_max_glyph_h();
+  
+  if(character != NEW_LINE && character != SPACE_CHAR){
+      glyph *g = fc.get_font_map().map_find(character);
+      if(g){
+        c_width = g->w;
+        c_height = g->h;
+      }
+  }
+  
+  const float pos_x = c_width * x;
+  const float pos_y = c_height * y;  
+  SDL_FRect box = { pos_x, pos_y, (float)CURSOR_WIDTH, (float)c_height };
+  set_col(255, 255, 255, 255);
+
+  SDL_RenderFillRect(r, &box);
 }
 
 void renderer_container::clear(void) { SDL_RenderClear(r); }
