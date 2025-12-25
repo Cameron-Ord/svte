@@ -4,7 +4,6 @@
 #include "alias.hpp"
 #include <fstream>
 #include <string>
-#include <type_traits>
 #include <vector>
 
 #define UTF8_MAX_BYTES 4

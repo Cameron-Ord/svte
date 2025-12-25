@@ -5,16 +5,16 @@
 
 window_container::window_container(std::string btitle, int bwidth, int bheight)
     : title(btitle), w(nullptr), width(bwidth), height(bheight) {
-  logger::log_var("Title: ", title);
-  logger::log_var("Initial width: ", width);
-  logger::log_var("Initial height: ", height);
+  logger::log_str("Title: ", title);
+  logger::log_int("Initial width: ", width);
+  logger::log_int("Initial height: ", height);
 }
 
 bool window_container::init_window(int flags) {
   SDL_Window *tmp = SDL_CreateWindow(title.c_str(), width, height, flags);
 
   if (!tmp) {
-    logger::log_var("SDL failed to create window: ", SDL_GetError());
+    logger::log_str("SDL failed to create window: ", SDL_GetError());
     return false;
   }
 

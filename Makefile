@@ -1,13 +1,11 @@
-SRCS = src/core/main.cpp 
+SRCS = src/main.cpp 
 SRCS += src/core/io.cpp  
-SRCS += src/core/util.cpp 
+SRCS += src/util/util.cpp 
 SRCS += src/core/buffer.cpp 
-SRCS += src/core/events.cpp 
-SRCS += src/core/find.cpp 
-SRCS += src/core/font.cpp 
-SRCS += src/core/parser.cpp 
-SRCS += src/core/renderer.cpp 
-SRCS += src/core/window.cpp
+SRCS += src/events/events.cpp 
+SRCS += src/renderer/font.cpp 
+SRCS += src/renderer/renderer.cpp 
+SRCS += src/window/window.cpp
 
 TARGET = svte
 BUILD_ROOT = build

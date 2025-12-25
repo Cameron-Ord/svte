@@ -20,9 +20,25 @@ bool renderer_container::init_renderer(SDL_Window *w) {
 }
 
 void renderer_container::draw_text(const_char_mat_ptr textbuffer) {
+  int y = 0, x = 0;
+  for(auto it = textbuffer->begin(); it != textbuffer->end(); it++){
+    if(*it == NEW_LINE){
+      x = 0, y++;
+      continue;
+    }
+    glyph *g = fc.get_font_map().map_find(*it);
+    if(g){
+      const float pos_x = g->w * x;
+      const float pos_y = g->h * y;
+      SDL_FRect box = { pos_x, pos_y, (float)g->w, (float)g->h };
+      SDL_RenderTexture(r, g->texture, NULL, &box);
+      x++;
+    }
+  }
 }
 
 void renderer_container::draw_cursor(const std::shared_ptr<buffer> buffer) {
+  return;
 }
 
 void renderer_container::clear(void) { SDL_RenderClear(r); }

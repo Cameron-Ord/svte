@@ -1,5 +1,5 @@
-#include "../svte.hpp"
-#include "../util.hpp"
+#include "renderer.hpp"
+#include "../util/util.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include <iostream>
@@ -19,7 +19,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     SDL_Surface *surf = TTF_RenderText_Blended(font, encoded, 0, col);
     if (!surf) {
-      logger::log_var("Failed to render char: ", SDL_GetError());
+      logger::log_str("Failed to render char: ", SDL_GetError());
       continue;
     }
     g.w = surf->w;
@@ -35,7 +35,7 @@ void font_map::map_insert_defaults(TTF_Font *const font, SDL_Renderer *r) {
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(r, surf);
     if (!texture) {
-      logger::log_var("Failed to create texture: ", SDL_GetError());
+      logger::log_str("Failed to create texture: ", SDL_GetError());
       SDL_DestroySurface(surf);
       continue;
     }
@@ -58,14 +58,14 @@ glyph *font_map::map_find(uint32_t character) {
 
 font_container::font_container(std::string fontpath, int fontsize)
     : font(nullptr), name(fontpath), size(fontsize), map(font_map()) {
-  logger::log_var("Font path: ", name);
-  logger::log_var("Font size: ", size);
+  logger::log_str("Font path: ", name);
+  logger::log_int("Font size: ", size);
 }
 
 bool font_container::font_open(void) {
   TTF_Font *tmp = TTF_OpenFont(name.c_str(), size);
   if (!tmp) {
-    logger::log_var("Failed to open font: ", SDL_GetError());
+    logger::log_str("Failed to open font: ", SDL_GetError());
     return false;
   }
 

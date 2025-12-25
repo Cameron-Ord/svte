@@ -34,7 +34,7 @@ class font_container {
 public:
   font_container(std::string fontpath, int fontsize);
   bool font_open(void);
-  font_map *get_font_map(void) { return &map; }
+  font_map &get_font_map(void) { return map; }
   TTF_Font *get_font(void) { return font; }
 
 private:
@@ -53,7 +53,7 @@ public:
   void set_col(uint8_t r8, uint8_t g8, uint8_t b8, uint8_t a8);
   void present(void);
   bool init_renderer(SDL_Window *w);
-  font_container *get_font_container(void) { return &fc; }
+  font_container get_font_container(void) { return fc; }
   SDL_Renderer *get_renderer(void) { return r; }
 
 private:

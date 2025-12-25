@@ -88,13 +88,13 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  if (!renderer.get_font_container()->font_open()) {
+  if (!renderer.get_font_container().font_open()) {
     SDL_DestroyWindow(window.get_window());
     SDL_Quit();
     return 1;
   }
 
-  renderer.get_font_container()->get_font_map()->map_insert_defaults(renderer.get_font_container()->get_font(),
+  renderer.get_font_container().get_font_map().map_insert_defaults(renderer.get_font_container().get_font(),
                                                                      renderer.get_renderer());
 
   std::unordered_map<int, std::shared_ptr<buffer>> bufmap;

@@ -161,7 +161,7 @@ bool logger::log(std::string msg) {
   return true;
 }
 
-bool log_str(std::string msg, std::string val){
+bool logger::log_str(std::string msg, std::string val){
   std::ofstream file("svte_log.txt", std::ios::app);
   if (!file.is_open()) {
     return false;
@@ -170,7 +170,7 @@ bool log_str(std::string msg, std::string val){
   return true;
 }
 
-bool log_int(std::string msg, int64_t val){
+bool logger::log_int(std::string msg, int64_t val){
   std::ofstream file("svte_log.txt", std::ios::app);
   if (!file.is_open()) {
     return false;
